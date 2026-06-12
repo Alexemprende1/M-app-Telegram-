@@ -428,9 +428,7 @@
         const SUPABASE_URL = "https://qszncidydwzyunbckjvm.supabase.co"; 
         const SUPABASE_ANON_KEY = "sb_publishable_7K3lK77rwFpunFrW_9TK0Q_Tu-bcgv9";
         const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-console.log("INIT DATA:", tg.initData);
-console.log("INIT DATA UNSAFE:", tg.initDataUnsafe);
-console.log("USER:", tg.initDataUnsafe?.user);
+
         const tg = window.Telegram.WebApp;
 
         const AppState = {

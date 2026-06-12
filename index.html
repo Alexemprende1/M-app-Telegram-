@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -428,7 +429,9 @@
         const SUPABASE_URL = "https://qszncidydwzyunbckjvm.supabase.co"; 
         const SUPABASE_ANON_KEY = "sb_publishable_7K3lK77rwFpunFrW_9TK0Q_Tu-bcgv9";
         const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-
+console.log("INIT DATA:", tg.initData);
+console.log("INIT DATA UNSAFE:", tg.initDataUnsafe);
+console.log("USER:", tg.initDataUnsafe?.user);
         const tg = window.Telegram.WebApp;
 
         const AppState = {
@@ -535,7 +538,9 @@
                 // Actualizar elementos dinámicos en el DOM inmediatamente
                 refreshProfileData();
                 renderSocialTasks();
-
+                
+                await restoreMiningSession();
+                
                 // Quitar pantalla de bloqueo e incorporar contenedor de la aplicación
                 document.getElementById("blocking-screen").style.display = "none";
                 document.getElementById("app-container").style.display = "flex";
@@ -577,13 +582,13 @@
             document.getElementById("prof-username").innerText = AppState.user.username ? "@" + AppState.user.username : "@sin_username";
             document.getElementById("prof-id").innerText = AppState.user.telegram_id;
 
-            document.getElementById("stat-withdrawable").innerText = AppState.user.withdrawable_trx.toFixed(4) + " TRX";
-            document.getElementById("stat-mined").innerText = AppState.user.total_mined.toFixed(4) + " TRX";
+            document.getElementById("stat-withdrawable").innerText = AppState.user.withdrawable_trx.toFixed(8) + " TRX";
+            document.getElementById("stat-mined").innerText = AppState.user.total_mined.toFixed(8) + " TRX";
             document.getElementById("stat-referrals").innerText = AppState.user.referrer_id ? "1 (Asignado)" : "0";
             document.getElementById("stat-date").innerText = "Activo";
 
             document.getElementById("ref-count-panel").innerText = "0";
-            document.getElementById("ref-earnings-panel").innerText = AppState.user.total_ref_earnings.toFixed(4);
+            document.getElementById("ref-earnings-panel").innerText = AppState.user.total_ref_earnings.toFixed(8);
 
             const botUser = "TuBotDePruebaBot"; 
             document.getElementById("referral-url").value = `https://t.me/${botUser}?start=${AppState.user.telegram_id}`;
@@ -613,7 +618,7 @@
                 item.innerHTML = `
                     <div>
                         <h4 style="font-size:0.95rem;">${task.title}</h4>
-                        <p style="color:var(--success-color); font-size:0.8rem; font-weight:bold;">+${task.reward.toFixed(2)} TRX</p>
+                        <p style="color:var(--success-color); font-size:0.8rem; font-weight:bold;">+${task.reward.toFixed(8)} TRX</p>
                     </div>
                     <div class="task-actions">
                         <button class="btn btn-secondary btn-sm" onclick="openTaskUrl('${task.id}','${task.url}')">Ir</button>
@@ -636,7 +641,7 @@
             setTimeout(async () => {
                 try {
                     const task = AppState.tasks.find(t => t.id === id);
-                    const { data, error } = await supabaseClient.rpc('claim_social_task_secure', {
+                    const { data, error } = await supabaseClient.rpc('complete_social_task', {
                         p_telegram_id: AppState.user.telegram_id,
                         p_task_id: id,
                         p_reward: task.reward
@@ -672,7 +677,7 @@
             btnSpin.disabled = true;
 
             try {
-                const { data, error } = await supabaseClient.rpc('spin_wheel_tma', {
+                const { data, error } = await supabaseClient.rpc('spin_lucky_wheel', {
                     p_telegram_id: AppState.user.telegram_id
                 });
 
@@ -704,7 +709,7 @@
                 wheel.style.transform = `rotate(${finalRotation}deg)`;
 
                 setTimeout(() => {
-                    alert(`🎯 ¡Felicidades! Ganaste ${rewardAmount.toFixed(2)} TRX directos.`);
+                    alert(`🎯 ¡Felicidades! Ganaste ${rewardAmount.toFixed(8)} TRX directos.`);
                     AppState.user.balance_trx += rewardAmount;
                     refreshProfileData();
                     wheel.style.transform = `rotate(${targetAngle}deg)`;
@@ -775,7 +780,7 @@
             try {
                 const { data, error } = await supabaseClient.rpc('reveal_mine_cell', {
                     p_telegram_id: AppState.user.telegram_id,
-                    p_cell_id: index
+                    p_cell_index: index
                 });
 
                 if (error || !data.success) {
@@ -821,7 +826,7 @@
                     return;
                 }
 
-                alert(`💰 Retiro exitoso. Has asegurado +${parseFloat(data.prize).toFixed(4)} TRX.`);
+                alert(`💰 Retiro exitoso. Has asegurado +${parseFloat(data.prize).toFixed(8)} TRX.`);
                 AppState.user.balance_trx += parseFloat(data.prize);
                 refreshProfileData();
                 resetMinesGameUI();
@@ -845,7 +850,7 @@
             if (AppState.mining.active) return;
 
             try {
-                const { data, error } = await supabaseClient.rpc('start_mining_tma', {
+                const { data, error } = await supabaseClient.rpc('start_mining_process', {
                     p_telegram_id: AppState.user.telegram_id
                 });
 
@@ -887,7 +892,7 @@
 
         async function claimMiningReward() {
             try {
-                const { data, error } = await supabaseClient.rpc('claim_mining_tma', {
+                const { data, error } = await supabaseClient.rpc('claim_mining_reward', {
                     p_telegram_id: AppState.user.telegram_id
                 });
 
@@ -902,7 +907,7 @@
                     return;
                 }
 
-                alert(`🎁 Ciclo completado. Se han acreditado +${parseFloat(data.reward).toFixed(4)} TRX a tu cuenta.`);
+                alert(`🎁 Ciclo completado. Se han acreditado +${parseFloat(data.reward).toFixed(8)} TRX a tu cuenta.`);
                 AppState.user.balance_trx += parseFloat(data.reward);
                 AppState.user.total_mined += parseFloat(data.reward);
                 refreshProfileData();
@@ -970,3 +975,4 @@
     </script>
 </body>
 </html>
+

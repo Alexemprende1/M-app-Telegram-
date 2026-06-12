@@ -636,7 +636,7 @@
             setTimeout(async () => {
                 try {
                     const task = AppState.tasks.find(t => t.id === id);
-                    const { data, error } = await supabaseClient.rpc('complete_social_task', {
+                    const { data, error } = await supabaseClient.rpc('claim_social_task_secure', {
                         p_telegram_id: AppState.user.telegram_id,
                         p_task_id: id,
                         p_reward: task.reward
@@ -672,7 +672,7 @@
             btnSpin.disabled = true;
 
             try {
-                const { data, error } = await supabaseClient.rpc('spin_lucky_wheel', {
+                const { data, error } = await supabaseClient.rpc('spin_lucky_tma', {
                     p_telegram_id: AppState.user.telegram_id
                 });
 
@@ -775,7 +775,7 @@
             try {
                 const { data, error } = await supabaseClient.rpc('reveal_mine_cell', {
                     p_telegram_id: AppState.user.telegram_id,
-                    p_cell_index: index
+                    p_cell_id: index
                 });
 
                 if (error || !data.success) {
@@ -845,7 +845,7 @@
             if (AppState.mining.active) return;
 
             try {
-                const { data, error } = await supabaseClient.rpc('start_mining_process', {
+                const { data, error } = await supabaseClient.rpc('start_mining_tma', {
                     p_telegram_id: AppState.user.telegram_id
                 });
 
@@ -887,7 +887,7 @@
 
         async function claimMiningReward() {
             try {
-                const { data, error } = await supabaseClient.rpc('claim_mining_reward', {
+                const { data, error } = await supabaseClient.rpc('claim_mining_tma', {
                     p_telegram_id: AppState.user.telegram_id
                 });
 

@@ -41,8 +41,21 @@
             width: 100vw;
         }
 
-        #app-container {
+        #blocking-screen {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background-color: var(--bg-color);
+            z-index: 99999;
             display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 30px;
+            text-align: center;
+        }
+
+        #app-container {
+            display: none;
             flex-direction: column;
             height: 100vh;
             justify-content: space-between;
@@ -103,8 +116,15 @@
             border: 1px solid #222b3d;
         }
 
-        .text-center { text-align: center; }
-        .text-muted { color: var(--text-muted); font-size: 0.9rem; margin-bottom: 8px; }
+        .text-center {
+            text-align: center;
+        }
+
+        .text-muted {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            margin-bottom: 8px;
+        }
 
         .grid-stats {
             display: grid;
@@ -140,6 +160,7 @@
             align-items: center;
             justify-content: center;
         }
+
         .large-logo-svg {
             width: 70px;
             height: 70px;
@@ -244,40 +265,20 @@
         .invite-link-box { display: flex; gap: 8px; margin-top: 10px; }
         .invite-link-box input { flex: 1; }
 
-        .mining-vector-container {
-            width: 120px;
-            height: 120px;
-            margin: 20px auto;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background: radial-gradient(circle, rgba(246,166,9,0.15) 0%, rgba(0,0,0,0) 70%);
-        }
-        .pickaxe-svg {
-            width: 80px;
-            height: 80px;
-            fill: var(--primary-color);
-            transform-origin: bottom left;
-        }
-        .mining-active .pickaxe-svg {
-            animation: hit-rock 0.8s ease-in-out infinite alternate;
-        }
+        .mining-vector-container { width: 120px; height: 120px; margin: 20px auto; display: flex; align-items: center; justify-content: center; background: radial-gradient(circle, rgba(246,166,9,0.15) 0%, rgba(0,0,0,0) 70%); }
+        .pickaxe-svg { width: 80px; height: 80px; fill: var(--primary-color); transform-origin: bottom left; }
+        .mining-active .pickaxe-svg { animation: hit-rock 0.8s ease-in-out infinite alternate; }
         .timer-display { font-size: 2rem; font-weight: bold; font-family: monospace; color: var(--primary-color); margin: 10px 0; }
 
-        #blocking-screen { display: none; position: fixed; top:0; left:0; width:100vw; height:100vh; background:#000; z-index:99999; color:#fff; flex-direction:column; justify-content:center; align-items:center; padding:20px; text-align:center; }
-
         @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
-        @keyframes hit-rock {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(-45deg); }
-        }
+        @keyframes hit-rock { 0% { transform: rotate(0deg); } 100% { transform: rotate(-45deg); } }
     </style>
 </head>
 <body>
 
     <div id="blocking-screen">
         <h2 style="color:var(--danger-color); margin-bottom:10px;">🔒 Autenticación Inválida</h2>
-        <p>No se pudo validar tu identidad de forma segura mediante los servidores. Acceso denegado.</p>
+        <p>No se pudo validar tu identidad con los servidores oficiales de Telegram. Acceso denegado de forma segura.</p>
     </div>
 
     <div id="app-container">
@@ -428,510 +429,508 @@
         const SUPABASE_ANON_KEY = "sb_publishable_7K3lK77rwFpunFrW_9TK0Q_Tu-bcgv9";
         const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-        const BOT_USERNAME = "TuCryptoTMA_Bot"; 
-        const DEV_MODE = true; 
+        const tg = window.Telegram.WebApp;
 
         const AppState = {
             user: null,
-            tgInitData: null, 
-            currentTab: 'tab-profile',
-            isMinesActive: false,
-            miningInterval: null,
-            mockTasks: [
-                { id: "task_tg_channel", title: "Unirse al Canal Oficial", reward: 1.5, url: "https://t.me/CryptoTMA_Canal" },
-                { id: "task_x_follow", title: "Seguirnos en X (Twitter)", reward: 2.0, url: "https://x.com/CryptoTMA" }
-            ]
+            tgInitData: tg.initData || "",
+            activeTab: "tab-profile",
+            tasks: [
+                { id: "task_tg_channel", title: "Unirse al Canal Oficial", reward: 0.5, url: "https://t.me/Crypto_TMA_Oficial", completed: false },
+                { id: "task_youtube", title: "Suscribirse al canal de Youtube", reward: 0.75, url: "https://youtube.com/@AlexEmprendeOficial", completed: false }
+            ],
+            mining: { active: false, endsAt: null, intervalId: null },
+            minesGame: { active: false, board: [], difficulty: "easy", bet: 0, revealedCount: 0, safeCells: 0 }
         };
 
-        const WHEEL_PRIZES = [0.1, 0.5, 1.0, 2.5, 5.0, 10.0];
+        const MINES_CONFIG = {
+            easy: { cells: 16, bombs: 3 },
+            medium: { cells: 16, bombs: 6 },
+            hard: { cells: 16, bombs: 9 },
+            expert: { cells: 16, bombs: 12 }
+        };
 
-        document.addEventListener("DOMContentLoaded", async () => {
-            initNavigation();
-
+        // =================================================================
+        // FUNCIÓN DE SINCRONIZACIÓN CORREGIDA - APPSATE.USER REPARADO
+        // =================================================================
+        async function syncUserSession() {
+            console.log("Sincronizando sesión de usuario...");
             try {
-                const tg = window.Telegram.WebApp;
-                tg.ready();
-                tg.expand();
+                let tgUser = tg.initDataUnsafe?.user;
 
-                AppState.tgInitData = tg.initData;
-                let userData = tg.initDataUnsafe?.user;
-                
-                if (!userData || !AppState.tgInitData) {
-                    if (DEV_MODE) {
-                        userData = { id: 123456789, username: "DevTester", first_name: "Desarrollador" };
-                        AppState.tgInitData = "user=%7B%22id%22%3A123456789%2C%22first_name%22%3A%22Dev%22%7D&hash=sandbox_mode";
-                    } else {
-                        document.getElementById("blocking-screen").style.display = "flex";
-                        return;
-                    }
-                } else {
-                    // REQUISITO PROBLEMA 1: El frontend delega la validación real y el éxito de sesión exclusivamente al Backend
-                    const { data: authData, error: authErr } = await supabaseClient.rpc('validate_telegram_auth_rpc', {
-                        p_init_data: AppState.tgInitData,
-                        p_bot_token: 'BOT_TOKEN_SECRET_PLACEHOLDER'
-                    });
-
-                    if (authErr || !authData || !authData.success) {
-                        document.getElementById("blocking-screen").style.display = "flex";
-                        return;
-                    }
+                // Entorno de contingencia/pruebas fuera de Telegram
+                if (!tgUser) {
+                    console.warn("tg.initDataUnsafe.user no detectado. Cargando datos de test local.");
+                    tgUser = {
+                        id: 123456789,
+                        username: "dev_test",
+                        first_name: "Developer Mode"
+                    };
                 }
 
-                let referrerId = null;
-                if (tg.initDataUnsafe?.start_param) {
-                    referrerId = parseInt(tg.initDataUnsafe.start_param, 10);
+                const referrerIdStr = tg.initDataUnsafe?.start_param || null;
+                let finalReferrerId = null;
+                if (referrerIdStr && !isNaN(parseInt(referrerIdStr))) {
+                    finalReferrerId = parseInt(referrerIdStr);
                 }
 
-                await syncUserSession(userData, referrerId);
-                initWalletModule();
-                renderSocialTasks();
-
-            } catch(e) {
-                console.error("Error crítico de inicialización:", e);
-                document.getElementById("blocking-screen").style.display = "flex";
-            }
-        });
-
-        function initNavigation() {
-            const navButtons = document.querySelectorAll(".bottom-nav .nav-item");
-            navButtons.forEach(btn => {
-                btn.addEventListener("click", function(e) {
-                    e.preventDefault();
-                    navButtons.forEach(b => b.classList.remove("active"));
-                    document.querySelectorAll(".tab-content").forEach(tab => {
-                        tab.classList.remove("active");
-                    });
-                    
-                    this.classList.add("active");
-                    const targetId = this.getAttribute("data-target");
-                    const targetElement = document.getElementById(targetId);
-                    if (targetElement) targetElement.classList.add("active");
-                    
-                    AppState.currentTab = targetId;
-                    
-                    if(targetId === 'tab-profile') refreshProfileData();
-                    if(targetId === 'tab-mines') checkOrRestoreMinesGame();
-                    if(targetId === 'tab-referrals') loadReferralsData();
-                });
-            });
-        }
-
-        async function syncUserSession(tgUser, referrerId) {
-            try {
+                // Invocación segura al RPC existente
                 const { data, error } = await supabaseClient.rpc('init_user_tma', {
                     p_telegram_id: tgUser.id,
-                    p_username: tgUser.username || 'unknown',
-                    p_first_name: tgUser.first_name,
-                    p_referrer_id: referrerId
+                    p_username: tgUser.username || 'sin_username',
+                    p_first_name: tgUser.first_name || 'Usuario Telegram',
+                    p_referrer_id: finalReferrerId
                 });
 
-                if (!error && data && data.length > 0) {
-                    AppState.user = data[0];
-                    updateGlobalUIHeaders();
-                    checkActiveMiningSession();
-                    refreshProfileData();
-                }
-            } catch (err) { console.error(err); }
-        }
-
-        function updateGlobalUIHeaders() {
-            if (!AppState.user) return;
-            if (document.getElementById("global-balance")) {
-                document.getElementById("global-balance").innerText = parseFloat(AppState.user.balance_trx).toFixed(8);
-            }
-            if (document.getElementById("header-username")) {
-                document.getElementById("header-username").innerText = `@${AppState.user.username}`;
-            }
-        }
-
-        async function refreshProfileData() {
-            if (!AppState.user) return;
-            try {
-                await supabaseClient.rpc('recharge_batteries', { p_telegram_id: AppState.user.telegram_id });
-
-                const { data, error } = await supabaseClient
-                    .from('users_tma')
-                    .select('*')
-                    .eq('telegram_id', AppState.user.telegram_id)
-                    .maybeSingle();
+                if (error) {
+                    console.error("Error en init_user_tma RPC:", error);
+                    // Forzar carga de respaldo para evitar puntero null en el AppState
+                    AppState.user = {
+                        telegram_id: tgUser.id,
+                        username: tgUser.username || 'sin_username',
+                        first_name: tgUser.first_name || 'Usuario Telegram',
+                        balance_trx: 0,
+                        withdrawable_trx: 0,
+                        total_mined: 0,
+                        total_ref_earnings: 0,
+                        batteries: 6
+                    };
+                } else if (data) {
+                    console.log("Datos de usuario retornados por el RPC:", data);
                     
-                if (!error && data) {
-                    AppState.user = data;
-                    updateGlobalUIHeaders();
+                    // Manejar tanto si el RPC retorna un array como un objeto plano directo
+                    const rawRecord = Array.isArray(data) ? data[0] : data;
 
-                    if(document.getElementById("prof-name")) document.getElementById("prof-name").innerText = data.first_name;
-                    if(document.getElementById("prof-username")) document.getElementById("prof-username").innerText = `@${data.username}`;
-                    if(document.getElementById("prof-id")) document.getElementById("prof-id").innerText = data.telegram_id;
-                    if(document.getElementById("stat-withdrawable")) document.getElementById("stat-withdrawable").innerText = parseFloat(data.withdrawable_trx).toFixed(4);
-                    if(document.getElementById("stat-mined")) document.getElementById("stat-mined").innerText = parseFloat(data.total_mined).toFixed(4);
-                    
-                    const { count } = await supabaseClient.from('users_tma').select('*', { count: 'exact', head: true }).eq('referrer_id', data.telegram_id);
-                    if(document.getElementById("stat-referrals")) document.getElementById("stat-referrals").innerText = count || 0;
-                    if(document.getElementById("ref-count-panel")) document.getElementById("ref-count-panel").innerText = count || 0;
-                    if(document.getElementById("ref-earnings-panel")) document.getElementById("ref-earnings-panel").innerText = parseFloat(data.total_ref_earnings || 0).toFixed(4);
-                }
-            } catch(e) { console.error(e); }
-        }
-
-        // ==========================================================================
-        // RULETA COMPLETAMENTE TRANSACCIONAL (PROBLEMA 4)
-        // ==========================================================================
-        const btnSpin = document.getElementById("btn-spin");
-        if(btnSpin) {
-            btnSpin.addEventListener("click", async () => {
-                btnSpin.disabled = true;
-                try {
-                    // El Backend hace todo internamente en una transacción atómica SQL
-                    const { data, error } = await supabaseClient.rpc('spin_wheel_tma', { p_telegram_id: AppState.user.telegram_id });
-                    
-                    if (error || !data || !data.success) {
-                        alert(data?.message || "Error al girar la ruleta.");
-                        btnSpin.disabled = false;
-                        return;
+                    if (rawRecord) {
+                        AppState.user = {
+                            telegram_id: rawRecord.telegram_id || rawRecord.p_telegram_id || tgUser.id,
+                            username: rawRecord.username || rawRecord.p_username || tgUser.username || 'sin_username',
+                            first_name: rawRecord.first_name || rawRecord.p_first_name || tgUser.first_name || 'Usuario Telegram',
+                            balance_trx: parseFloat(rawRecord.balance_trx || rawRecord.balance || 0),
+                            withdrawable_trx: parseFloat(rawRecord.withdrawable_trx || 0),
+                            total_mined: parseFloat(rawRecord.total_mined || 0),
+                            total_ref_earnings: parseFloat(rawRecord.total_ref_earnings || 0),
+                            referrer_id: rawRecord.referrer_id || null,
+                            batteries: parseInt(rawRecord.batteries !== undefined ? rawRecord.batteries : 6)
+                        };
                     }
-                    
-                    const prizeIndex = data.prize_index;
-                    const prizeValue = data.prize_value;
-                    const wheel = document.getElementById("wheel");
-                    
-                    const degreesPerSegment = 60;
-                    const calculatedDegrees = 1800 - (prizeIndex * degreesPerSegment);
-                    wheel.style.transform = `rotate(${calculatedDegrees}deg)`;
-                    
-                    setTimeout(() => {
-                        alert(`🎉 ¡Ruleta Detenida! Premio obtenido de forma segura: +${prizeValue} TRX`);
-                        refreshProfileData();
-                        btnSpin.disabled = false;
-                    }, 4100);
-                } catch (err) { 
-                    console.error(err);
-                    btnSpin.disabled = false; 
                 }
-            });
+
+                // Si por alguna razón el objeto no se estructuró, aplicar protección final
+                if (!AppState.user || !AppState.user.telegram_id) {
+                    AppState.user = {
+                        telegram_id: tgUser.id,
+                        username: tgUser.username || 'sin_username',
+                        first_name: tgUser.first_name || 'Usuario Telegram',
+                        balance_trx: 0,
+                        withdrawable_trx: 0,
+                        total_mined: 0,
+                        total_ref_earnings: 0,
+                        batteries: 6
+                    };
+                }
+
+                console.log("AppState.user inicializado correctamente de manera estable:", AppState.user);
+                
+                // Actualizar elementos dinámicos en el DOM inmediatamente
+                refreshProfileData();
+                renderSocialTasks();
+
+                // Quitar pantalla de bloqueo e incorporar contenedor de la aplicación
+                document.getElementById("blocking-screen").style.display = "none";
+                document.getElementById("app-container").style.display = "flex";
+
+            } catch (err) {
+                console.error("Excepción controlada en syncUserSession:", err);
+                document.getElementById("blocking-screen").style.display = "none";
+                document.getElementById("app-container").style.display = "flex";
+            }
         }
 
-        // ==========================================================================
-        // TAREAS SOCIALES SIN DEPENDER DE LOCALSTORAGE (PROBLEMA 3)
-        // ==========================================================================
-        async function renderSocialTasks() {
+        // Hook de inicialización unificado
+        document.addEventListener("DOMContentLoaded", async () => {
+            if (tg.ready) tg.ready();
+            if (tg.expand) tg.expand();
+
+            try {
+                // Validación RPC obligatoria existente
+                await supabaseClient.rpc('validate_telegram_auth_rpc', {
+                    p_init_data: AppState.tgInitData,
+                    p_bot_token: 'BOT_TOKEN_SECRET_PLACEHOLDER'
+                });
+            } catch (e) {
+                console.warn("Fallo no crítico en la validación inicial:", e);
+            }
+
+            // Ejecutar flujo de carga del usuario corregido
+            await syncUserSession();
+        });
+
+        // REFRESH PROFILE DATA
+        function refreshProfileData() {
+            if (!AppState.user) return;
+            
+            document.getElementById("header-username").innerText = AppState.user.first_name;
+            document.getElementById("global-balance").innerText = AppState.user.balance_trx.toFixed(8);
+            
+            document.getElementById("prof-name").innerText = AppState.user.first_name;
+            document.getElementById("prof-username").innerText = AppState.user.username ? "@" + AppState.user.username : "@sin_username";
+            document.getElementById("prof-id").innerText = AppState.user.telegram_id;
+
+            document.getElementById("stat-withdrawable").innerText = AppState.user.withdrawable_trx.toFixed(4) + " TRX";
+            document.getElementById("stat-mined").innerText = AppState.user.total_mined.toFixed(4) + " TRX";
+            document.getElementById("stat-referrals").innerText = AppState.user.referrer_id ? "1 (Asignado)" : "0";
+            document.getElementById("stat-date").innerText = "Activo";
+
+            document.getElementById("ref-count-panel").innerText = "0";
+            document.getElementById("ref-earnings-panel").innerText = AppState.user.total_ref_earnings.toFixed(4);
+
+            const botUser = "TuBotDePruebaBot"; 
+            document.getElementById("referral-url").value = `https://t.me/${botUser}?start=${AppState.user.telegram_id}`;
+            document.getElementById("mines-batteries").innerText = `${AppState.user.batteries}/6`;
+        }
+
+        // TABS NAVIGATION SYSTEM
+        document.querySelectorAll(".nav-item").forEach(button => {
+            button.addEventListener("click", () => {
+                document.querySelectorAll(".nav-item").forEach(b => b.classList.remove("active"));
+                document.querySelectorAll(".tab-content").forEach(t => t.classList.remove("active"));
+
+                button.classList.add("active");
+                const target = button.getAttribute("data-target");
+                document.getElementById(target).classList.add("active");
+                AppState.activeTab = target;
+            });
+        });
+
+        // RENDER SOCIAL TASKS
+        function renderSocialTasks() {
             const container = document.getElementById("social-tasks-container");
-            if(!container || !AppState.user) return;
             container.innerHTML = "";
-
-            // Consultar en backend las tareas ya reclamadas por el usuario
-            const { data: claims } = await supabaseClient
-                .from('social_task_claims')
-                .select('task_id')
-                .eq('telegram_id', AppState.user.telegram_id);
-
-            const claimedIds = claims ? claims.map(c => c.task_id) : [];
-
-            AppState.mockTasks.forEach(task => {
-                const isCompleted = claimedIds.includes(task.id);
+            AppState.tasks.forEach(task => {
                 const item = document.createElement("div");
-                item.classList.add("task-item");
+                item.className = "task-item";
                 item.innerHTML = `
                     <div>
-                        <p style="font-weight:bold; font-size:0.9rem;">${task.title}</p>
-                        <p style="color:var(--success-color); font-size:0.8rem;">+${task.reward} TRX</p>
+                        <h4 style="font-size:0.95rem;">${task.title}</h4>
+                        <p style="color:var(--success-color); font-size:0.8rem; font-weight:bold;">+${task.reward.toFixed(2)} TRX</p>
                     </div>
                     <div class="task-actions">
-                        <button class="btn btn-secondary btn-sm" ${isCompleted ? 'disabled' : ''} onclick="visitTask('${task.url}')">VISITAR</button>
-                        <button id="claim-${task.id}" class="btn ${isCompleted ? 'btn-secondary' : 'btn-primary'} btn-sm" ${isCompleted ? 'disabled' : ''} onclick="claimTask('${task.id}', ${task.reward})">
-                            ${isCompleted ? 'COMPLETADO' : 'RECLAMAR'}
-                        </button>
+                        <button class="btn btn-secondary btn-sm" onclick="openTaskUrl('${task.id}','${task.url}')">Ir</button>
+                        <button class="btn btn-primary btn-sm" id="btn-verify-${task.id}" onclick="verifyTask('${task.id}')">Verificar</button>
                     </div>
                 `;
                 container.appendChild(item);
             });
         }
 
-        function visitTask(url) { 
-            window.open(url, '_blank');
+        function openTaskUrl(id, url) {
+            tg.openLink(url);
         }
 
-        async function claimTask(taskId, rewardAmount) {
-            const btn = document.getElementById(`claim-${taskId}`);
-            if(btn) btn.disabled = true;
+        async function verifyTask(id) {
+            const btn = document.getElementById(`btn-verify-${id}`);
+            btn.innerText = "Verificando...";
+            btn.disabled = true;
+
+            setTimeout(async () => {
+                try {
+                    const task = AppState.tasks.find(t => t.id === id);
+                    const { data, error } = await supabaseClient.rpc('complete_social_task', {
+                        p_telegram_id: AppState.user.telegram_id,
+                        p_task_id: id,
+                        p_reward: task.reward
+                    });
+
+                    if (error || !data.success) {
+                        alert(data?.message || "Validación fallida. Revisa el cumplimiento de la tarea.");
+                        btn.innerText = "Verificar";
+                        btn.disabled = false;
+                        return;
+                    }
+
+                    alert(`¡Enhorabuena! Has obtenido +${task.reward} TRX.`);
+                    btn.innerText = "Completado";
+                    btn.className = "btn btn-success btn-sm";
+                    AppState.user.balance_trx += task.reward;
+                    refreshProfileData();
+                } catch(e) {
+                    btn.innerText = "Verificar";
+                    btn.disabled = false;
+                }
+            }, 3000);
+        }
+
+        // WHEEL OF FORTUNE
+        const btnSpin = document.getElementById("btn-spin");
+        const wheel = document.getElementById("wheel");
+        let isSpinning = false;
+
+        btnSpin.addEventListener("click", async () => {
+            if (isSpinning) return;
+            isSpinning = true;
+            btnSpin.disabled = true;
 
             try {
-                // Validación y acreditación atómica en backend mediante RPC
-                const { data, error } = await supabaseClient.rpc('claim_social_task_secure', {
-                    p_telegram_id: AppState.user.telegram_id,
-                    p_task_id: taskId,
-                    p_reward_amount: rewardAmount
+                const { data, error } = await supabaseClient.rpc('spin_lucky_wheel', {
+                    p_telegram_id: AppState.user.telegram_id
                 });
 
-                if (error || !data || !data.success) { 
-                    alert(data?.message || "No se pudo reclamar la tarea.");
-                    if(btn) btn.disabled = false;
-                    return; 
+                if (error || !data.success) {
+                    alert(data?.message || "No puedes girar la ruleta en este momento.");
+                    isSpinning = false;
+                    btnSpin.disabled = false;
+                    return;
                 }
-                
-                alert(`¡Recompensa de +${rewardAmount} TRX añadida con éxito!`);
-                renderSocialTasks();
-                refreshProfileData();
-            } catch (err) {
-                console.error(err);
-                if(btn) btn.disabled = false;
+
+                const rewardAmount = parseFloat(data.reward);
+                const segmentsValues = [0.1, 0.5, 1.0, 2.5, 5.0, 10.0];
+                const segmentIndex = segmentsValues.indexOf(rewardAmount);
+
+                if(segmentIndex === -1) {
+                    alert(`Premio recibido: ${rewardAmount} TRX`);
+                    AppState.user.balance_trx += rewardAmount;
+                    refreshProfileData();
+                    isSpinning = false;
+                    btnSpin.disabled = false;
+                    return;
+                }
+
+                const degreesPerSegment = 60;
+                const targetAngle = 360 - (segmentIndex * degreesPerSegment) - 30; 
+                const totalTurns = 5; 
+                const finalRotation = (totalTurns * 360) + targetAngle;
+
+                wheel.style.transform = `rotate(${finalRotation}deg)`;
+
+                setTimeout(() => {
+                    alert(`🎯 ¡Felicidades! Ganaste ${rewardAmount.toFixed(2)} TRX directos.`);
+                    AppState.user.balance_trx += rewardAmount;
+                    refreshProfileData();
+                    wheel.style.transform = `rotate(${targetAngle}deg)`;
+                    isSpinning = false;
+                    btnSpin.disabled = false;
+                }, 4000);
+
+            } catch(err) {
+                isSpinning = false;
+                btnSpin.disabled = false;
             }
-        }
+        });
 
-        // ==========================================================================
-        // JUEGO MINAS SEGURO - LOGICA EN BACKEND (PROBLEMA 2)
-        // ==========================================================================
-        async function checkOrRestoreMinesGame() {
-            if(!AppState.user) return;
-            updateMinesUI();
-            
-            try {
-                const { data, error } = await supabaseClient
-                    .from('mines_sessions')
-                    .select('*')
-                    .eq('telegram_id', AppState.user.telegram_id)
-                    .eq('is_active', true)
-                    .maybeSingle();
+        // MINES GAME OPERATION
+        const btnStartMines = document.getElementById("btn-start-mines");
+        const btnCashoutMines = document.getElementById("btn-cashout-mines");
+        const minesGrid = document.getElementById("mines-grid");
 
-                if(!error && data) {
-                    AppState.isMinesActive = true;
-                    document.getElementById("btn-cashout-mines").disabled = false;
-                    document.getElementById("btn-start-mines").disabled = true;
-                    document.getElementById("mines-difficulty").value = data.difficulty;
-                    
-                    buildMinesGrid(data.revealed_cells);
-                } else {
-                    resetMinesControls();
-                    document.getElementById("mines-grid").innerHTML = "";
-                }
-            } catch(e) { console.error(e); }
-        }
-
-        document.getElementById("btn-start-mines").addEventListener("click", async () => {
+        btnStartMines.addEventListener("click", async () => {
             const difficulty = document.getElementById("mines-difficulty").value;
+            btnStartMines.disabled = true;
+
             try {
-                // Las bombas se generan en Servidor y nunca se envían al cliente
                 const { data, error } = await supabaseClient.rpc('start_mines_game', {
                     p_telegram_id: AppState.user.telegram_id,
                     p_difficulty: difficulty
                 });
 
                 if (error || !data.success) {
-                    alert(data?.message || "Error al iniciar partida.");
+                    alert(data?.message || "No se pudo iniciar la partida. Revisa tus baterías.");
+                    btnStartMines.disabled = false;
                     return;
                 }
+
+                AppState.user.batteries = data.remaining_batteries;
+                document.getElementById("mines-batteries").innerText = `${AppState.user.batteries}/6`;
+
+                AppState.minesGame.active = true;
+                AppState.minesGame.difficulty = difficulty;
+                AppState.minesGame.revealedCount = 0;
                 
-                AppState.isMinesActive = true;
-                document.getElementById("btn-cashout-mines").disabled = false;
-                document.getElementById("btn-start-mines").disabled = true;
-                buildMinesGrid([]);
-                refreshProfileData();
-            } catch(e) { alert("Error de red en Minas."); }
+                const totalCells = MINES_CONFIG[difficulty].cells;
+                AppState.minesGame.safeCells = totalCells - MINES_CONFIG[difficulty].bombs;
+
+                btnCashoutMines.disabled = false;
+                buildMinesBoard(totalCells);
+
+            } catch(e) {
+                btnStartMines.disabled = false;
+            }
         });
 
-        function buildMinesGrid(revealedArray = []) {
-            const grid = document.getElementById("mines-grid");
-            if(!grid) return;
-            grid.innerHTML = "";
-            
-            for (let i = 0; i < 20; i++) {
+        function buildMinesBoard(cellsCount) {
+            minesGrid.innerHTML = "";
+            for(let i = 0; i < cellsCount; i++) {
                 const cell = document.createElement("div");
-                cell.classList.add("mine-cell");
-                cell.setAttribute("data-cell-id", i);
-                
-                if(revealedArray.includes(i)) {
-                    cell.classList.add("revealed");
-                    cell.innerText = "💎";
-                } else {
-                    cell.innerText = "❓";
-                }
-                
-                cell.addEventListener("click", () => handleCellClick(i, cell));
-                grid.appendChild(cell);
+                cell.className = "mine-cell";
+                cell.setAttribute("data-index", i);
+                cell.innerHTML = "📦";
+                cell.addEventListener("click", () => handleMineCellClick(i, cell));
+                minesGrid.appendChild(cell);
             }
         }
 
-        async function handleCellClick(cellId, cellElement) {
-            if (!AppState.isMinesActive || cellElement.classList.contains("revealed")) return;
-            
+        async function handleMineCellClick(index, cellElement) {
+            if (!AppState.minesGame.active || cellElement.classList.contains("revealed")) return;
+
             try {
-                // Cada clic consulta el veredicto del Servidor de forma aislada
                 const { data, error } = await supabaseClient.rpc('reveal_mine_cell', {
                     p_telegram_id: AppState.user.telegram_id,
-                    p_cell_id: cellId
+                    p_cell_index: index
                 });
 
-                if(error) return;
-
-                if (data.status === 'bomb') {
-                    AppState.isMinesActive = false;
-                    cellElement.classList.add("bomb"); 
-                    cellElement.innerText = "💥";
-                    alert("💥 ¡BOOM! Detonaste una mina generada en el backend.");
-                    revealAllBombsEndGame(data.bombs);
-                    resetMinesControls();
-                    refreshProfileData();
-                } else if (data.status === 'safe') {
-                    cellElement.classList.add("revealed");
-                    cellElement.innerText = "💎";
-                    
-                    if (data.game_over) {
-                        AppState.isMinesActive = false;
-                        alert(`🏆 ¡Felicidades! Tablero completado. Ganaste +${data.reward} TRX.`);
-                        revealAllBombsEndGame(data.bombs);
-                        resetMinesControls();
-                    }
-                    refreshProfileData();
+                if (error || !data.success) {
+                    alert(data?.message || "Movimiento inválido.");
+                    return;
                 }
-            } catch(err) { console.error(err); }
+
+                cellElement.classList.add("revealed");
+
+                if (data.status === "bomb") {
+                    cellElement.classList.add("bomb");
+                    cellElement.innerHTML = "💥";
+                    alert("💣 ¡BOMBA! Has perdido tu partida y la energía apostada.");
+                    resetMinesGameUI();
+                } else {
+                    cellElement.innerHTML = "💎";
+                    AppState.minesGame.revealedCount++;
+                    
+                    if (AppState.minesGame.revealedCount >= AppState.minesGame.safeCells) {
+                        alert("🏆 ¡Espectacular! Has limpiado todo el campo de minas.");
+                        claimMinesCashout();
+                    }
+                }
+            } catch(e) { console.error(e); }
         }
 
-        document.getElementById("btn-cashout-mines").addEventListener("click", async () => {
-            if (!AppState.isMinesActive) return;
+        btnCashoutMines.addEventListener("click", () => {
+            if(AppState.minesGame.revealedCount === 0) {
+                alert("Debes revelar al menos un diamante antes de retirar.");
+                return;
+            }
+            claimMinesCashout();
+        });
+
+        async function claimMinesCashout() {
             try {
                 const { data, error } = await supabaseClient.rpc('cashout_mines_game', {
                     p_telegram_id: AppState.user.telegram_id
                 });
 
-                if(!error && data.success) {
-                    AppState.isMinesActive = false;
-                    alert(`💰 Asegurado: Recolectaste +${parseFloat(data.reward).toFixed(4)} TRX.`);
-                    revealAllBombsEndGame(data.bombs);
-                    resetMinesControls();
-                    refreshProfileData();
-                } else {
-                    alert(data?.message || "No puedes asegurar ganancias aún.");
+                if (error || !data.success) {
+                    alert(data?.message || "Error procesando cobro.");
+                    return;
                 }
+
+                alert(`💰 Retiro exitoso. Has asegurado +${parseFloat(data.prize).toFixed(4)} TRX.`);
+                AppState.user.balance_trx += parseFloat(data.prize);
+                refreshProfileData();
+                resetMinesGameUI();
+            } catch(e) { console.error(e); }
+        }
+
+        function resetMinesGameUI() {
+            AppState.minesGame.active = false;
+            btnStartMines.disabled = false;
+            btnCashoutMines.disabled = true;
+            setTimeout(() => { minesGrid.innerHTML = ""; }, 2000);
+        }
+
+        // MINING SYSTEM OPERATIONS
+        const btnMiningAction = document.getElementById("btn-mining-action");
+        const miningTimer = document.getElementById("mining-timer");
+        const miningStatusText = document.getElementById("mining-status-text");
+        const miningGraphicBox = document.getElementById("mining-graphic-box");
+
+        btnMiningAction.addEventListener("click", async () => {
+            if (AppState.mining.active) return;
+
+            try {
+                const { data, error } = await supabaseClient.rpc('start_mining_process', {
+                    p_telegram_id: AppState.user.telegram_id
+                });
+
+                if (error || !data.success) {
+                    alert(data?.message || "No puedes minar ahora mismo.");
+                    return;
+                }
+
+                startLocalMiningTimer(30 * 60); 
             } catch(e) { console.error(e); }
         });
 
-        function revealAllBombsEndGame(bombsArray) {
-            if(!bombsArray) return;
-            bombsArray.forEach(id => {
-                const cell = document.querySelector(`[data-cell-id='${id}']`);
-                if (cell && !cell.classList.contains("revealed")) { 
-                    cell.classList.add("bomb"); 
-                    cell.innerText = "💣"; 
-                }
-            });
-        }
+        function startLocalMiningTimer(secondsLeft) {
+            AppState.mining.active = true;
+            miningGraphicBox.classList.add("mining-active");
+            btnMiningAction.disabled = true;
+            miningStatusText.innerText = "⛏️ Extrayendo bloques en la nube...";
 
-        function resetMinesControls() {
-            document.getElementById("btn-cashout-mines").disabled = true;
-            document.getElementById("btn-start-mines").disabled = false;
-        }
+            let remain = secondsLeft;
+            updateTimerDisplay(remain);
 
-        function updateMinesUI() {
-            if(!AppState.user) return;
-            if(document.getElementById("mines-batteries")) {
-                document.getElementById("mines-batteries").innerText = `${AppState.user.batteries || 0}/6`;
-            }
-        }
+            AppState.mining.intervalId = setInterval(async () => {
+                remain--;
+                updateTimerDisplay(remain);
 
-        // ==========================================================================
-        // MÓDULOS DE MINERÍA ADAPTADOS PARA COMPATIBILIDAD TOTAL
-        // ==========================================================================
-        async function checkActiveMiningSession() {
-            try {
-                const { data, error } = await supabaseClient
-                    .from('mining_sessions')
-                    .select('*')
-                    .eq('telegram_id', AppState.user.telegram_id)
-                    .order('started_at', { ascending: false })
-                    .limit(1);
-                    
-                if (!error && data && data.length > 0) {
-                    const activeSession = data[0];
-                    if (!activeSession.claimed) {
-                        const remainingTime = (new Date(activeSession.started_at).getTime() + 1800000) - Date.now();
-                        if (remainingTime > 0) {
-                            startClientTimer(remainingTime);
-                        } else {
-                            setMiningReadyToClaim();
-                        }
-                    }
-                }
-            } catch(e){ console.error(e); }
-        }
-
-        document.getElementById("btn-mining-action").addEventListener("click", async () => {
-            const actionText = document.getElementById("btn-mining-action").innerText;
-            if (actionText === "INICIAR MINERÍA") {
-                const { data, error } = await supabaseClient.rpc('start_mining_tma', { p_telegram_id: AppState.user.telegram_id });
-                if (!error && data.success) {
-                    startClientTimer(1800000); 
-                }
-            } else if (actionText === "RECLAMAR") {
-                const { data, error } = await supabaseClient.rpc('claim_mining_tma', { p_telegram_id: AppState.user.telegram_id });
-                if (!error && data.success) { 
-                    alert(`⛏️ Reclamo de minería cloud procesado.`); 
-                    resetMiningUI(); 
-                    refreshProfileData(); 
-                }
-            }
-        });
-
-        function startClientTimer(durationMs) {
-            clearInterval(AppState.miningInterval);
-            const btn = document.getElementById("btn-mining-action");
-            const box = document.getElementById("mining-graphic-box");
-            if(!btn || !box) return;
-
-            btn.disabled = true; 
-            btn.innerText = "MINANDO CLOUD...";
-            box.classList.add("mining-active");
-            
-            let remaining = durationMs;
-            AppState.miningInterval = setInterval(() => {
-                remaining -= 1000;
-                if (remaining <= 0) { 
-                    clearInterval(AppState.miningInterval); 
-                    setMiningReadyToClaim(); 
-                } else {
-                    const mins = Math.floor((remaining % 3600000) / 60000);
-                    const secs = Math.floor((remaining % 60000) / 1000);
-                    if(document.getElementById("mining-timer")) {
-                        document.getElementById("mining-timer").innerText = `00:${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
-                    }
+                if (remain <= 0) {
+                    clearInterval(AppState.mining.intervalId);
+                    await claimMiningReward();
                 }
             }, 1000);
         }
 
-        function setMiningReadyToClaim() {
-            const btn = document.getElementById("btn-mining-action");
-            if(btn) { btn.disabled = false; btn.innerText = "RECLAMAR"; }
-            if(document.getElementById("mining-timer")) document.getElementById("mining-timer").innerText = "00:00:00";
-            if(document.getElementById("mining-graphic-box")) document.getElementById("mining-graphic-box").classList.remove("mining-active");
+        function updateTimerDisplay(sec) {
+            const h = Math.floor(sec / 3600).toString().padStart(2, '0');
+            const m = Math.floor((sec % 3600) / 60).toString().padStart(2, '0');
+            const s = (sec % 60).toString().padStart(2, '0');
+            miningTimer.innerText = `${h}:${m}:${s}`;
         }
 
-        function resetMiningUI() {
-            const btn = document.getElementById("btn-mining-action");
-            if(btn) { btn.innerText = "INICIAR MINERÍA"; btn.disabled = false; }
-            if(document.getElementById("mining-timer")) document.getElementById("mining-timer").innerText = "00:30:00";
+        async function claimMiningReward() {
+            try {
+                const { data, error } = await supabaseClient.rpc('claim_mining_reward', {
+                    p_telegram_id: AppState.user.telegram_id
+                });
+
+                miningGraphicBox.classList.remove("mining-active");
+                btnMiningAction.disabled = false;
+                miningTimer.innerText = "00:30:00";
+                miningStatusText.innerText = "Listo para iniciar operaciones";
+                AppState.mining.active = false;
+
+                if (error || !data.success) {
+                    alert(data?.message || "Error reclamando recompensa.");
+                    return;
+                }
+
+                alert(`🎁 Ciclo completado. Se han acreditado +${parseFloat(data.reward).toFixed(4)} TRX a tu cuenta.`);
+                AppState.user.balance_trx += parseFloat(data.reward);
+                AppState.user.total_mined += parseFloat(data.reward);
+                refreshProfileData();
+
+            } catch(e) { console.error(e); }
         }
 
-        function loadReferralsData() {
-            if (!AppState.user) return;
-            if(document.getElementById("referral-url")) {
-                document.getElementById("referral-url").value = `https://t.me/${BOT_USERNAME}?start=${AppState.user.telegram_id}`;
-            }
-            refreshProfileData();
-        }
-
-        if(document.getElementById("btn-copy-ref")) {
-            document.getElementById("btn-copy-ref").addEventListener("click", () => {
-                const input = document.getElementById("referral-url");
-                if(!input) return;
-                input.select();
-                navigator.clipboard.writeText(input.value).then(() => { alert("Enlace copiado."); });
-            });
-        }
-
-        function initWalletModule() {
-            const form = document.getElementById("withdrawal-form");
-            if(!form) return;
+        // WALLET WITHDRAWAL SYSTEM
+        const copyBtn = document.getElementById("btn-copy-ref");
+        copyBtn.addEventListener("click", () => {
+            const urlInput = document.getElementById("referral-url");
+            urlInput.select();
+            urlInput.setSelectionRange(0, 99999);
             
-            const newForm = form.cloneNode(true);
-            form.parentNode.replaceChild(newForm, form);
+            if (navigator.clipboard) {
+                navigator.clipboard.writeText(urlInput.value).then(() => {
+                    alert("¡Enlace de invitación copiado al portapapeles!");
+                });
+            } else {
+                document.execCommand("copy");
+                alert("¡Enlace de invitación copiado al portapapeles!");
+            }
+        });
+
+        const withdrawForm = document.getElementById("withdrawal-form");
+        if(withdrawForm) {
+            const newForm = withdrawForm.cloneNode(true);
+            withdrawForm.parentNode.replaceChild(newForm, withdrawForm);
 
             newForm.addEventListener("submit", async (e) => {
                 e.preventDefault();

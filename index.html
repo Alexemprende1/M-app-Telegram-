@@ -536,6 +536,8 @@
                 refreshProfileData();
                 renderSocialTasks();
 
+                await restoreMiningSession();
+
                 // Quitar pantalla de bloqueo e incorporar contenedor de la aplicación
                 document.getElementById("blocking-screen").style.display = "none";
                 document.getElementById("app-container").style.display = "flex";
@@ -867,6 +869,10 @@
             let remain = secondsLeft;
             updateTimerDisplay(remain);
 
+            if (AppState.mining.intervalId) {
+                clearInterval(AppState.mining.intervalId);
+            }
+
             AppState.mining.intervalId = setInterval(async () => {
                 remain--;
                 updateTimerDisplay(remain);
@@ -910,7 +916,60 @@
             } catch(e) { console.error(e); }
         }
 
-        // WALLET WITHDRAWAL SYSTEM
+        
+// =================================================================
+// RESTAURAR SESIÓN DE MINERÍA ACTIVA
+// =================================================================
+        async function restoreMiningSession() {
+            try {
+
+                const { data, error } = await supabaseClient
+                    .from('mining_sessions')
+                    .select('*')
+                    .eq('telegram_id', AppState.user.telegram_id)
+                    .eq('claimed', false)
+                    .order('started_at', { ascending: false })
+                    .limit(1);
+
+                if (error || !data || data.length === 0) {
+                    return;
+                }
+
+                const session = data[0];
+
+                const startedAt = new Date(session.started_at).getTime();
+                const duration = 30 * 60 * 1000;
+                const endTime = startedAt + duration;
+                const now = Date.now();
+                const remaining = Math.floor((endTime - now) / 1000);
+
+                if (remaining > 0) {
+
+                    startLocalMiningTimer(remaining);
+
+                } else {
+
+                    miningTimer.innerText = "00:00:00";
+                    miningStatusText.innerText = "🎁 Recompensa lista para reclamar";
+                    miningGraphicBox.classList.remove("mining-active");
+                    btnMiningAction.disabled = false;
+                    btnMiningAction.innerText = "RECLAMAR";
+
+                    btnMiningAction.onclick = async () => {
+
+                        await claimMiningReward();
+
+                        btnMiningAction.innerText = "INICIAR MINERÍA";
+                        btnMiningAction.onclick = null;
+                    };
+                }
+
+            } catch (err) {
+                console.error(err);
+            }
+        }
+
+// WALLET WITHDRAWAL SYSTEM
         const copyBtn = document.getElementById("btn-copy-ref");
         copyBtn.addEventListener("click", () => {
             const urlInput = document.getElementById("referral-url");

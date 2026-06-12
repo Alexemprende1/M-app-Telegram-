@@ -672,7 +672,7 @@
             btnSpin.disabled = true;
 
             try {
-                const { data, error } = await supabaseClient.rpc('spin_lucky_tma', {
+                const { data, error } = await supabaseClient.rpc('spin_wheel_tma', {
                     p_telegram_id: AppState.user.telegram_id
                 });
 

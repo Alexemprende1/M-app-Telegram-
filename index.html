@@ -387,7 +387,6 @@
                     <h3>💣 Crypto Mines</h3>
                         <div class="battery-status">
                             🔋 Baterías: <span id="mines-batteries">6/6</span>
-
                         </div>
                         <div id="battery-countdown" class="battery-countdown">🔋 Energía completa</div>
                     </div>
@@ -903,9 +902,9 @@
                     return;
                 }
 
-                AppState.user.batteries = data.remaining_batteries;
-updateBatteryDisplay();
                 
+                document.getElementById("mines-batteries").innerText = `${AppState.user.batteries}/6`;
+
                 AppState.minesGame.active = true;
                 AppState.minesGame.difficulty = difficulty;
                 AppState.minesGame.revealedCount = 0;

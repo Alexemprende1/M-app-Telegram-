@@ -901,7 +901,8 @@
                     return;
                 }
 
-                document.getElementById("mines-batteries").innerText = `${AppState.user.batteries}/6`;
+                AppState.user.batteries = data.remaining_batteries;
+updateBatteryDisplay();
 
                 AppState.minesGame.active = true;
                 AppState.minesGame.difficulty = difficulty;
@@ -1188,3 +1189,4 @@
     </script>
 </body>
 </html>
+

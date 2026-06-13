@@ -568,7 +568,8 @@
                             total_mined: parseFloat(rawRecord.total_mined || 0),
                             total_ref_earnings: parseFloat(rawRecord.total_ref_earnings || 0),
                             referrer_id: rawRecord.referrer_id || null,
-                            batteries: parseInt(rawRecord.batteries !== undefined ? rawRecord.batteries : 6)
+                            batteries: parseInt(rawRecord.batteries !== undefined ? rawRecord.batteries : 6),
+last_spin_at: rawRecord.last_spin_at || null
                         };
                     }
                 }
@@ -595,7 +596,13 @@
                 // Actualizar elementos dinámicos en el DOM inmediatamente
                 refreshProfileData();
                 renderSocialTasks();
+                
+                updateWheelTimer();
 
+setInterval(() => {
+    updateWheelTimer();
+}, 1000);
+                
                 await restoreMiningSession();
 
                 // Quitar pantalla de bloqueo e incorporar contenedor de la aplicación
@@ -759,7 +766,35 @@
             document.getElementById("referral-url").value = `https://t.me/${botUser}?start=${AppState.user.telegram_id}`;
             updateBatteryDisplay();
         }
+            function updateWheelTimer() {
 
+    const timerEl = document.getElementById("wheel-timer");
+    if (!timerEl || !AppState.user?.last_spin_at) {
+        if (timerEl) timerEl.innerText = "⏳ Disponible";
+        return;
+    }
+
+    const lastSpin = new Date(AppState.user.last_spin_at).getTime();
+
+    // 1 horas
+    const nextSpin = lastSpin + (1 * 60 * 60 * 1000);
+
+    const remaining = nextSpin - Date.now();
+
+    if (remaining <= 0) {
+        timerEl.innerText = "✅ Disponible";
+        return;
+    }
+
+    const hours = Math.floor(remaining / 3600000);
+    const minutes = Math.floor((remaining % 3600000) / 60000);
+    const seconds = Math.floor((remaining % 60000) / 1000);
+
+    timerEl.innerText =
+        `⏳ ${hours.toString().padStart(2,'0')}:` +
+        `${minutes.toString().padStart(2,'0')}:` +
+        `${seconds.toString().padStart(2,'0')}`;
+}
         // TABS NAVIGATION SYSTEM
         document.querySelectorAll(".nav-item").forEach(button => {
             button.addEventListener("click", () => {
@@ -876,6 +911,8 @@
                 setTimeout(() => {
                     alert(`🎯 ¡Felicidades! Ganaste ${rewardAmount.toFixed(2)} TRX directos.`);
                     AppState.user.balance_trx += rewardAmount;
+                    AppState.user.last_spin_at = new Date().toISOString();
+updateWheelTimer();
                     refreshProfileData();
                     wheel.style.transform = `rotate(${targetAngle}deg)`;
                     isSpinning = false;

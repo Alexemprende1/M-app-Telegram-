@@ -241,20 +241,13 @@
         .task-item:last-child { border-bottom: none; }
         .task-actions { display: flex; gap: 6px; }
 
-        .wheel-container { position: relative; width: 220px; height: 220px; margin: 20px auto; perspective: 1000px; }
-        .wheel-element { width: 100%; height: 100%; border-radius: 50%; border: 6px solid var(--primary-color); position: relative; overflow: hidden; transition: transform 4s cubic-bezier(0.1, 0.8, 0.1, 1); background: #1c2333; box-shadow: 0 0 20px rgba(246, 166, 9, 0.3); }
-        .wheel-pointer { position: absolute; top: -12px; left: 50%; transform: translateX(-50%); font-size: 2rem; color: var(--danger-color); z-index: 100; filter: drop-shadow(0px 2px 4px rgba(0,0,0,0.5)); }
-        
-        .segment { position: absolute; width: 50%; height: 50%; transform-origin: 100% 100%; font-size: 0.7rem; font-weight: bold; display: flex; align-items: center; justify-content: center; color: #fff; padding-bottom: 40px; box-sizing: border-box; }
-        .segment:nth-child(1) { transform: rotate(0deg) skewY(-30deg); background-color: #151a26; }
-        .segment:nth-child(2) { transform: rotate(60deg) skewY(-30deg); background-color: #222b3d; }
-        .segment:nth-child(3) { transform: rotate(120deg) skewY(-30deg); background-color: #151a26; }
-        .segment:nth-child(4) { transform: rotate(180deg) skewY(-30deg); background-color: #222b3d; }
-        .segment:nth-child(5) { transform: rotate(240deg) skewY(-30deg); background-color: #151a26; }
-        .segment:nth-child(6) { transform: rotate(300deg) skewY(-30deg); background-color: #222b3d; }
-        .segment-text { transform: skewY(30deg) rotate(30deg); text-align: center; width: 100%; }
+        .wheel-container { position: relative; width: 240px; height: 240px; margin: 20px auto; }
+        .wheel-element { width: 100%; height: 100%; border-radius: 50%; position: relative; overflow: hidden; transition: transform 4s cubic-bezier(0.1, 0.8, 0.1, 1); box-shadow: 0 0 24px rgba(246, 166, 9, 0.35), 0 0 48px rgba(246, 166, 9, 0.12); }
+        .wheel-svg { width: 100%; height: 100%; display: block; }
+        .wheel-pointer { position: absolute; top: -6px; left: 50%; transform: translateX(-50%); z-index: 100; width: 28px; height: 36px; pointer-events: none; }
 
         .battery-status { font-weight: bold; color: var(--primary-color); margin-bottom: 10px; text-align: right; }
+        .battery-countdown { font-size: 0.8rem; font-weight: normal; color: var(--text-muted); font-family: monospace; margin-top: 4px; }
         .mines-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-top: 16px; }
         .mine-cell { aspect-ratio: 1; background-color: #222b3d; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; cursor: pointer; transition: all 0.2s; border: 1px solid #2c374e; }
         .mine-cell.revealed { background-color: #111622; border-color: var(--success-color); }
@@ -320,14 +313,63 @@
                     <h3>🎯 Ruleta de la Fortuna</h3>
                     <p class="text-muted">Gira y gana premios directos en TRX cada 24 horas</p>
                     <div class="wheel-container">
-                        <div class="wheel-pointer">▼</div>
+                        <svg class="wheel-pointer" viewBox="0 0 28 36" xmlns="http://www.w3.org/2000/svg">
+                            <defs>
+                                <linearGradient id="ptrGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+                                    <stop offset="0%" stop-color="#ffd54f"/>
+                                    <stop offset="100%" stop-color="#f6a609"/>
+                                </linearGradient>
+                            </defs>
+                            <path d="M14 0 L26 30 Q14 36 2 30 Z" fill="url(#ptrGrad)" stroke="#c47f00" stroke-width="1.5"/>
+                            <circle cx="14" cy="10" r="3" fill="#fff8e1"/>
+                        </svg>
                         <div id="wheel" class="wheel-element">
-                            <div class="segment"><div class="segment-text">0.1 TRX</div></div>
-                            <div class="segment"><div class="segment-text">0.5 TRX</div></div>
-                            <div class="segment"><div class="segment-text">1.0 TRX</div></div>
-                            <div class="segment"><div class="segment-text">2.5 TRX</div></div>
-                            <div class="segment"><div class="segment-text">5.0 TRX</div></div>
-                            <div class="segment"><div class="segment-text">10.0 TRX</div></div>
+                            <svg class="wheel-svg" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+                                <defs>
+                                    <linearGradient id="segDark" x1="0%" y1="0%" x2="100%" y2="100%">
+                                        <stop offset="0%" stop-color="#1a2235"/>
+                                        <stop offset="100%" stop-color="#0f1623"/>
+                                    </linearGradient>
+                                    <linearGradient id="segLight" x1="0%" y1="0%" x2="100%" y2="100%">
+                                        <stop offset="0%" stop-color="#243049"/>
+                                        <stop offset="100%" stop-color="#1a2235"/>
+                                    </linearGradient>
+                                    <linearGradient id="segGold" x1="0%" y1="0%" x2="100%" y2="100%">
+                                        <stop offset="0%" stop-color="#3d2e10"/>
+                                        <stop offset="100%" stop-color="#2a1f08"/>
+                                    </linearGradient>
+                                    <linearGradient id="segGreen" x1="0%" y1="0%" x2="100%" y2="100%">
+                                        <stop offset="0%" stop-color="#0d3d32"/>
+                                        <stop offset="100%" stop-color="#082820"/>
+                                    </linearGradient>
+                                    <linearGradient id="ringGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                                        <stop offset="0%" stop-color="#ffd54f"/>
+                                        <stop offset="50%" stop-color="#f6a609"/>
+                                        <stop offset="100%" stop-color="#c47f00"/>
+                                    </linearGradient>
+                                    <radialGradient id="hubGrad" cx="50%" cy="50%" r="50%">
+                                        <stop offset="0%" stop-color="#2a3347"/>
+                                        <stop offset="100%" stop-color="#0b0e14"/>
+                                    </radialGradient>
+                                </defs>
+                                <circle cx="100" cy="100" r="98" fill="none" stroke="url(#ringGrad)" stroke-width="5"/>
+                                <path d="M100 100 L100 8 A92 92 0 0 1 179.7 54 Z" fill="url(#segDark)" stroke="#2c374e" stroke-width="0.5"/>
+                                <path d="M100 100 L179.7 54 A92 92 0 0 1 179.7 146 Z" fill="url(#segLight)" stroke="#2c374e" stroke-width="0.5"/>
+                                <path d="M100 100 L179.7 146 A92 92 0 0 1 100 192 Z" fill="url(#segDark)" stroke="#2c374e" stroke-width="0.5"/>
+                                <path d="M100 100 L100 192 A92 92 0 0 1 20.3 146 Z" fill="url(#segGold)" stroke="#f6a609" stroke-width="0.5"/>
+                                <path d="M100 100 L20.3 146 A92 92 0 0 1 20.3 54 Z" fill="url(#segGreen)" stroke="#02c39a" stroke-width="0.5"/>
+                                <path d="M100 100 L20.3 54 A92 92 0 0 1 100 8 Z" fill="url(#segLight)" stroke="#2c374e" stroke-width="0.5"/>
+                                <text x="100" y="38" text-anchor="middle" fill="#fff" font-size="9" font-weight="bold" font-family="sans-serif">0.1 TRX</text>
+                                <text x="155" y="72" text-anchor="middle" fill="#fff" font-size="9" font-weight="bold" font-family="sans-serif">0.5 TRX</text>
+                                <text x="155" y="138" text-anchor="middle" fill="#fff" font-size="9" font-weight="bold" font-family="sans-serif">1.0 TRX</text>
+                                <text x="100" y="172" text-anchor="middle" fill="#f6a609" font-size="9" font-weight="bold" font-family="sans-serif">2.5 TRX</text>
+                                <text x="45" y="138" text-anchor="middle" fill="#02c39a" font-size="9" font-weight="bold" font-family="sans-serif">5.0 TRX</text>
+                                <text x="45" y="72" text-anchor="middle" fill="#ffd54f" font-size="9" font-weight="bold" font-family="sans-serif">10 TRX</text>
+                                <circle cx="100" cy="100" r="22" fill="url(#hubGrad)" stroke="url(#ringGrad)" stroke-width="3"/>
+                                <text x="100" y="97" text-anchor="middle" fill="#f6a609" font-size="8" font-weight="bold" font-family="sans-serif">TRX</text>
+                                <text x="100" y="108" text-anchor="middle" fill="#8491a5" font-size="6" font-family="sans-serif">SPIN</text>
+                                <circle cx="100" cy="100" r="98" fill="none" stroke="rgba(246,166,9,0.15)" stroke-width="1"/>
+                            </svg>
                         </div>
                     </div>
                     <button id="btn-spin" class="btn btn-primary btn-block">GIRAR RULETA</button>
@@ -343,7 +385,12 @@
             <section id="tab-mines" class="tab-content">
                 <div class="card">
                     <h3>💣 Crypto Mines</h3>
-                    <div class="battery-status">🔋 Baterías: <span id="mines-batteries">6/6</span></div>
+                        <div class="battery-status">
+                            🔋 Baterías: <span id="mines-batteries">6/6</span>
+
+                        </div>
+                        <div id="battery-countdown" class="battery-countdown">🔋 Energía completa</div>
+                    </div>
                     <div class="selectors">
                         <select id="mines-difficulty" class="form-control">
                             <option value="easy">Fácil (3 Bombas)</option>
@@ -440,8 +487,12 @@
                 { id: "task_youtube", title: "Suscribirse al canal de Youtube", reward: 0.75, url: "https://youtube.com/@AlexEmprendeOficial", completed: false }
             ],
             mining: { active: false, endsAt: null, intervalId: null },
-            minesGame: { active: false, board: [], difficulty: "easy", bet: 0, revealedCount: 0, safeCells: 0 }
+            minesGame: { active: false, board: [], difficulty: "easy", bet: 0, revealedCount: 0, safeCells: 0 },
+            batteryTimer: { intervalId: null, batteryUpdatedAt: null }
         };
+
+        const BATTERY_RECHARGE_SECONDS = 30 * 60;
+        const BATTERY_MAX = 6;
 
         const MINES_CONFIG = {
             easy: { cells: 16, bombs: 3 },
@@ -531,6 +582,9 @@
                 }
 
                 console.log("AppState.user inicializado correctamente de manera estable:", AppState.user);
+
+                await rechargeBatteries();
+                startBatteryCountdownTimer();
                 
                 // Actualizar elementos dinámicos en el DOM inmediatamente
                 refreshProfileData();
@@ -568,6 +622,114 @@
             await syncUserSession();
         });
 
+        // BATTERY RECHARGE SYSTEM
+        function parseBatteriesFromRpc(data) {
+            if (data === null || data === undefined) return null;
+            if (typeof data === "number") return parseInt(data);
+            const record = Array.isArray(data) ? data[0] : data;
+            if (record && record.batteries !== undefined) return parseInt(record.batteries);
+            if (typeof data === "object" && data.batteries !== undefined) return parseInt(data.batteries);
+            return null;
+        }
+
+        async function fetchBatteryUpdatedAt() {
+            if (!AppState.user?.telegram_id) return;
+            try {
+                const { data, error } = await supabaseClient
+                    .from("users_tma")
+                    .select("battery_updated_at")
+                    .eq("telegram_id", AppState.user.telegram_id)
+                    .maybeSingle();
+
+                if (!error && data?.battery_updated_at) {
+                    AppState.batteryTimer.batteryUpdatedAt = new Date(data.battery_updated_at).getTime();
+                }
+            } catch (err) {
+                console.error("Error obteniendo battery_updated_at:", err);
+            }
+        }
+
+        async function rechargeBatteries() {
+            if (!AppState.user?.telegram_id) return;
+            try {
+                const { data, error } = await supabaseClient.rpc("recharge_batteries", {
+                    p_telegram_id: AppState.user.telegram_id
+                });
+
+                if (error) {
+                    console.error("Error en recharge_batteries:", error);
+                    return;
+                }
+
+                const batteries = parseBatteriesFromRpc(data);
+                if (batteries !== null && !isNaN(batteries)) {
+                    AppState.user.batteries = batteries;
+                }
+
+                if (AppState.user.batteries < BATTERY_MAX) {
+                    await fetchBatteryUpdatedAt();
+                } else {
+                    AppState.batteryTimer.batteryUpdatedAt = null;
+                }
+
+                updateBatteryDisplay();
+            } catch (err) {
+                console.error("Excepción en rechargeBatteries:", err);
+            }
+        }
+
+        function computeNextBatterySeconds() {
+            if (!AppState.batteryTimer.batteryUpdatedAt) return null;
+            const elapsed = Math.floor((Date.now() - AppState.batteryTimer.batteryUpdatedAt) / 1000);
+            const remainder = elapsed % BATTERY_RECHARGE_SECONDS;
+            return BATTERY_RECHARGE_SECONDS - remainder;
+        }
+
+        function updateBatteryDisplay() {
+            const batteriesEl = document.getElementById("mines-batteries");
+            const countdownEl = document.getElementById("battery-countdown");
+            if (!batteriesEl || !AppState.user) return;
+
+            const batteries = AppState.user.batteries ?? 0;
+            batteriesEl.innerText = `${batteries}/${BATTERY_MAX}`;
+
+            if (!countdownEl) return;
+
+            if (batteries >= BATTERY_MAX) {
+                countdownEl.innerText = "🔋 Energía completa";
+                return;
+            }
+
+            const secs = computeNextBatterySeconds();
+            if (secs === null) {
+                countdownEl.innerText = "⏳ Próxima batería en --:--";
+                return;
+            }
+
+            const m = Math.floor(secs / 60).toString().padStart(2, "0");
+            const s = (secs % 60).toString().padStart(2, "0");
+            countdownEl.innerText = `⏳ Próxima batería en ${m}:${s}`;
+        }
+
+        function startBatteryCountdownTimer() {
+            if (AppState.batteryTimer.intervalId) {
+                clearInterval(AppState.batteryTimer.intervalId);
+            }
+            AppState.batteryTimer.intervalId = setInterval(async () => {
+                if (!AppState.user) return;
+                if (AppState.user.batteries >= BATTERY_MAX) {
+                    updateBatteryDisplay();
+                    return;
+                }
+                const secs = computeNextBatterySeconds();
+                if (secs !== null && secs <= 1) {
+                    await rechargeBatteries();
+                } else {
+                    updateBatteryDisplay();
+                }
+            }, 1000);
+        }
+
         // REFRESH PROFILE DATA
         function refreshProfileData() {
             if (!AppState.user) return;
@@ -589,7 +751,7 @@
 
             const botUser = "bot2026minertrx_bot"; 
             document.getElementById("referral-url").value = `https://t.me/${botUser}?start=${AppState.user.telegram_id}`;
-            document.getElementById("mines-batteries").innerText = `${AppState.user.batteries}/6`;
+            updateBatteryDisplay();
         }
 
         // TABS NAVIGATION SYSTEM
@@ -742,8 +904,8 @@
                 }
 
                 AppState.user.batteries = data.remaining_batteries;
-                document.getElementById("mines-batteries").innerText = `${AppState.user.batteries}/6`;
-
+updateBatteryDisplay();
+                
                 AppState.minesGame.active = true;
                 AppState.minesGame.difficulty = difficulty;
                 AppState.minesGame.revealedCount = 0;

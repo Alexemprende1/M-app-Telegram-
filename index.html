@@ -1044,136 +1044,242 @@ updateBatteryDisplay();
 
         // MINING SYSTEM OPERATIONS
         const btnMiningAction = document.getElementById("btn-mining-action");
-        const miningTimer = document.getElementById("mining-timer");
-        const miningStatusText = document.getElementById("mining-status-text");
-        const miningGraphicBox = document.getElementById("mining-graphic-box");
+const miningTimer = document.getElementById("mining-timer");
+const miningStatusText = document.getElementById("mining-status-text");
+const miningGraphicBox = document.getElementById("mining-graphic-box");
 
-        btnMiningAction.addEventListener("click", async () => {
-            if (AppState.mining.active) return;
+btnMiningAction.addEventListener("click", async () => {
 
-            try {
-                const { data, error } = await supabaseClient.rpc('start_mining_tma', {
-                    p_telegram_id: AppState.user.telegram_id
-                });
+if (AppState.mining.active) return;
 
-                if (error || !data.success) {
-                    alert(data?.message || "No puedes minar ahora mismo.");
-                    return;
-                }
+if (!AppState.user || !AppState.user.telegram_id) {
+    alert("Error de sesión. Reinicia la aplicación.");
+    return;
+}
 
-                startLocalMiningTimer(30 * 60); 
-            } catch(e) { console.error(e); }
-        });
+btnMiningAction.disabled = true;
 
-        function startLocalMiningTimer(secondsLeft) {
-            AppState.mining.active = true;
-            miningGraphicBox.classList.add("mining-active");
-            btnMiningAction.disabled = true;
-            miningStatusText.innerText = "⛏️ Extrayendo bloques en la nube...";
+try {
 
-            let remain = secondsLeft;
-            updateTimerDisplay(remain);
-
-            if (AppState.mining.intervalId) {
-                clearInterval(AppState.mining.intervalId);
-            }
-
-            AppState.mining.intervalId = setInterval(async () => {
-                remain--;
-                updateTimerDisplay(remain);
-
-                if (remain <= 0) {
-                    clearInterval(AppState.mining.intervalId);
-                    await claimMiningReward();
-                }
-            }, 1000);
+    const { data, error } = await supabaseClient.rpc(
+        'start_mining_tma',
+        {
+            p_telegram_id: AppState.user.telegram_id
         }
+    );
 
-        function updateTimerDisplay(sec) {
-            const h = Math.floor(sec / 3600).toString().padStart(2, '0');
-            const m = Math.floor((sec % 3600) / 60).toString().padStart(2, '0');
-            const s = (sec % 60).toString().padStart(2, '0');
-            miningTimer.innerText = `${h}:${m}:${s}`;
+    if (error || !data?.success) {
+        alert(data?.message || "No puedes minar ahora mismo.");
+        btnMiningAction.disabled = false;
+        return;
+    }
+
+    startLocalMiningTimer(30 * 60);
+
+} catch (e) {
+
+    console.error("Error iniciando minería:", e);
+
+    alert("Error de conexión con el servidor.");
+
+    btnMiningAction.disabled = false;
+}
+
+});
+function startLocalMiningTimer(secondsLeft) {
+
+AppState.mining.active = true;
+
+miningGraphicBox.classList.add("mining-active");
+btnMiningAction.disabled = true;
+miningStatusText.innerText = "⛏️ Extrayendo bloques en la nube...";
+
+let remain = Math.max(0, parseInt(secondsLeft));
+
+updateTimerDisplay(remain);
+
+if (AppState.mining.intervalId) {
+    clearInterval(AppState.mining.intervalId);
+    AppState.mining.intervalId = null;
+}
+
+AppState.mining.intervalId = setInterval(async () => {
+
+    remain--;
+
+    if (remain < 0) {
+        remain = 0;
+    }
+
+    updateTimerDisplay(remain);
+
+    if (remain === 0) {
+
+        clearInterval(AppState.mining.intervalId);
+        AppState.mining.intervalId = null;
+
+        if (AppState.mining.active) {
+            await claimMiningReward();
         }
+    }
 
-        async function claimMiningReward() {
-            try {
-                const { data, error } = await supabaseClient.rpc('claim_mining_tma', {
-                    p_telegram_id: AppState.user.telegram_id
-                });
+}, 1000);
 
-                miningGraphicBox.classList.remove("mining-active");
-                btnMiningAction.disabled = false;
-                miningTimer.innerText = "00:30:00";
-                miningStatusText.innerText = "Listo para iniciar operaciones";
-                AppState.mining.active = false;
+}
 
-                if (error || !data.success) {
-                    alert(data?.message || "Error reclamando recompensa.");
-                    return;
-                }
+function updateTimerDisplay(sec) {
 
-                alert(`🎁 Ciclo completado. Se han acreditado +${parseFloat(data.reward).toFixed(4)} TRX a tu cuenta.`);
-                AppState.user.balance_trx += parseFloat(data.reward);
-                AppState.user.total_mined += parseFloat(data.reward);
-                refreshProfileData();
+sec = Math.max(0, sec);
 
-            } catch(e) { console.error(e); }
+const h = Math.floor(sec / 3600).toString().padStart(2, '0');
+const m = Math.floor((sec % 3600) / 60).toString().padStart(2, '0');
+const s = (sec % 60).toString().padStart(2, '0');
+
+miningTimer.innerText = `${h}:${m}:${s}`;
+
+}
+
+async function claimMiningReward() {
+
+try {
+
+    const { data, error } = await supabaseClient.rpc(
+        'claim_mining_tma',
+        {
+            p_telegram_id: AppState.user.telegram_id
         }
+    );
 
+    miningGraphicBox.classList.remove("mining-active");
+
+    btnMiningAction.disabled = false;
+
+    miningTimer.innerText = "00:30:00";
+
+    miningStatusText.innerText = "Listo para iniciar operaciones";
+
+    AppState.mining.active = false;
+
+    if (error || !data?.success) {
+
+        alert(data?.message || "Error reclamando recompensa.");
+
+        return;
+    }
+
+    const reward = parseFloat(data.reward || 0);
+
+    alert(
+        `🎁 Ciclo completado. Se acreditaron ${reward.toFixed(4)} TRX.`
+    );
+
+    AppState.user.balance_trx += reward;
+
+    AppState.user.total_mined += reward;
+
+    refreshProfileData();
+
+} catch (e) {
+
+    console.error("Error reclamando minería:", e);
+
+    AppState.mining.active = false;
+
+    miningGraphicBox.classList.remove("mining-active");
+
+    btnMiningAction.disabled = false;
+
+    alert("Error de conexión al reclamar la recompensa.");
+}
+
+}
         
 // =================================================================
 // RESTAURAR SESIÓN DE MINERÍA ACTIVA
 // =================================================================
-        async function restoreMiningSession() {
-            try {
+async function restoreMiningSession() {
 
-                const { data, error } = await supabaseClient
-                    .from('mining_sessions')
-                    .select('*')
-                    .eq('telegram_id', AppState.user.telegram_id)
-                    .eq('claimed', false)
-                    .order('started_at', { ascending: false })
-                    .limit(1);
+try {
 
-                if (error || !data || data.length === 0) {
-                    return;
-                }
+    if (!AppState.user?.telegram_id) {
+        return;
+    }
 
-                const session = data[0];
+    const { data, error } = await supabaseClient
+        .from('mining_sessions')
+        .select('*')
+        .eq('telegram_id', AppState.user.telegram_id)
+        .eq('claimed', false)
+        .order('started_at', { ascending: false })
+        .limit(1);
 
-                const startedAt = new Date(session.started_at).getTime();
-                const duration = 30 * 60 * 1000;
-                const endTime = startedAt + duration;
-                const now = Date.now();
-                const remaining = Math.floor((endTime - now) / 1000);
+    if (error || !data || data.length === 0) {
+        return;
+    }
 
-                if (remaining > 0) {
+    const session = data[0];
 
-                    startLocalMiningTimer(remaining);
+    if (!session.started_at) {
+        return;
+    }
 
-                } else {
+    const startedAt = new Date(session.started_at).getTime();
 
-                    miningTimer.innerText = "00:00:00";
-                    miningStatusText.innerText = "🎁 Recompensa lista para reclamar";
-                    miningGraphicBox.classList.remove("mining-active");
-                    btnMiningAction.disabled = false;
-                    btnMiningAction.innerText = "RECLAMAR";
+    if (isNaN(startedAt)) {
+        return;
+    }
 
-                    btnMiningAction.onclick = async () => {
+    const duration = 30 * 60 * 1000;
 
-                        await claimMiningReward();
+    const endTime = startedAt + duration;
 
-                        btnMiningAction.innerText = "INICIAR MINERÍA";
-                        btnMiningAction.onclick = null;
-                    };
-                }
+    const remaining = Math.floor(
+        (endTime - Date.now()) / 1000
+    );
 
-            } catch (err) {
-                console.error(err);
-            }
-        }
+    if (remaining > 0) {
 
+        startLocalMiningTimer(remaining);
+
+    } else {
+
+        AppState.mining.active = false;
+
+        miningTimer.innerText = "00:00:00";
+
+        miningStatusText.innerText =
+            "🎁 Recompensa lista para reclamar";
+
+        miningGraphicBox.classList.remove("mining-active");
+
+        btnMiningAction.disabled = false;
+
+        btnMiningAction.innerText = "RECLAMAR";
+
+        btnMiningAction.onclick = async () => {
+
+            btnMiningAction.disabled = true;
+
+            await claimMiningReward();
+
+            btnMiningAction.innerText =
+                "INICIAR MINERÍA";
+
+            btnMiningAction.disabled = false;
+
+            btnMiningAction.onclick = null;
+        };
+    }
+
+} catch (err) {
+
+    console.error(
+        "Error restaurando sesión de minería:",
+        err
+    );
+}
+
+}
 // WALLET WITHDRAWAL SYSTEM
         const copyBtn = document.getElementById("btn-copy-ref");
         copyBtn.addEventListener("click", () => {

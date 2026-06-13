@@ -901,7 +901,15 @@
                     return;
                 }
 
-                
+                console.log("Baterías recibidas:", data.remaining_batteries);
+console.log("Antes:", AppState.user.batteries);
+
+AppState.user.batteries = data.remaining_batteries;
+
+console.log("Después:", AppState.user.batteries);
+
+updateBatteryDisplay();
+
                 document.getElementById("mines-batteries").innerText = `${AppState.user.batteries}/6`;
 
                 AppState.minesGame.active = true;

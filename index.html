@@ -910,6 +910,18 @@ console.log("Después:", AppState.user.batteries);
 
 updateBatteryDisplay();
 
+console.log(
+    "Elemento HTML:",
+    document.getElementById("mines-batteries")?.innerText
+);
+
+setTimeout(() => {
+    console.log(
+        "1 segundo después:",
+        document.getElementById("mines-batteries")?.innerText
+    );
+}, 1000);
+
                 document.getElementById("mines-batteries").innerText = `${AppState.user.batteries}/6`;
 
                 AppState.minesGame.active = true;

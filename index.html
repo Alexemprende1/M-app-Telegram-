@@ -1199,12 +1199,29 @@ AppState.mining.intervalId = setInterval(async () => {
 clearInterval(AppState.mining.intervalId);
 AppState.mining.intervalId = null;
 
+AppState.mining.active = false;
+
 miningStatusText.innerText =
     "🎁 Recompensa lista para reclamar";
+
+miningGraphicBox.classList.remove("mining-active");
 
 btnMiningAction.disabled = false;
 
 btnMiningAction.innerText = "RECLAMAR";
+
+btnMiningAction.onclick = async () => {
+
+    btnMiningAction.disabled = true;
+
+    await claimMiningReward();
+
+    btnMiningAction.innerText = "INICIAR MINERÍA";
+
+    btnMiningAction.disabled = false;
+
+    btnMiningAction.onclick = null;
+};
 }
 
 }, 1000);
@@ -1243,6 +1260,8 @@ try {
     miningGraphicBox.classList.remove("mining-active");
 
 btnMiningAction.disabled = false;
+
+btnMiningAction.innerText = "INICIAR MINERÍA";
 
 miningTimer.innerText = "00:30:00";
 

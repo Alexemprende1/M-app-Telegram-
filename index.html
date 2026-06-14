@@ -383,6 +383,25 @@
                     <button id="btn-spin" class="btn btn-primary btn-block">GIRAR POR 1 ANUNCIO</button>
                 </div>
 
+                <div class="card" id="ads-loyalty-card" style="margin-top:15px;">
+                    <h3>🎯 Programa de Fidelidad</h3>
+                
+                    <p>
+                        Anuncios vistos:
+                        <span id="ads-progress-count">0</span>
+                    </p>
+                
+                    <p>
+                        Próxima meta:
+                        <span id="ads-next-goal">25</span>
+                    </p>
+                
+                    <p>
+                        Recompensa:
+                        <span id="ads-next-reward">0.001 TRX</span>
+                    </p>
+                </div>
+
                 <div class="card">
                     <h3>📢 Tareas Sociales Disponibles</h3>
                     <p class="text-muted">Completa los siguientes desafíos para añadir fondos extras</p>
@@ -567,6 +586,7 @@
                             withdrawable_trx: parseFloat(rawRecord.withdrawable_trx || 0),
                             total_mined: parseFloat(rawRecord.total_mined || 0),
                             total_ref_earnings: parseFloat(rawRecord.total_ref_earnings || 0),
+                            total_spins: parseInt(rawRecord.total_spins || 0),
                             referrer_id: rawRecord.referrer_id || null,
                             batteries: parseInt(rawRecord.batteries !== undefined ? rawRecord.batteries : 6),
 last_spin_at: rawRecord.last_spin_at || null
@@ -802,6 +822,36 @@ setInterval(() => {
         `⏳ ${hours.toString().padStart(2,'0')}:` +
         `${minutes.toString().padStart(2,'0')}:` +
         `${seconds.toString().padStart(2,'0')}`;
+}
+
+function updateAdsProgress() {
+
+if (!AppState.user) return;
+
+const total = AppState.user.total_spins || 0;
+
+const milestones = [
+    { spins: 25, reward: "0.001 TRX" },
+    { spins: 50, reward: "0.002 TRX" },
+    { spins: 100, reward: "0.005 TRX" },
+    { spins: 250, reward: "0.01 TRX" },
+    { spins: 500, reward: "0.03 TRX" },
+    { spins: 1000, reward: "0.10 TRX" },
+    { spins: 1500, reward: "1 TRX" }
+];
+
+let next = milestones.find(m => total < m.spins);
+
+if (!next) {
+    next = {
+        spins: 1500,
+        reward: "🏆 Máximo alcanzado"
+    };
+}
+
+document.getElementById("ads-progress-count").innerText = total;
+document.getElementById("ads-next-goal").innerText = next.spins;
+document.getElementById("ads-next-reward").innerText = next.reward;
 }
         // TABS NAVIGATION SYSTEM
         document.querySelectorAll(".nav-item").forEach(button => {

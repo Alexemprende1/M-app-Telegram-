@@ -818,6 +818,13 @@ setInterval(() => {
 
         // RENDER SOCIAL TASKS
         function renderSocialTasks() {
+
+            // WHEEL OF FORTUNE
+
+const btnSpin = document.getElementById("btn-spin");
+const wheel = document.getElementById("wheel");
+
+let isSpinning = false;
             const container = document.getElementById("social-tasks-container");
             container.innerHTML = "";
             AppState.tasks.forEach(task => {
@@ -1364,4 +1371,3 @@ try {
     </script>
 </body>
 </html>
-

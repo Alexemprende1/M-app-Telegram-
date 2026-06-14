@@ -10,7 +10,7 @@
 
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
+    <script src='//libtl.com/sdk.js' data-zone='11148552' data-sdk='show_11148552'></script>
     <style>
         :root {
             --bg-color: #0b0e14;
@@ -380,7 +380,7 @@
                             </svg>
                         </div>
                     </div>
-                    <button id="btn-spin" class="btn btn-primary btn-block">GIRAR RULETA</button>
+                    <button id="btn-spin" class="btn btn-primary btn-block">GIRAR POR 1 ANUNCIO</button>
                 </div>
 
                 <div class="card">
@@ -874,20 +874,24 @@ setInterval(() => {
             }, 3000);
         }
 
-        // WHEEL OF FORTUNE
-        const btnSpin = document.getElementById("btn-spin");
-        const wheel = document.getElementById("wheel");
-        let isSpinning = false;
-
         btnSpin.addEventListener("click", async () => {
-            if (isSpinning) return;
-            isSpinning = true;
-            btnSpin.disabled = true;
 
-            try {
-                const { data, error } = await supabaseClient.rpc('spin_wheel_tma', {
-                    p_telegram_id: AppState.user.telegram_id
-                });
+if (isSpinning) return;
+
+isSpinning = true;
+btnSpin.disabled = true;
+
+try {
+
+    // Mostrar anuncio recompensado
+    await show_11148552();
+
+    const { data, error } = await supabaseClient.rpc(
+        'spin_wheel_tma',
+        {
+            p_telegram_id: AppState.user.telegram_id
+        }
+    );
 
                 if (error || !data.success) {
                     alert(data?.message || "No puedes girar la ruleta en este momento.");
@@ -1360,3 +1364,4 @@ try {
     </script>
 </body>
 </html>
+

@@ -1196,13 +1196,16 @@ AppState.mining.intervalId = setInterval(async () => {
 
     if (remain === 0) {
 
-        clearInterval(AppState.mining.intervalId);
-        AppState.mining.intervalId = null;
+clearInterval(AppState.mining.intervalId);
+AppState.mining.intervalId = null;
 
-        if (AppState.mining.active) {
-            await claimMiningReward();
-        }
-    }
+miningStatusText.innerText =
+    "🎁 Recompensa lista para reclamar";
+
+btnMiningAction.disabled = false;
+
+btnMiningAction.innerText = "RECLAMAR";
+}
 
 }, 1000);
 
@@ -1231,22 +1234,21 @@ try {
         }
     );
 
-    miningGraphicBox.classList.remove("mining-active");
-
-    btnMiningAction.disabled = false;
-
-    miningTimer.innerText = "00:30:00";
-
-    miningStatusText.innerText = "Listo para iniciar operaciones";
-
-    AppState.mining.active = false;
-
     if (error || !data?.success) {
 
         alert(data?.message || "Error reclamando recompensa.");
 
         return;
     }
+    miningGraphicBox.classList.remove("mining-active");
+
+btnMiningAction.disabled = false;
+
+miningTimer.innerText = "00:30:00";
+
+miningStatusText.innerText = "Listo para iniciar operaciones";
+
+AppState.mining.active = false;
 
     const reward = parseFloat(data.reward || 0);
 

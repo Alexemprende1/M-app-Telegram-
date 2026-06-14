@@ -815,16 +815,15 @@ setInterval(() => {
                 AppState.activeTab = target;
             });
         });
+ // WHEEL OF FORTUNE
 
-        // RENDER SOCIAL TASKS
-        function renderSocialTasks() {
-
-            // WHEEL OF FORTUNE
-
-const btnSpin = document.getElementById("btn-spin");
+ const btnSpin = document.getElementById("btn-spin");
 const wheel = document.getElementById("wheel");
 
 let isSpinning = false;
+        // RENDER SOCIAL TASKS
+        function renderSocialTasks() {
+
             const container = document.getElementById("social-tasks-container");
             container.innerHTML = "";
             AppState.tasks.forEach(task => {

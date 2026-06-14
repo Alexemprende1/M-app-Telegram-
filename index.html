@@ -571,6 +571,12 @@
                             batteries: parseInt(rawRecord.batteries !== undefined ? rawRecord.batteries : 6),
 last_spin_at: rawRecord.last_spin_at || null
                         };
+                        const { count } = await supabaseClient
+    .from('users_tma')
+    .select('*', { count: 'exact', head: true })
+    .eq('referrer_id', AppState.user.telegram_id);
+
+AppState.user.referral_count = count || 0;
                     }
                 }
 
@@ -756,10 +762,12 @@ setInterval(() => {
 
             document.getElementById("stat-withdrawable").innerText = AppState.user.withdrawable_trx.toFixed(4) + " TRX";
             document.getElementById("stat-mined").innerText = AppState.user.total_mined.toFixed(4) + " TRX";
-            document.getElementById("stat-referrals").innerText = AppState.user.referrer_id ? "1 (Asignado)" : "0";
+            document.getElementById("stat-referrals").innerText =
+    AppState.user.referral_count || 0;
             document.getElementById("stat-date").innerText = "Activo";
 
-            document.getElementById("ref-count-panel").innerText = "0";
+            document.getElementById("ref-count-panel").innerText =
+            AppState.user.referral_count || 0;
             document.getElementById("ref-earnings-panel").innerText = AppState.user.total_ref_earnings.toFixed(4);
 
             const botUser = "bot2026minertrx_bot"; 

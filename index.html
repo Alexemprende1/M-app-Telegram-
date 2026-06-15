@@ -726,7 +726,7 @@ setInterval(() => {
                 const { data, error } = await supabaseClient.rpc("recharge_batteries", {
                     p_telegram_id: AppState.user.telegram_id
                 });
-
+console.log(data);
                 if (error) {
                     console.error("Error en recharge_batteries:", error);
                     return;

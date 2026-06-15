@@ -781,7 +781,25 @@ console.log(data);
             const s = (secs % 60).toString().padStart(2, "0");
             countdownEl.innerText = `⏳ Próxima batería en ${m}:${s}`;
         }
+function updateTicketDisplay() {
 
+    if (!AppState.user) return;
+
+    if (ticketCounter) {
+
+        ticketCounter.innerText =
+            `${AppState.user.bonus_tickets || 0}/3`;
+
+    }
+
+    if (ticketDailyCounter) {
+
+        ticketDailyCounter.innerText =
+            `${AppState.user.tickets_today || 0}/15`;
+
+    }
+
+}
         function startBatteryCountdownTimer() {
             if (AppState.batteryTimer.intervalId) {
                 clearInterval(AppState.batteryTimer.intervalId);

@@ -1130,7 +1130,8 @@ const miningStatusText = document.getElementById("mining-status-text");
 const miningGraphicBox = document.getElementById("mining-graphic-box");
 
 btnMiningAction.addEventListener("click", async () => {
-
+    console.log("CLAIM CLICK");
+    
 if (AppState.mining.active) return;
 
 if (!AppState.user || !AppState.user.telegram_id) {
@@ -1211,6 +1212,7 @@ btnMiningAction.disabled = false;
 btnMiningAction.innerText = "RECLAMAR";
 
 btnMiningAction.onclick = async () => {
+    console.log("CLAIM CLICK");
 
     btnMiningAction.disabled = true;
 

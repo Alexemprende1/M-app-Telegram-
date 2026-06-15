@@ -413,9 +413,30 @@
                 <div class="card">
                     <h3>💣 Crypto Mines</h3>
                         <div class="battery-status">
-                            🔋 Baterías: <span id="mines-batteries">6/6</span>
+                            🔋 Baterías: <span id="mines-batteries">4/4</span>
                         </div>
                         <div id="battery-countdown" class="battery-countdown">🔋 Energía completa</div>
+                        <div class="card" style="margin-top:10px;">
+
+                            <div style="margin-bottom:8px;">
+                                🎟 Tickets:
+                                <span id="ticket-counter">0/3</span>
+                            </div>
+                        
+                            <div style="margin-bottom:8px;">
+                                📊 Hoy:
+                                <span id="ticket-daily-counter">0/15</span>
+                            </div>
+                        
+                            <button
+                                id="btn-ticket-ad"
+                                class="btn btn-primary btn-block">
+                        
+                                📺 Ver anuncio (+1 Ticket)
+                        
+                            </button>
+                        
+                        </div>
                     <div class="selectors">
                         <select id="mines-difficulty" class="form-control">
                             <option value="easy">Fácil (3 Bombas)</option>
@@ -517,7 +538,7 @@
         };
 
         const BATTERY_RECHARGE_SECONDS = 30 * 60;
-        const BATTERY_MAX = 6;
+        const BATTERY_MAX = 4;
 
         const MINES_CONFIG = {
             easy: { cells: 16, bombs: 3 },
@@ -559,7 +580,6 @@
                 });
 
                 if (error) {
-                    console.error("Error en init_user_tma RPC:", error);
                     // Forzar carga de respaldo para evitar puntero null en el AppState
                     AppState.user = {
                         telegram_id: tgUser.id,
@@ -569,7 +589,7 @@
                         withdrawable_trx: 0,
                         total_mined: 0,
                         total_ref_earnings: 0,
-                        batteries: 6
+                        batteries: 4
                     };
                 } else if (data) {
                     console.log("Datos de usuario retornados por el RPC:", data);
@@ -579,18 +599,30 @@
 
                     if (rawRecord) {
                         AppState.user = {
-                            telegram_id: rawRecord.telegram_id || rawRecord.p_telegram_id || tgUser.id,
-                            username: rawRecord.username || rawRecord.p_username || tgUser.username || 'sin_username',
-                            first_name: rawRecord.first_name || rawRecord.p_first_name || tgUser.first_name || 'Usuario Telegram',
-                            balance_trx: parseFloat(rawRecord.balance_trx || rawRecord.balance || 0),
-                            withdrawable_trx: parseFloat(rawRecord.withdrawable_trx || 0),
-                            total_mined: parseFloat(rawRecord.total_mined || 0),
-                            total_ref_earnings: parseFloat(rawRecord.total_ref_earnings || 0),
-                            total_spins: parseInt(rawRecord.total_spins || 0),
-                            referrer_id: rawRecord.referrer_id || null,
-                            batteries: parseInt(rawRecord.batteries !== undefined ? rawRecord.batteries : 6),
-last_spin_at: rawRecord.last_spin_at || null
-                        };
+    telegram_id: rawRecord.telegram_id || rawRecord.p_telegram_id || tgUser.id,
+    username: rawRecord.username || rawRecord.p_username || tgUser.username || 'sin_username',
+    first_name: rawRecord.first_name || rawRecord.p_first_name || tgUser.first_name || 'Usuario Telegram',
+
+    balance_trx: parseFloat(rawRecord.balance_trx || rawRecord.balance || 0),
+    withdrawable_trx: parseFloat(rawRecord.withdrawable_trx || 0),
+    total_mined: parseFloat(rawRecord.total_mined || 0),
+    total_ref_earnings: parseFloat(rawRecord.total_ref_earnings || 0),
+
+    total_spins: parseInt(rawRecord.total_spins || 0),
+
+    bonus_tickets: parseInt(rawRecord.bonus_tickets || 0),
+    tickets_today: parseInt(rawRecord.tickets_today || 0),
+
+    referrer_id: rawRecord.referrer_id || null,
+
+    batteries: parseInt(
+        rawRecord.batteries !== undefined
+            ? rawRecord.batteries
+            : 4
+    ),
+
+    last_spin_at: rawRecord.last_spin_at || null
+};
                         const { count } = await supabaseClient
     .from('users_tma')
     .select('*', { count: 'exact', head: true })
@@ -794,6 +826,7 @@ setInterval(() => {
             document.getElementById("referral-url").value = `https://t.me/${botUser}?start=${AppState.user.telegram_id}`;
             updateBatteryDisplay();
             updateAdsProgress();
+            updateTicketDisplay();
         }
             function updateWheelTimer() {
 
@@ -1010,6 +1043,71 @@ updateWheelTimer();
         const btnStartMines = document.getElementById("btn-start-mines");
         const btnCashoutMines = document.getElementById("btn-cashout-mines");
         const minesGrid = document.getElementById("mines-grid");
+        const btnTicketAd =
+document.getElementById("btn-ticket-ad");
+
+const ticketCounter =
+document.getElementById("ticket-counter");
+
+const ticketDailyCounter =
+document.getElementById("ticket-daily-counter");
+
+btnTicketAd.addEventListener("click", async () => {
+
+try {
+
+    btnTicketAd.disabled = true;
+
+    await show_11148552();
+
+    const { data, error } =
+        await supabaseClient.rpc(
+            "claim_ticket_ad",
+            {
+                p_telegram_id:
+                    AppState.user.telegram_id
+            }
+        );
+
+    if (error || !data?.success) {
+
+        alert(
+            data?.message ||
+            "No se pudo reclamar el ticket."
+        );
+
+        btnTicketAd.disabled = false;
+        return;
+    }
+
+    AppState.user.bonus_tickets =
+        data.bonus_tickets;
+
+    AppState.user.tickets_today =
+        data.tickets_today;
+
+    AppState.user.batteries =
+        data.batteries;
+
+    updateTicketDisplay();
+    updateBatteryDisplay();
+
+    alert(
+        `🎟 Ticket obtenido.\n\n` +
+        `Tickets: ${data.bonus_tickets}/3`
+    );
+
+} catch (err) {
+
+    console.error(err);
+
+} finally {
+
+    btnTicketAd.disabled = false;
+
+}
+
+});
 
         btnStartMines.addEventListener("click", async () => {
             const difficulty = document.getElementById("mines-difficulty").value;

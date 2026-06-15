@@ -1116,12 +1116,13 @@ updateBatteryDisplay();
             } catch(e) { console.error(e); }
         }
 
-        function resetMinesGameUI() {
-            AppState.minesGame.active = false;
-            btnStartMines.disabled = false;
-            btnCashoutMines.disabled = true;
-            setTimeout(() => {console.log("BORRANDO TABLERO"); minesGrid.innerHTML = ""; }, 2000);
-        }
+            function resetMinesGameUI() {
+    AppState.minesGame.active = false;
+    btnStartMines.disabled = false;
+    btnCashoutMines.disabled = true;
+
+    minesGrid.innerHTML = "";
+}
 
         // MINING SYSTEM OPERATIONS
         const btnMiningAction = document.getElementById("btn-mining-action");

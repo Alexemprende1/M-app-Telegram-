@@ -1120,7 +1120,7 @@ updateBatteryDisplay();
             AppState.minesGame.active = false;
             btnStartMines.disabled = false;
             btnCashoutMines.disabled = true;
-            setTimeout(() => { minesGrid.innerHTML = ""; }, 2000);
+            setTimeout(() => {console.log("BORRANDO TABLERO"); minesGrid.innerHTML = ""; }, 2000);
         }
 
         // MINING SYSTEM OPERATIONS

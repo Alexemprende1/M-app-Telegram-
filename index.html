@@ -1131,44 +1131,54 @@ const miningStatusText = document.getElementById("mining-status-text");
 const miningGraphicBox = document.getElementById("mining-graphic-box");
 
 btnMiningAction.addEventListener("click", async () => {
-    console.log("CLAIM CLICK");
-    
-if (AppState.mining.active) return;
 
-if (!AppState.user || !AppState.user.telegram_id) {
-    alert("Error de sesión. Reinicia la aplicación.");
-    return;
-}
+    // SI ESTÁ EN MODO RECLAMAR
+    if (btnMiningAction.innerText === "RECLAMAR") {
 
-btnMiningAction.disabled = true;
+        btnMiningAction.disabled = true;
 
-try {
-    console.log("INICIANDO MINERIA:", AppState.user.telegram_id);
-    const { data, error } = await supabaseClient.rpc(
-        'start_mining_tma',
-        {
-            p_telegram_id: AppState.user.telegram_id
-        }
-    );
-    console.log("START RESULT:", { data, error });
-    if (error || !data?.success) {
-        alert(data?.message || "No puedes minar ahora mismo.");
-        btnMiningAction.disabled = false;
+        await claimMiningReward();
+
         return;
     }
 
-    startLocalMiningTimer(30 * 60);
+    // SI HAY MINERÍA ACTIVA
+    if (AppState.mining.active) return;
 
-} catch (e) {
+    btnMiningAction.disabled = true;
 
-    console.error("Error iniciando minería:", e);
+    try {
 
-    alert("Error de conexión con el servidor.");
+        console.log("INICIANDO MINERIA:", AppState.user.telegram_id);
 
-    btnMiningAction.disabled = false;
-}
+        const { data, error } = await supabaseClient.rpc(
+            'start_mining_tma',
+            {
+                p_telegram_id: AppState.user.telegram_id
+            }
+        );
+
+        console.log("START RESULT:", { data, error });
+
+        if (error || !data?.success) {
+            alert(data?.message || "No puedes minar ahora mismo.");
+            btnMiningAction.disabled = false;
+            return;
+        }
+
+        startLocalMiningTimer(30 * 60);
+
+    } catch (e) {
+
+        console.error("Error iniciando minería:", e);
+
+        alert("Error de conexión con el servidor.");
+
+        btnMiningAction.disabled = false;
+    }
 
 });
+  
 function startLocalMiningTimer(secondsLeft) {
 
 AppState.mining.active = true;
@@ -1212,19 +1222,6 @@ btnMiningAction.disabled = false;
 
 btnMiningAction.innerText = "RECLAMAR";
 
-btnMiningAction.onclick = async () => {
-    console.log("CLAIM CLICK");
-
-    btnMiningAction.disabled = true;
-
-    await claimMiningReward();
-
-    btnMiningAction.innerText = "INICIAR MINERÍA";
-
-    btnMiningAction.disabled = false;
-
-    btnMiningAction.onclick = null;
-};
 }
 
 }, 1000);
@@ -1365,19 +1362,6 @@ try {
 
         btnMiningAction.innerText = "RECLAMAR";
 
-        btnMiningAction.onclick = async () => {
-
-            btnMiningAction.disabled = true;
-
-            await claimMiningReward();
-
-            btnMiningAction.innerText =
-                "INICIAR MINERÍA";
-
-            btnMiningAction.disabled = false;
-
-            btnMiningAction.onclick = null;
-        };
     }
 
 } catch (err) {

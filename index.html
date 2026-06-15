@@ -1046,16 +1046,33 @@ updateBatteryDisplay();
         });
 
         function buildMinesBoard(cellsCount) {
-            minesGrid.innerHTML = "";
-            for(let i = 0; i < cellsCount; i++) {
-                const cell = document.createElement("div");
-                cell.className = "mine-cell";
-                cell.setAttribute("data-index", i);
-                cell.innerHTML = "📦";
-                cell.addEventListener("click", () => handleMineCellClick(i, cell));
-                minesGrid.appendChild(cell);
-            }
-        }
+
+console.log("CREANDO TABLERO:", cellsCount);
+
+minesGrid.innerHTML = "";
+
+for(let i = 0; i < cellsCount; i++) {
+
+    const cell = document.createElement("div");
+
+    cell.className = "mine-cell";
+
+    cell.setAttribute("data-index", i);
+
+    cell.innerHTML = "📦";
+
+    cell.addEventListener("click", () =>
+        handleMineCellClick(i, cell)
+    );
+
+    minesGrid.appendChild(cell);
+}
+
+console.log(
+    "CASILLAS CREADAS:",
+    minesGrid.children.length
+);
+}
 
         async function handleMineCellClick(index, cellElement) {
             if (!AppState.minesGame.active || cellElement.classList.contains("revealed")) return;

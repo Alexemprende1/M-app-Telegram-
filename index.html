@@ -1246,12 +1246,16 @@ async function claimMiningReward() {
 
 try {
 
+    console.log("RECLAMANDO ID:", AppState.user?.telegram_id);
+    
     const { data, error } = await supabaseClient.rpc(
         'claim_mining_tma',
         {
             p_telegram_id: AppState.user.telegram_id
         }
     );
+    
+    console.log("RPC RESULT:", { data, error });
 
     if (error || !data?.success) {
 

@@ -530,7 +530,7 @@
         // FUNCIÓN DE SINCRONIZACIÓN CORREGIDA - APPSATE.USER REPARADO
         // =================================================================
         async function syncUserSession() {
-            console.log("Sincronizando sesión de usuario...");
+            
             try {
                 let tgUser = tg.initDataUnsafe?.user;
 
@@ -1149,7 +1149,7 @@ btnMiningAction.addEventListener("click", async () => {
 
     try {
 
-        console.log("INICIANDO MINERIA:", AppState.user.telegram_id);
+        
 
         const { data, error } = await supabaseClient.rpc(
             'start_mining_tma',
@@ -1157,8 +1157,6 @@ btnMiningAction.addEventListener("click", async () => {
                 p_telegram_id: AppState.user.telegram_id
             }
         );
-
-        console.log("START RESULT:", { data, error });
 
         if (error || !data?.success) {
             alert(data?.message || "No puedes minar ahora mismo.");
@@ -1243,8 +1241,6 @@ miningTimer.innerText = `${h}:${m}:${s}`;
 async function claimMiningReward() {
 
 try {
-
-    console.log("RECLAMANDO ID:", AppState.user?.telegram_id);
     
     const { data, error } = await supabaseClient.rpc(
         'claim_mining_tma',
@@ -1252,8 +1248,6 @@ try {
             p_telegram_id: AppState.user.telegram_id
         }
     );
-
-    console.log("RPC RESULT:", { data, error });
 
     if (error || !data?.success) {
 

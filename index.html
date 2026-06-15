@@ -1142,14 +1142,14 @@ if (!AppState.user || !AppState.user.telegram_id) {
 btnMiningAction.disabled = true;
 
 try {
-
+    console.log("INICIANDO MINERIA:", AppState.user.telegram_id);
     const { data, error } = await supabaseClient.rpc(
         'start_mining_tma',
         {
             p_telegram_id: AppState.user.telegram_id
         }
     );
-
+    console.log("START RESULT:", { data, error });
     if (error || !data?.success) {
         alert(data?.message || "No puedes minar ahora mismo.");
         btnMiningAction.disabled = false;
@@ -1254,7 +1254,7 @@ try {
             p_telegram_id: AppState.user.telegram_id
         }
     );
-    
+
     console.log("RPC RESULT:", { data, error });
 
     if (error || !data?.success) {

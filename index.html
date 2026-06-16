@@ -1,4 +1,4 @@
-DOCTYPE html>
+<!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
@@ -1735,7 +1735,34 @@ const amount =
     parseFloat(
         newForm.querySelector("#withdraw-amount").value
     );
+    if (method === "faucetpay") {
 
+if (
+    address.length < 3 ||
+    address.includes(" ")
+) {
+
+    alert(
+        "Ingresa un usuario FaucetPay válido."
+    );
+
+    return;
+}
+}
+if (method === "tron_network") {
+
+    if (
+    !address.startsWith("T") ||
+    address.length !== 34
+) {
+
+    alert(
+        "Ingresa una dirección TRC20 válida."
+    );
+
+    return;
+}
+}
                 if (isNaN(amount) || amount <= 0 || !Number.isFinite(amount)) {
                     alert("Entrada inválida.");
                     return;

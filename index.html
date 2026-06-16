@@ -1529,6 +1529,9 @@ try {
                         p_amount: amount
                     });
 
+                    console.log("WITHDRAW DATA:", data);
+console.log("WITHDRAW ERROR:", error);
+
                     if (error || !data.success) {
                         alert(data?.message || "Transacción denegada.");
                         return;

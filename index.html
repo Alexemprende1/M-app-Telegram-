@@ -952,6 +952,41 @@ document.getElementById("tab-admin")
 await loadWithdrawals();
 
 });
+
+async function loadWithdrawals() {
+
+const { data, error } = await supabaseClient
+    .from("withdrawals")
+    .select("*")
+    .order("id", { ascending: false });
+
+if (error) {
+    console.error(error);
+    return;
+}
+
+const container =
+    document.getElementById("withdrawals-list");
+
+if (!data || data.length === 0) {
+
+    container.innerHTML =
+        "No hay solicitudes.";
+
+    return;
+}
+
+container.innerHTML = data.map(w => `
+    <div class="card">
+        <b>ID:</b> ${w.id}<br>
+        <b>Usuario:</b> ${w.telegram_id}<br>
+        <b>Método:</b> ${w.method}<br>
+        <b>Monto:</b> ${w.amount}<br>
+        <b>Estado:</b> ${w.status}
+    </div>
+`).join("");
+
+}
  // WHEEL OF FORTUNE
 
  const btnSpin = document.getElementById("btn-spin");

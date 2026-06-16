@@ -978,13 +978,75 @@ if (!data || data.length === 0) {
 
 container.innerHTML = data.map(w => `
     <div class="card">
+
         <b>ID:</b> ${w.id}<br>
         <b>Usuario:</b> ${w.telegram_id}<br>
         <b>Método:</b> ${w.method}<br>
         <b>Monto:</b> ${w.amount}<br>
-        <b>Estado:</b> ${w.status}
+        <b>Estado:</b> ${w.status}<br><br>
+
+        <button
+            class="btn btn-success"
+            onclick="approveWithdrawal(${w.id})">
+            ✅ Aprobar
+        </button>
+
+        <button
+            class="btn btn-danger"
+            onclick="rejectWithdrawal(${w.id})">
+            ❌ Rechazar
+        </button>
+
     </div>
 `).join("");
+
+}
+
+async function approveWithdrawal(id) {
+
+const { error } = await supabaseClient
+    .from("withdrawals")
+    .update({
+        status: "completed"
+    })
+    .eq("id", id);
+
+if (error) {
+
+    alert("Error al aprobar");
+
+    console.error(error);
+
+    return;
+}
+
+alert("Retiro aprobado");
+
+loadWithdrawals();
+
+}
+
+async function rejectWithdrawal(id) {
+
+const { error } = await supabaseClient
+    .from("withdrawals")
+    .update({
+        status: "rejected"
+    })
+    .eq("id", id);
+
+if (error) {
+
+    alert("Error al rechazar");
+
+    console.error(error);
+
+    return;
+}
+
+alert("Retiro rechazado");
+
+loadWithdrawals();
 
 }
  // WHEEL OF FORTUNE

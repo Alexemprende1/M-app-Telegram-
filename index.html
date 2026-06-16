@@ -1516,10 +1516,21 @@ try {
                     return;
                 }
 
-                if (amount < 5.0) {
-                    alert("El retiro mínimo operacional es de 5.00000000 TRX.");
-                    return;
-                }
+                if (method === "faucetpay" && amount < 0.001) {
+
+alert("Mínimo FaucetPay: 0.001 TRX");
+
+return;
+
+}
+
+if (method === "tron_network" && amount < 5) {
+
+alert("Mínimo Red TRON: 5 TRX");
+
+return;
+
+}
 
                 try {
                     const { data, error } = await supabaseClient.rpc('create_withdrawal', {
@@ -1528,9 +1539,6 @@ try {
                         p_address: address,
                         p_amount: amount
                     });
-
-                    console.log("WITHDRAW DATA:", data);
-console.log("WITHDRAW ERROR:", error);
 
                     if (error || !data.success) {
                         alert(data?.message || "Transacción denegada.");

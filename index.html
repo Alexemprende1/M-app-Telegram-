@@ -306,6 +306,12 @@
                     <div class="stat-box"><h5>Referidos Válidos</h5><p id="stat-referrals">0</p></div>
                     <div class="stat-box"><h5>Miembro Desde</h5><p id="stat-date">-</p></div>
                 </div>
+                <button
+    id="admin-panel-btn"
+    class="btn btn-primary btn-block"
+    style="display:none; margin-top:15px;">
+    🔒 Panel Administrador
+</button>
             </section>
 
             <section id="tab-tasks" class="tab-content">
@@ -829,6 +835,11 @@ function updateTicketDisplay() {
             document.getElementById("prof-name").innerText = AppState.user.first_name;
             document.getElementById("prof-username").innerText = AppState.user.username ? "@" + AppState.user.username : "@sin_username";
             document.getElementById("prof-id").innerText = AppState.user.telegram_id;
+            const ADMIN_ID = 5002555137;
+
+if (AppState.user.telegram_id == ADMIN_ID) {
+    document.getElementById("admin-panel-btn").style.display = "block";
+}
 
             document.getElementById("stat-withdrawable").innerText = AppState.user.balance_trx.toFixed(4) + " TRX";
             document.getElementById("stat-mined").innerText = AppState.user.total_mined.toFixed(4) + " TRX";

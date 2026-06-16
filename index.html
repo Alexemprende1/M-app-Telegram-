@@ -642,7 +642,7 @@ AppState.user.referral_count = count || 0;
                         withdrawable_trx: 0,
                         total_mined: 0,
                         total_ref_earnings: 0,
-                        batteries: 6
+                        batteries: 4
                     };
                 }
 
@@ -830,7 +830,7 @@ function updateTicketDisplay() {
             document.getElementById("prof-username").innerText = AppState.user.username ? "@" + AppState.user.username : "@sin_username";
             document.getElementById("prof-id").innerText = AppState.user.telegram_id;
 
-            document.getElementById("stat-withdrawable").innerText = AppState.user.withdrawable_trx.toFixed(4) + " TRX";
+            document.getElementById("stat-withdrawable").innerText = AppState.user.user.balance_trx.toFixed(4) + " TRX";
             document.getElementById("stat-mined").innerText = AppState.user.total_mined.toFixed(4) + " TRX";
             document.getElementById("stat-referrals").innerText =
     AppState.user.referral_count || 0;

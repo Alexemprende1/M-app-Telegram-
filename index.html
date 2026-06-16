@@ -512,7 +512,10 @@
                             </select>
                         </div>
                         <div class="form-group">
-                            <label>Dirección Wallet o Usuario destino</label>
+                            <label id="withdraw-address-label">
+                                Usuario FaucetPay
+                            </label>
+                            
                             <input type="text" id="withdraw-address" class="form-control" placeholder="Introduce datos destino" required>
                         </div>
                         <div class="form-group">
@@ -1680,7 +1683,49 @@ try {
                 alert("¡Enlace de invitación copiado al portapapeles!");
             }
         });
+        const withdrawMethod =
+    document.getElementById("withdraw-method");
 
+const withdrawAddress =
+    document.getElementById("withdraw-address");
+
+const withdrawAddressLabel =
+    document.getElementById("withdraw-address-label");
+
+if (
+    withdrawMethod &&
+    withdrawAddress &&
+    withdrawAddressLabel
+) {
+
+    withdrawMethod.addEventListener("change", () => {
+
+        if (withdrawMethod.value === "faucetpay") {
+
+            withdrawAddressLabel.innerText =
+                "Usuario FaucetPay";
+
+            withdrawAddress.placeholder =
+                "Ej: alexander123";
+
+        } else {
+
+            withdrawAddressLabel.innerText =
+                "Dirección TRC20";
+
+            withdrawAddress.placeholder =
+                "Ej: TJvrd1iDP...";
+
+        }
+
+    });
+
+    // Ejecutar una vez al cargar
+    withdrawMethod.dispatchEvent(
+        new Event("change")
+    );
+
+}
         const withdrawForm = document.getElementById("withdrawal-form");
         if(withdrawForm) {
             const newForm = withdrawForm.cloneNode(true);

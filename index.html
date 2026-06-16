@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
@@ -1683,59 +1683,58 @@ try {
                 alert("¡Enlace de invitación copiado al portapapeles!");
             }
         });
-        const withdrawMethod =
-    document.getElementById("withdraw-method");
-
-const withdrawAddress =
-    document.getElementById("withdraw-address");
-
-const withdrawAddressLabel =
-    document.getElementById("withdraw-address-label");
-
-if (
-    withdrawMethod &&
-    withdrawAddress &&
-    withdrawAddressLabel
-) {
-
-    withdrawMethod.addEventListener("change", () => {
-
-        if (withdrawMethod.value === "faucetpay") {
-
-            withdrawAddressLabel.innerText =
-                "Usuario FaucetPay";
-
-            withdrawAddress.placeholder =
-                "Ej: alexander123";
-
-        } else {
-
-            withdrawAddressLabel.innerText =
-                "Dirección TRC20";
-
-            withdrawAddress.placeholder =
-                "Ej: TJvrd1iDP...";
-
-        }
-
-    });
-
-    // Ejecutar una vez al cargar
-    withdrawMethod.dispatchEvent(
-        new Event("change")
-    );
-
-}
+      
         const withdrawForm = document.getElementById("withdrawal-form");
         if(withdrawForm) {
             const newForm = withdrawForm.cloneNode(true);
             withdrawForm.parentNode.replaceChild(newForm, withdrawForm);
+            const withdrawMethod =
+    newForm.querySelector("#withdraw-method");
 
+const withdrawAddress =
+    newForm.querySelector("#withdraw-address");
+
+const withdrawAddressLabel =
+    newForm.querySelector("#withdraw-address-label");
+
+function updateWithdrawUI() {
+
+    if (withdrawMethod.value === "faucetpay") {
+
+        withdrawAddressLabel.innerText =
+            "Usuario FaucetPay";
+
+        withdrawAddress.placeholder =
+            "Ej: alexander123";
+
+    } else {
+
+        withdrawAddressLabel.innerText =
+            "Dirección TRC20";
+
+        withdrawAddress.placeholder =
+            "Ej: TJvrd1iDP...";
+
+    }
+}
+
+withdrawMethod.addEventListener(
+    "change",
+    updateWithdrawUI
+);
+
+updateWithdrawUI();
             newForm.addEventListener("submit", async (e) => {
                 e.preventDefault();
-                const method = document.getElementById("withdraw-method").value;
-                const address = document.getElementById("withdraw-address").value.trim();
-                const amount = parseFloat(document.getElementById("withdraw-amount").value);
+                const method = withdrawMethod.value;
+
+const address =
+    withdrawAddress.value.trim();
+
+const amount =
+    parseFloat(
+        newForm.querySelector("#withdraw-amount").value
+    );
 
                 if (isNaN(amount) || amount <= 0 || !Number.isFinite(amount)) {
                     alert("Entrada inválida.");

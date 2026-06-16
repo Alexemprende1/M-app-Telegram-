@@ -313,7 +313,19 @@
     🔒 Panel Administrador
 </button>
             </section>
+            <section id="tab-admin" class="tab-content">
 
+                <div class="card">
+            
+                    <h3>🔒 Panel de Administración</h3>
+            
+                    <div id="withdrawals-list">
+                        No hay solicitudes cargadas.
+                    </div>
+            
+                </div>
+            
+            </section>
             <section id="tab-tasks" class="tab-content">
                 <div class="card text-center" style="margin-bottom: 16px;">
                     <h3>🎯 Ruleta de la Fortuna</h3>
@@ -928,6 +940,16 @@ document.getElementById("ads-next-reward").innerText = next.reward;
                 AppState.activeTab = target;
             });
         });
+
+        document.getElementById("admin-panel-btn").addEventListener("click", () => {
+
+document.querySelectorAll(".tab-content")
+    .forEach(t => t.classList.remove("active"));
+
+document.getElementById("tab-admin")
+    .classList.add("active");
+
+});
  // WHEEL OF FORTUNE
 
  const btnSpin = document.getElementById("btn-spin");

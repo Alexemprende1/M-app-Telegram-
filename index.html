@@ -838,7 +838,7 @@ function updateTicketDisplay() {
 
             document.getElementById("ref-count-panel").innerText =
             AppState.user.referral_count || 0;
-            document.getElementById("ref-earnings-panel").innerText = AppState.user.total_ref_earnings.toFixed(4);
+            document.getElementById("ref-earnings-panel").innerText = AppState.user.total_ref_earnings.toFixed(6);
 
             const botUser = "bot2026minertrx_bot"; 
             document.getElementById("referral-url").value = `https://t.me/${botUser}?start=${AppState.user.telegram_id}`;
@@ -1225,7 +1225,7 @@ updateBatteryDisplay();
                     return;
                 }
 
-                alert(`💰 Retiro exitoso. Has asegurado +${parseFloat(data.prize).toFixed(4)} TRX.`);
+                alert(`💰 Retiro exitoso. Has asegurado +${parseFloat(data.prize).toFixed(6)} TRX.`);
                 AppState.user.balance_trx += parseFloat(data.prize);
                 refreshProfileData();
                 resetMinesGameUI();

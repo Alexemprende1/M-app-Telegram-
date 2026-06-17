@@ -1754,7 +1754,7 @@ miningTimer.innerText = `${h}:${m}:${s}`;
 async function claimMiningReward() {
 
 try {
-    
+    await show_11148552();
     const { data, error } = await supabaseClient.rpc(
         'claim_mining_tma',
         {

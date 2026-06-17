@@ -982,11 +982,31 @@ if (!data || data.length === 0) {
 container.innerHTML = data.map(w => `
     <div class="card">
 
-        <b>ID:</b> ${w.id}<br>
-        <b>Usuario:</b> ${w.telegram_id}<br>
-        <b>Método:</b> ${w.method}<br>
-        <b>Monto:</b> ${w.amount}<br>
-        <b>Estado:</b>
+       <b>ID:</b> ${w.id}<br>
+<b>Usuario:</b> ${w.telegram_id}<br>
+
+<b>Método:</b>
+${w.method === "faucetpay"
+    ? "🟢 FaucetPay"
+    : "🔵 TRC20"}
+<br>
+
+<b>Destino:</b>
+
+<span
+onclick="navigator.clipboard.writeText('${w.address}');alert('Destino Copiado al portapapeles');"
+style="
+color:#4dabf7;
+cursor:pointer;
+font-weight:bold;
+">
+${w.address}
+</span>
+<br>
+
+<b>Monto:</b> ${w.amount}<br>
+
+<b>Estado:</b>
 
 <span style="
 font-weight:bold;

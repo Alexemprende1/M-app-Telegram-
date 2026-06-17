@@ -983,6 +983,9 @@ container.innerHTML = data.map(w => `
     <div class="card">
 
        <b>ID:</b> ${w.id}<br>
+       <b>Fecha:</b>
+${new Date(w.created_at).toLocaleString()}
+<br>
 <b>Usuario:</b> ${w.telegram_id}<br>
 
 <b>Método:</b>

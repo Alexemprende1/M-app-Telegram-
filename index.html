@@ -524,6 +524,14 @@
                         </div>
                         <button type="submit" class="btn btn-success btn-block">Solicitar Retiro</button>
                     </form>
+                    <div class="card">
+                        <h3>📜 Historial de Retiros</h3>
+                    
+                        <div id="withdraw-history">
+                            Cargando Historial...
+
+                        </div>
+                    </div>
                 </div>
             </section>
         </main>
@@ -674,6 +682,7 @@ AppState.user.referral_count = count || 0;
                 
                 // Actualizar elementos dinámicos en el DOM inmediatamente
                 refreshProfileData();
+                loadWithdrawHistory();
                 renderSocialTasks();
                 
                 updateWheelTimer();
@@ -958,6 +967,99 @@ await loadWithdrawals();
 
 async function loadWithdrawals() {
 
+    async function loadWithdrawHistory() {
+
+const container =
+    document.getElementById("withdraw-history");
+
+if (!container || !AppState.user) return;
+
+const { data, error } =
+    await supabaseClient
+        .from("withdrawals")
+        .select("*")
+        .eq(
+            "telegram_id",
+            AppState.user.telegram_id
+        )
+        .order(
+            "created_at",
+            { ascending: false }
+        );
+
+if (error) {
+
+    console.error(error);
+
+    container.innerHTML =
+        "Error cargando historial.";
+
+    return;
+}
+
+if (!data || data.length === 0) {
+
+    container.innerHTML =
+        "Aún no tienes retiros.";
+
+    return;
+}
+
+container.innerHTML =
+    data.map(w => `
+
+<div class="card">
+
+<b>📅 Fecha:</b>
+${new Date(w.created_at)
+.toLocaleString("es-ES")}
+<br>
+
+<b>🏦 Método:</b>
+${w.method === "faucetpay"
+? "🟢 FaucetPay"
+: "🔵 TRC20"}
+<br>
+
+<b>📍 Destino:</b>
+${w.address}
+<br>
+
+<b>💸 Monto:</b>
+${w.amount} TRX
+<br>
+
+<b>Estado:</b>
+
+<span style="
+font-weight:bold;
+color:
+${w.status === "pending"
+? "#f6a609"
+: w.status === "completed"
+? "#00d084"
+: "#ff4d4f"};
+">
+
+${w.status === "pending"
+? "🟡 Pending"
+: ""}
+
+${w.status === "completed"
+? "🟢 Completed"
+: ""}
+
+${w.status === "rejected"
+? "🔴 Rejected"
+: ""}
+
+</span>
+
+</div>
+
+`).join("");
+
+}
 const { data, error } = await supabaseClient
     .from("withdrawals")
     .select("*")
@@ -1823,6 +1925,7 @@ return;
                     alert("🚀 Retiro registrado correctamente. Procesando en cola de pagos.");
                     newForm.reset();
                     refreshProfileData();
+                    loadWithdrawHistory();
                 } catch(err){ console.error(err); }
             });
         }

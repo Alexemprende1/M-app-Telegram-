@@ -965,9 +965,7 @@ await loadWithdrawals();
 
 });
 
-async function loadWithdrawals() {
-
-    async function loadWithdrawHistory() {
+async function loadWithdrawHistory() {
 
 const container =
     document.getElementById("withdraw-history");
@@ -1060,6 +1058,9 @@ ${w.status === "rejected"
 `).join("");
 
 }
+
+async function loadWithdrawals() {
+
 const { data, error } = await supabaseClient
     .from("withdrawals")
     .select("*")

@@ -984,7 +984,6 @@ await loadWithdrawals();
 
 });
 async function loadWheelHistory() {
-    console.log("LOAD WHEEL HISTORY EJECUTADA");
 const container =
 document.getElementById("wheel-history");
 
@@ -1003,9 +1002,6 @@ await supabaseClient
     { ascending:false }
 )
 .limit(20);
-
-console.log("WHEEL DATA:", data);
-console.log("WHEEL ERROR:", error);
 
 if (error) {
 

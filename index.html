@@ -399,6 +399,18 @@
                         </div>
                     </div>
                     <button id="btn-spin" class="btn btn-primary btn-block">GIRAR POR 1 ANUNCIO</button>
+                    <div class="card" style="margin-top:15px;">
+
+                        <h3>🎯 Historial de Ruleta</h3>
+                        
+                        <div id="wheel-history">
+                        
+                        Cargando historial...
+                        
+                        </div>
+                        
+                        </div>
+
                 </div>
 
                 <div class="card" id="ads-loyalty-card" style="margin-top:15px;">
@@ -418,6 +430,18 @@
                         Recompensa:
                         <span id="ads-next-reward">0.001 TRX</span>
                     </p>
+                </div>
+
+                <div class="card">
+
+                    <h3>🎁 Historial de Ruleta</h3>
+                
+                    <div id="wheel-history">
+                
+                        Cargando historial...
+                
+                    </div>
+                
                 </div>
 
                 <div class="card">
@@ -964,7 +988,65 @@ document.getElementById("tab-admin")
 await loadWithdrawals();
 
 });
+async function loadWheelHistory() {
 
+const container =
+document.getElementById("wheel-history");
+
+if (!container || !AppState.user) return;
+
+const { data, error } =
+await supabaseClient
+.from("wheel_history")
+.select("*")
+.eq(
+    "telegram_id",
+    AppState.user.telegram_id
+)
+.order(
+    "created_at",
+    { ascending:false }
+)
+.limit(20);
+
+if (error) {
+
+    console.error(error);
+
+    container.innerHTML =
+    "Error cargando historial.";
+
+    return;
+}
+
+if (!data || data.length === 0) {
+
+    container.innerHTML =
+    "Aún no has girado la ruleta.";
+
+    return;
+}
+
+container.innerHTML =
+data.map(item => `
+
+<div class="card">
+
+🎯 Premio:
+<b>${item.reward} TRX</b>
+
+<br>
+
+📅 Fecha:
+${new Date(
+item.created_at
+).toLocaleString("es-ES")}
+
+</div>
+
+`).join("");
+
+}
 async function loadWithdrawHistory() {
 
 const container =

@@ -1782,7 +1782,7 @@ detectorUsed = false;
                     p_telegram_id: AppState.user.telegram_id,
                     p_cell_id: index
                 });
-        consola.log(data);
+        console.log(data);
                 if (error || !data.success) {
                     alert(data?.message || "Movimiento inválido.");
                     return;

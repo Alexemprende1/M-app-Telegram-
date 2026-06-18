@@ -1242,6 +1242,53 @@ document.getElementById("ads-progress-count").innerText = total;
 document.getElementById("ads-next-goal").innerText = next.spins;
 document.getElementById("ads-next-reward").innerText = next.reward;
 }
+function showGame(game) {
+
+const gamesMenu =
+    document.getElementById("games-menu");
+
+const minesGame =
+    document.getElementById("game-mines");
+
+const treasureGame =
+    document.getElementById("game-treasure");
+
+if (!gamesMenu || !minesGame || !treasureGame)
+    return;
+
+gamesMenu.style.display = "none";
+
+minesGame.style.display = "none";
+treasureGame.style.display = "none";
+
+if (game === "mines") {
+    minesGame.style.display = "block";
+}
+
+if (game === "treasure") {
+    treasureGame.style.display = "block";
+}
+}
+
+function showGamesMenu() {
+
+const gamesMenu =
+    document.getElementById("games-menu");
+
+const minesGame =
+    document.getElementById("game-mines");
+
+const treasureGame =
+    document.getElementById("game-treasure");
+
+if (!gamesMenu || !minesGame || !treasureGame)
+    return;
+
+gamesMenu.style.display = "block";
+
+minesGame.style.display = "none";
+treasureGame.style.display = "none";
+}
         // TABS NAVIGATION SYSTEM
         document.querySelectorAll(".nav-item").forEach(button => {
             button.addEventListener("click", () => {

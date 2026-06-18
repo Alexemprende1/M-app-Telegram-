@@ -568,7 +568,7 @@ animation:
                 <div class="card">
                     <h3>💣 Crypto Mines</h3>
                         <div class="battery-status">
-                            🔋 Baterías: <span id="mines-batteries">4/4</span>
+                            🔋 Baterías: <span id="mines-batteries">6/6</span>
                         </div>
                         <div id="battery-countdown" class="battery-countdown">🔋 Energía completa</div>
                         <div class="card" style="margin-top:10px;">
@@ -595,9 +595,9 @@ animation:
                     <div class="selectors">
                         <select id="mines-difficulty" class="form-control">
                             <option value="easy">Fácil (3 Bombas)</option>
-                            <option value="medium">Medio (6 Bombas)</option>
-                            <option value="hard">Difícil (9 Bombas)</option>
-                            <option value="expert">Experto (12 Bombas)</option>
+                            <option value="medium">Medio (4 Bombas)</option>
+                            <option value="hard">Difícil (5 Bombas)</option>
+                            <option value="expert">Experto (7 Bombas)</option>
                         </select>
                     </div>
                     <div class="game-buttons">
@@ -758,7 +758,7 @@ class="btn btn-secondary btn-block">
         };
 
         const BATTERY_RECHARGE_SECONDS = 30 * 60;
-        const BATTERY_MAX = 4;
+        const BATTERY_MAX = 6;
 
         const MINES_CONFIG = {
             easy: { cells: 16, bombs: 3 },
@@ -809,7 +809,7 @@ class="btn btn-secondary btn-block">
                         withdrawable_trx: 0,
                         total_mined: 0,
                         total_ref_earnings: 0,
-                        batteries: 4
+                        batteries: 6
                     };
                 } else if (data) {
                     console.log("Datos de usuario retornados por el RPC:", data);
@@ -838,7 +838,7 @@ class="btn btn-secondary btn-block">
     batteries: parseInt(
         rawRecord.batteries !== undefined
             ? rawRecord.batteries
-            : 4
+            : 6
     ),
 
     last_spin_at: rawRecord.last_spin_at || null
@@ -862,7 +862,7 @@ AppState.user.referral_count = count || 0;
                         withdrawable_trx: 0,
                         total_mined: 0,
                         total_ref_earnings: 0,
-                        batteries: 4
+                        batteries: 6
                     };
                 }
 

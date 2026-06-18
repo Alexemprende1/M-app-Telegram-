@@ -1718,10 +1718,25 @@ btnDetector.addEventListener(
 
         detectorUsed = true;
 
-        alert(
-            "🔍 Detector activado.\n\n" +
-            "La próxima versión iluminará una casilla segura."
-        );
+        detectorUsed = true;
+
+const cells =
+    document.querySelectorAll(".mine-cell");
+
+for (const cell of cells) {
+
+    if (
+        !cell.classList.contains("revealed") &&
+        !cell.classList.contains("bomb")
+    ) {
+
+        cell.innerHTML = "💥";
+        cell.style.boxShadow =
+            "0 0 15px #ff4444";
+
+        break;
+    }
+}
     }
 );
         btnStartMines.addEventListener("click", async () => {

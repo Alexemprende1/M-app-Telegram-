@@ -603,6 +603,13 @@ animation:
                     <div class="game-buttons">
                         <button id="btn-start-mines" class="btn btn-primary btn-block">Empezar Partida</button>
                         <button id="btn-cashout-mines" class="btn btn-success btn-block" disabled>Asegurar Ganancias</button>
+                        <button
+id="btn-detector"
+class="btn btn-secondary btn-block">
+
+🔍 Detector
+
+</button>
                     </div>
                 </div>
                 <div id="mines-grid" class="mines-grid"></div>
@@ -1612,9 +1619,16 @@ updateWheelTimer();
         // MINES GAME OPERATION
         const btnStartMines = document.getElementById("btn-start-mines");
         const btnCashoutMines = document.getElementById("btn-cashout-mines");
+        const btnDetector =
+document.getElementById(
+    "btn-detector"
+);
         const minesGrid = document.getElementById("mines-grid");
         const btnTicketAd =
 document.getElementById("btn-ticket-ad");
+
+let reviveUsed = false;
+let detectorUsed = false;
 
 const ticketCounter =
 document.getElementById("ticket-counter");
@@ -1678,7 +1692,38 @@ try {
 }
 
 });
+btnDetector.addEventListener(
+    "click",
+    async () => {
 
+        if (!AppState.minesGame.active) {
+
+            alert(
+                "Inicia una partida primero."
+            );
+
+            return;
+        }
+
+        if (detectorUsed) {
+
+            alert(
+                "🔍 Ya utilizaste el detector."
+            );
+
+            return;
+        }
+
+        await show_11148552();
+
+        detectorUsed = true;
+
+        alert(
+            "🔍 Detector activado.\n\n" +
+            "La próxima versión iluminará una casilla segura."
+        );
+    }
+);
         btnStartMines.addEventListener("click", async () => {
             const difficulty = document.getElementById("mines-difficulty").value;
             btnStartMines.disabled = true;
@@ -1699,6 +1744,10 @@ try {
 updateBatteryDisplay();
 
                 AppState.minesGame.active = true;
+
+                reviveUsed = false;
+detectorUsed = false;
+
                 AppState.minesGame.difficulty = difficulty;
                 AppState.minesGame.revealedCount = 0;
                 
@@ -1742,11 +1791,36 @@ updateBatteryDisplay();
                 cellElement.classList.add("revealed");
 
                 if (data.status === "bomb") {
-                    cellElement.classList.add("bomb");
-                    cellElement.innerHTML = "💥";
-                    alert("💣 ¡BOMBA! Has perdido tu partida y la energía apostada.");
-                    resetMinesGameUI();
-                } else {
+
+cellElement.classList.add("bomb");
+cellElement.innerHTML = "💥";
+
+if (!rescueUsed) {
+
+    const rescue = confirm(
+        "🚑 RESCATE MINERO\n\n" +
+        "Mira un anuncio para continuar jugando."
+    );
+
+    if (rescue) {
+
+        await show_11148552();
+
+        rescueUsed = true;
+
+        cellElement.classList.remove("bomb");
+        cellElement.innerHTML = "🛡️";
+
+        return;
+    }
+}
+
+alert(
+    "💣 ¡BOMBA! Has perdido tu partida."
+);
+
+resetMinesGameUI();
+} else {
                     cellElement.innerHTML = "💎";
                     AppState.minesGame.revealedCount++;
                     

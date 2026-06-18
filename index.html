@@ -566,8 +566,41 @@ animation:
 
             <section id="tab-mines" class="tab-content">
                 <div class="card">
-                    <h3>💣 Crypto Mines</h3>
-                        <div class="battery-status">
+
+                        <h3>🎮 Juegos</h3>
+                    
+                        <div id="games-menu">
+                    
+                            <div class="card game-card"
+                                 onclick="showGame('mines')">
+                    
+                                <h3>💣 Crypto Mines</h3>
+                    
+                                <p>
+                                    Encuentra casillas seguras,
+                                    gana TRX y evita las bombas.
+                                </p>
+                    
+                            </div>
+                    
+                            <div class="card game-card"
+                                 onclick="showGame('treasure')">
+                    
+                                <h3>💎 Treasure Hunt</h3>
+                    
+                                <p>
+                                    Busca cofres ocultos y
+                                    encuentra tesoros.
+                                </p>
+                    
+                            </div>
+                    
+                        </div>
+                    
+                        <div id="game-mines" style="display:none;">
+                    
+                            <div class="battery-status">
+
                             🔋 Baterías: <span id="mines-batteries">6/6</span>
                         </div>
                         <div id="battery-countdown" class="battery-countdown">🔋 Energía completa</div>
@@ -613,6 +646,31 @@ class="btn btn-secondary btn-block">
                     </div>
                 </div>
                 <div id="mines-grid" class="mines-grid"></div>
+
+            </div>
+            
+            <div id="game-treasure"
+                 style="display:none;">
+            
+                <div class="card">
+            
+                    <h2>💎 Treasure Hunt</h2>
+            
+                    <p>
+                        Próximamente...
+                    </p>
+            
+                    <button
+                        class="btn btn-primary btn-block"
+                        onclick="showGamesMenu()">
+            
+                        ⬅ Volver
+            
+                    </button>
+            
+                </div>
+            
+            </div>
             </section>
 
             <section id="tab-referrals" class="tab-content">
@@ -730,7 +788,7 @@ class="btn btn-secondary btn-block">
         <nav class="bottom-nav">
             <button class="nav-item active" data-target="tab-profile"><span>🏠</span><label>Perfil</label></button>
             <button class="nav-item" data-target="tab-tasks"><span>🎁</span><label>Tareas</label></button>
-            <button class="nav-item" data-target="tab-mines"><span>💣</span><label>Minas</label></button>
+            <button class="nav-item" data-target="tab-mines"><span>🎮</span><label>juegos</label></button>
             <button class="nav-item" data-target="tab-referrals"><span>👥</span><label>Referidos</label></button>
             <button class="nav-item" data-target="tab-mining"><span>⛏️</span><label>Minería</label></button>
             <button class="nav-item" data-target="tab-wallet"><span>💰</span><label>Billetera</label></button>

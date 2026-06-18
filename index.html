@@ -567,7 +567,7 @@ animation:
             <section id="tab-mines" class="tab-content">
                 <div class="card">
 
-                        <h3>🎮 Juegos</h3>
+                    <h3 id="games-title">🎮 Juegos</h3>
                     
                         <div id="games-menu">
                     
@@ -651,7 +651,7 @@ class="btn btn-secondary btn-block">
                 onclick="showGamesMenu()">
                 ← Volver
              </button>
-             
+
             </div>
             
             <div id="game-treasure"
@@ -1252,6 +1252,9 @@ function showGame(game) {
 const gamesMenu =
     document.getElementById("games-menu");
 
+    const gamesTitle =
+    document.getElementById("games-title");
+
 const minesGame =
     document.getElementById("game-mines");
 
@@ -1262,6 +1265,8 @@ if (!gamesMenu || !minesGame || !treasureGame)
     return;
 
 gamesMenu.style.display = "none";
+
+gamesTitle.style.display = "none";
 
 minesGame.style.display = "none";
 treasureGame.style.display = "none";
@@ -1280,6 +1285,9 @@ function showGamesMenu() {
 const gamesMenu =
     document.getElementById("games-menu");
 
+    const gamesTitle =
+    document.getElementById("games-title");
+
 const minesGame =
     document.getElementById("game-mines");
 
@@ -1290,6 +1298,8 @@ if (!gamesMenu || !minesGame || !treasureGame)
     return;
 
 gamesMenu.style.display = "block";
+
+gamesTitle.style.display = "block";
 
 minesGame.style.display = "none";
 treasureGame.style.display = "none";

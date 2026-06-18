@@ -650,27 +650,79 @@ class="btn btn-secondary btn-block">
             </div>
             
             <div id="game-treasure"
-                 style="display:none;">
-            
-                <div class="card">
-            
-                    <h2>💎 Treasure Hunt</h2>
-            
-                    <p>
-                        Próximamente...
-                    </p>
-            
-                    <button
-                        class="btn btn-primary btn-block"
-                        onclick="showGamesMenu()">
-            
-                        ⬅ Volver
-            
-                    </button>
-            
-                </div>
-            
-            </div>
+            style="display:none;">
+       
+           <div class="battery-status">
+       
+               🔋 Baterías:
+               <span id="treasure-batteries">
+                   6/6
+               </span>
+       
+           </div>
+       
+           <div class="selectors">
+       
+               <select
+                   id="treasure-difficulty"
+                   class="form-control">
+       
+                   <option value="easy">
+                       Fácil
+                   </option>
+       
+                   <option value="medium">
+                       Medio
+                   </option>
+       
+                   <option value="hard">
+                       Difícil
+                   </option>
+       
+                   <option value="expert">
+                       Experto
+                   </option>
+       
+               </select>
+       
+           </div>
+       
+           <div class="game-buttons">
+       
+               <button
+                   id="btn-start-treasure"
+                   class="btn btn-primary btn-block">
+       
+                   💎 Buscar Tesoros
+       
+               </button>
+       
+               <button
+                   id="btn-claim-treasure"
+                   class="btn btn-success btn-block"
+                   disabled>
+       
+                   💰 Cobrar Tesoro
+       
+               </button>
+       
+           </div>
+       
+           <div
+               id="treasure-grid"
+               class="mines-grid">
+       
+           </div>
+       
+           <button
+               class="btn btn-secondary btn-block"
+               onclick="showGamesMenu()">
+       
+               ⬅ Volver
+       
+           </button>
+       
+       </div>
             </section>
 
             <section id="tab-referrals" class="tab-content">

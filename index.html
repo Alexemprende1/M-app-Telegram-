@@ -1692,7 +1692,7 @@ try {
 }
 
 });
-btnDetector.addEventListener(
+EventLibtnDetector.addstener(
     "click",
     async () => {
 
@@ -1720,21 +1720,32 @@ btnDetector.addEventListener(
 
         detectorUsed = true;
 
-const cells =
-    document.querySelectorAll(".mine-cell");
+const hint =
+await supabaseClient.rpc(
+    "get_mine_hint",
+{
+    p_telegram_id:
+        AppState.user.telegram_id
+});
+console.log("HINT:", hint);
+if (
+    hint.data &&
+    hint.data.success
+) {
 
-for (const cell of cells) {
+    const bombCell =
+    document.querySelector(
+        `[data-index="${hint.data.bomb_cell}"]`
+    );
 
-    if (
-        !cell.classList.contains("revealed") &&
-        !cell.classList.contains("bomb")
-    ) {
+    if (bombCell) {
 
-        cell.innerHTML = "💥";
-        cell.style.boxShadow =
-            "0 0 15px #ff4444";
+        bombCell.innerHTML = "💥";
+        bombCell.style.boxShadow =
+            "0 0 20px red";
 
-        break;
+        bombCell.style.border =
+            "2px solid red";
     }
 }
     }

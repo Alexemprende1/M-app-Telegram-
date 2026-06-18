@@ -1795,7 +1795,7 @@ detectorUsed = false;
 cellElement.classList.add("bomb");
 cellElement.innerHTML = "💥";
 
-if (!rescueUsed) {
+if (!reviveUsed) {
 
     const rescue = confirm(
         "🚑 RESCATE MINERO\n\n" +
@@ -1806,7 +1806,7 @@ if (!rescueUsed) {
 
         await show_11148552();
 
-        rescueUsed = true;
+        reviveUsed = true;
 
         cellElement.classList.remove("bomb");
         cellElement.innerHTML = "🛡️";
@@ -1858,12 +1858,17 @@ resetMinesGameUI();
             } catch(e) { console.error(e); }
         }
 
-            function resetMinesGameUI() {
-    AppState.minesGame.active = false;
-    btnStartMines.disabled = false;
-    btnCashoutMines.disabled = true;
+        function resetMinesGameUI() {
 
-    minesGrid.innerHTML = "";
+AppState.minesGame.active = false;
+
+reviveUsed = false;
+detectorUsed = false;
+
+btnStartMines.disabled = false;
+btnCashoutMines.disabled = true;
+
+minesGrid.innerHTML = "";
 }
 
         // MINING SYSTEM OPERATIONS

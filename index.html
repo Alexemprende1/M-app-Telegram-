@@ -1093,12 +1093,24 @@ console.log(data);
         }
 
         function updateBatteryDisplay() {
-            const batteriesEl = document.getElementById("mines-batteries");
+            const batteriesEl =
+    document.getElementById("mines-batteries");
+
+const treasureBatteriesEl =
+    document.getElementById("treasure-batteries");
             const countdownEl = document.getElementById("battery-countdown");
             if (!batteriesEl || !AppState.user) return;
 
             const batteries = AppState.user.batteries ?? 0;
-            batteriesEl.innerText = `${batteries}/${BATTERY_MAX}`;
+            if (batteriesEl) {
+    batteriesEl.innerText =
+        `${batteries}/${BATTERY_MAX}`;
+}
+
+if (treasureBatteriesEl) {
+    treasureBatteriesEl.innerText =
+        `${batteries}/${BATTERY_MAX}`;
+}
 
             if (!countdownEl) return;
 

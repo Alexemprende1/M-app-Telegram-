@@ -1439,16 +1439,16 @@ document
                 }
             );
 
-        if (error || !data?.success) {
+            if (error || !data?.success) {
 
-            alert(
-                data?.message ||
-                "Error iniciando partida"
-            );
+alert(
+    JSON.stringify(error) +
+    "\n\n" +
+    JSON.stringify(data)
+);
 
-            return;
-        }
-
+return;
+}
         treasureFound = 0;
 
         document

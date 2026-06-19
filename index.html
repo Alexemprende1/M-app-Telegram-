@@ -1382,6 +1382,17 @@ document
     buildTreasureBoard();
 
 });
+
+document
+.getElementById("btn-claim-treasure")
+?.addEventListener("click", () => {
+
+    alert(
+        "Tesoros encontrados: " +
+        treasureFound
+    );
+
+});
         // TABS NAVIGATION SYSTEM
         document.querySelectorAll(".nav-item").forEach(button => {
             button.addEventListener("click", () => {

@@ -571,6 +571,20 @@ animation:
                     
                         <div id="games-menu">
 
+                            <div class="battery-status">
+
+                                🔋 Baterías:
+                                <span id="menu-batteries">6/6</span>
+                            
+                            </div>
+                            
+                            <div id="menu-battery-countdown"
+                                 class="battery-countdown">
+                            
+                                🔋 Energía completa
+                            
+                            </div>
+
                             <div class="card" style="margin-top:10px;">
 
                                 <div style="margin-bottom:8px;">
@@ -1101,6 +1115,12 @@ console.log(data);
 const treasureBatteriesEl =
     document.getElementById("treasure-batteries");
             const countdownEl = document.getElementById("battery-countdown");
+            const menuBatteriesEl =
+    document.getElementById("menu-batteries");
+
+const menuCountdownEl =
+    document.getElementById("menu-battery-countdown");
+
             if (!batteriesEl || !AppState.user) return;
 
             const batteries = AppState.user.batteries ?? 0;
@@ -1114,12 +1134,25 @@ if (treasureBatteriesEl) {
         `${batteries}/${BATTERY_MAX}`;
 }
 
+if (menuBatteriesEl) {
+    menuBatteriesEl.innerText =
+        `${batteries}/${BATTERY_MAX}`;
+}
+
             if (!countdownEl) return;
 
             if (batteries >= BATTERY_MAX) {
-                countdownEl.innerText = "🔋 Energía completa";
-                return;
-            }
+
+countdownEl.innerText =
+    "🔋 Energía completa";
+
+if (menuCountdownEl) {
+    menuCountdownEl.innerText =
+        "🔋 Energía completa";
+}
+
+return;
+}
 
             const secs = computeNextBatterySeconds();
             if (secs === null) {
@@ -1127,9 +1160,24 @@ if (treasureBatteriesEl) {
                 return;
             }
 
-            const m = Math.floor(secs / 60).toString().padStart(2, "0");
-            const s = (secs % 60).toString().padStart(2, "0");
-            countdownEl.innerText = `⏳ Próxima batería en ${m}:${s}`;
+            const m = Math.floor(secs / 60)
+    .toString()
+    .padStart(2, "0");
+
+const s = (secs % 60)
+    .toString()
+    .padStart(2, "0");
+
+const countdownText =
+    `⏳ Próxima batería en ${m}:${s}`;
+
+countdownEl.innerText =
+    countdownText;
+
+if (menuCountdownEl) {
+    menuCountdownEl.innerText =
+        countdownText;
+}
         }
 function updateTicketDisplay() {
 

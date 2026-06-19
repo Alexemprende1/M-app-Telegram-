@@ -1246,6 +1246,9 @@ document.getElementById("ads-progress-count").innerText = total;
 document.getElementById("ads-next-goal").innerText = next.spins;
 document.getElementById("ads-next-reward").innerText = next.reward;
 }
+
+let treasureFound = 0;
+
 function showGame(game) {
 
 const gamesMenu =
@@ -1345,13 +1348,15 @@ async function handleTreasureCellClick(
     const foundTreasure =
     Math.random() < 0.3;
 
-if (foundTreasure) {
+    if (foundTreasure) {
 
-    cellElement.innerHTML = "💎";
+treasureFound++;
+
+cellElement.innerHTML = "💎";
 
 } else {
 
-    cellElement.innerHTML = "📭";
+cellElement.innerHTML = "📭";
 
 }
 
@@ -1363,6 +1368,8 @@ cellElement.style.pointerEvents =
 document
 .getElementById("btn-start-treasure")
 ?.addEventListener("click", () => {
+
+    treasureFound = 0;
 
     buildTreasureBoard();
 

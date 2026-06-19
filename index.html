@@ -1461,6 +1461,12 @@ alert(
 
 return;
 }
+
+AppState.user.batteries =
+    data.remaining_batteries;
+
+updateBatteryDisplay();
+
         treasureFound = 0;
 
         document

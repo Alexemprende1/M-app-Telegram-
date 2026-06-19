@@ -1418,15 +1418,56 @@ async function handleTreasureCellClick(
 
 document
 .getElementById("btn-start-treasure")
-?.addEventListener("click", () => {
+?.addEventListener("click", async () => {
 
-    treasureFound = 0;
+    try {
 
-    document
-    .getElementById("btn-claim-treasure")
-    .disabled = true;
+        const difficulty =
+            document.getElementById(
+                "treasure-difficulty"
+            )?.value || "easy";
 
-    buildTreasureBoard();
+        const { data, error } =
+            await supabaseClient.rpc(
+                "start_treasure_game",
+                {
+                    p_telegram_id:
+                        AppState.user.telegram_id,
+
+                    p_difficulty:
+                        difficulty
+                }
+            );
+
+        if (error || !data?.success) {
+
+            alert(
+                data?.message ||
+                "Error iniciando partida"
+            );
+
+            return;
+        }
+
+        treasureFound = 0;
+
+        document
+        .getElementById(
+            "btn-claim-treasure"
+        )
+        .disabled = true;
+
+        buildTreasureBoard();
+
+    } catch (err) {
+
+        console.error(err);
+
+        alert(
+            "Error de conexión"
+        );
+
+    }
 
 });
 

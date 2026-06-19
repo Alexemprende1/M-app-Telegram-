@@ -1473,32 +1473,67 @@ return;
 
 document
 .getElementById("btn-claim-treasure")
-?.addEventListener("click", () => {
+?.addEventListener("click", async () => {
 
-    const reward =
-        treasureFound * 0.0003122;
+    try {
 
-    AppState.user.balance_trx += reward;
+        const { data, error } =
+        await supabaseClient.rpc(
+            "claim_treasure_reward",
+            {
+                p_telegram_id:
+                    AppState.user.telegram_id
+            }
+        );
 
-    refreshProfileData();
+        if (error || !data?.success) {
 
-    alert(
-        "💎 Tesoros encontrados: " +
-        treasureFound +
-        "\n\n💰 Recompensa: " +
-        reward.toFixed(8) +
-        " TRX"
-    );
+            alert(
+                data?.message ||
+                "Error cobrando tesoro"
+            );
 
-    treasureFound = 0;
+            return;
+        }
 
-    document
-    .getElementById("btn-claim-treasure")
-    .disabled = true;
+        const reward =
+            parseFloat(
+                data.reward || 0
+            );
 
-    document
-    .getElementById("treasure-grid")
-    .innerHTML = "";
+        AppState.user.balance_trx += reward;
+
+        refreshProfileData();
+
+        alert(
+            "💰 Recompensa acreditada\n\n" +
+            reward.toFixed(8) +
+            " TRX"
+        );
+
+        treasureFound = 0;
+
+        document
+        .getElementById(
+            "btn-claim-treasure"
+        )
+        .disabled = true;
+
+        document
+        .getElementById(
+            "treasure-grid"
+        )
+        .innerHTML = "";
+
+    } catch(err) {
+
+        console.error(err);
+
+        alert(
+            "Error de conexión"
+        );
+
+    }
 
 });
         // TABS NAVIGATION SYSTEM

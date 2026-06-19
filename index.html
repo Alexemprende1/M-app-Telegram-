@@ -1387,10 +1387,30 @@ document
 .getElementById("btn-claim-treasure")
 ?.addEventListener("click", () => {
 
+    const reward =
+        treasureFound * 0.0003122;
+
+    AppState.user.balance_trx += reward;
+
+    refreshProfileData();
+
     alert(
-        "Tesoros encontrados: " +
-        treasureFound
+        "💎 Tesoros encontrados: " +
+        treasureFound +
+        "\n\n💰 Recompensa: " +
+        reward.toFixed(8) +
+        " TRX"
     );
+
+    treasureFound = 0;
+
+    document
+    .getElementById("btn-claim-treasure")
+    .disabled = true;
+
+    document
+    .getElementById("treasure-grid")
+    .innerHTML = "";
 
 });
         // TABS NAVIGATION SYSTEM

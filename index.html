@@ -1342,9 +1342,10 @@ async function handleTreasureCellClick(
     cellElement
 ) {
 
-    alert(
-        "Caja seleccionada: " + index
-    );
+cellElement.innerHTML = "💎";
+
+cellElement.style.pointerEvents =
+    "none";
 
 }
 

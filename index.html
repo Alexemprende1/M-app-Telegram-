@@ -1345,27 +1345,74 @@ async function handleTreasureCellClick(
     cellElement
 ) {
 
-    const foundTreasure =
-    Math.random() < 0.3;
+    try {
 
-    if (foundTreasure) {
+        const { data, error } =
+        await supabaseClient.rpc(
+            "open_treasure_cell",
+            {
+                p_telegram_id:
+                    AppState.user.telegram_id,
 
-treasureFound++;
+                p_cell_id:
+                    parseInt(index)
+            }
+        );
 
-cellElement.innerHTML = "💎";
+        if (error || !data?.success) {
 
-document
-    .getElementById("btn-claim-treasure")
-    .disabled = false;
+            alert(
+                data?.message ||
+                "Error abriendo cofre"
+            );
 
-} else {
+            return;
+        }
 
-cellElement.innerHTML = "📭";
+        if (data.status === "gold") {
 
-}
+            treasureFound++;
 
-cellElement.style.pointerEvents =
-    "none";
+            cellElement.innerHTML = "💎";
+
+            document
+                .getElementById(
+                    "btn-claim-treasure"
+                )
+                .disabled = false;
+
+        } else if (
+            data.status === "silver"
+        ) {
+
+            treasureFound++;
+
+            cellElement.innerHTML = "🥈";
+
+            document
+                .getElementById(
+                    "btn-claim-treasure"
+                )
+                .disabled = false;
+
+        } else {
+
+            cellElement.innerHTML = "📭";
+
+        }
+
+        cellElement.style.pointerEvents =
+            "none";
+
+    } catch (err) {
+
+        console.error(err);
+
+        alert(
+            "Error de conexión"
+        );
+
+    }
 
 }
 

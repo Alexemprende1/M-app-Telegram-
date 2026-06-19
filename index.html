@@ -571,25 +571,27 @@ animation:
                     
                         <div id="games-menu">
 
-                            <div style="margin-bottom:8px;">
-                                🎟 Tickets:
-                                <span id="ticket-counter">0/3</span>
+                            <div class="card" style="margin-top:10px;">
+
+                                <div style="margin-bottom:8px;">
+                                    🎟 Tickets:
+                                    <span id="ticket-counter">0/3</span>
+                                </div>
+                            
+                                <div style="margin-bottom:8px;">
+                                    📊 Hoy:
+                                    <span id="ticket-daily-counter">0/15</span>
+                                </div>
+                            
+                                <button
+                                    id="btn-ticket-ad"
+                                    class="btn btn-primary btn-block">
+                            
+                                    📺 Ver anuncio (+1 Ticket)
+                            
+                                </button>
+                            
                             </div>
-                        
-                            <div style="margin-bottom:8px;">
-                                📊 Hoy:
-                                <span id="ticket-daily-counter">0/15</span>
-                            </div>
-                        
-                            <button
-                                id="btn-ticket-ad"
-                                class="btn btn-primary btn-block">
-                        
-                                📺 Ver anuncio (+1 Ticket)
-                        
-                            </button>
-                        
-                        </div>
                     
                             <div class="card game-card"
                                  onclick="showGame('mines')">
@@ -624,8 +626,7 @@ animation:
                             🔋 Baterías: <span id="mines-batteries">6/6</span>
                         </div>
                         <div id="battery-countdown" class="battery-countdown">🔋 Energía completa</div>
-                        <div class="card" style="margin-top:10px;">
-
+                     
                     <div class="selectors">
                         <select id="mines-difficulty" class="form-control">
                             <option value="easy">Fácil (3 Bombas)</option>

@@ -1326,14 +1326,26 @@ for (let i = 0; i < 20; i++) {
 
     cell.addEventListener("click", () => {
 
-alert(
-    "Caja " + i
+handleTreasureCellClick(
+    i,
+    cell
 );
 
 });
 
 grid.appendChild(cell);
 } 
+}
+
+async function handleTreasureCellClick(
+    index,
+    cellElement
+) {
+
+    alert(
+        "Caja seleccionada: " + index
+    );
+
 }
 
 document

@@ -1324,7 +1324,16 @@ for (let i = 0; i < 20; i++) {
 
     cell.dataset.index = i;
 
-    grid.appendChild(cell);
+cell.addEventListener("click", () => {
+
+    console.log(
+        "Treasure cell:",
+        i
+    );
+
+});
+
+grid.appendChild(cell);
 } 
 }
 

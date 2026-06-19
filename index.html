@@ -1342,7 +1342,18 @@ async function handleTreasureCellClick(
     cellElement
 ) {
 
-cellElement.innerHTML = "💎";
+    const foundTreasure =
+    Math.random() < 0.3;
+
+if (foundTreasure) {
+
+    cellElement.innerHTML = "💎";
+
+} else {
+
+    cellElement.innerHTML = "📭";
+
+}
 
 cellElement.style.pointerEvents =
     "none";

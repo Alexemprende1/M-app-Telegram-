@@ -1500,6 +1500,18 @@ cells.forEach(cell => {
     cell.style.pointerEvents = "none";
 });
 
+if (treasureFound > 0) {
+
+    treasureCounter.innerText =
+        `💰 Tesoros encontrados: ${treasureFound} | Cobra tu recompensa`;
+
+} else {
+
+    treasureCounter.innerText =
+        "😔 No encontraste tesoros | Inicia otra partida";
+
+}
+
 }
 }
 

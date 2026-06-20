@@ -1318,6 +1318,7 @@ document.getElementById("ads-next-reward").innerText = next.reward;
 }
 
 let treasureFound = 0;
+let treasureReward = 0;
 
 function showGame(game) {
 
@@ -1441,9 +1442,12 @@ async function handleTreasureCellClick(
 
         if (data.status === "gold") {
 
-            treasureFound++;
+treasureFound++;
 
-            cellElement.innerHTML = "💎";
+treasureReward +=
+    parseFloat(data.reward || 0);
+
+cellElement.innerHTML = "💎";
 
             document
                 .getElementById(
@@ -1452,12 +1456,15 @@ async function handleTreasureCellClick(
                 .disabled = false;
 
         } else if (
-            data.status === "silver"
-        ) {
+    data.status === "silver"
+) {
 
-            treasureFound++;
+    treasureFound++;
 
-            cellElement.innerHTML = "🥈";
+    treasureReward +=
+        parseFloat(data.reward || 0);
+
+    cellElement.innerHTML = "🥈";
 
             document
                 .getElementById(
@@ -1486,8 +1493,8 @@ if (treasureCounter) {
             "#treasure-grid div[style*='pointer-events']"
         ).length;
 
-    treasureCounter.innerText =
-        `📦 Aperturas: ${opened}/7`;
+        treasureCounter.innerText =
+        `📦 ${opened}/7 | 💰 ${treasureReward.toFixed(8)} TRX`;
       
         if (opened >= 7) {
 
@@ -1567,6 +1574,7 @@ AppState.user.batteries =
 updateBatteryDisplay();
 
         treasureFound = 0;
+        treasureReward = 0;
 
         document
         .getElementById(

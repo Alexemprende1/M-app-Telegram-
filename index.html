@@ -727,8 +727,16 @@ class="btn btn-secondary btn-block">
                </button>
        
            </div>
-       
+
+       <div
+    id="treasure-counter"
+    class="battery-countdown">
+
+    📦 Aperturas: 0/7
+
+</div>
            <div
+
                id="treasure-grid"
                class="mines-grid">
        
@@ -1466,6 +1474,23 @@ async function handleTreasureCellClick(
         cellElement.style.pointerEvents =
             "none";
 
+            const treasureCounter =
+    document.getElementById(
+        "treasure-counter"
+    );
+
+if (treasureCounter) {
+
+    const opened =
+        document.querySelectorAll(
+            "#treasure-grid div[style*='pointer-events']"
+        ).length;
+
+    treasureCounter.innerText =
+        `📦 Aperturas: ${opened}/7`;
+
+}
+
     } catch (err) {
 
         console.error(err);
@@ -1524,7 +1549,15 @@ updateBatteryDisplay();
             "btn-claim-treasure"
         )
         .disabled = true;
+        const treasureCounter =
+    document.getElementById(
+        "treasure-counter"
+    );
 
+if (treasureCounter) {
+    treasureCounter.innerText =
+        "📦 Aperturas: 0/7";
+}
         buildTreasureBoard();
 
     } catch (err) {

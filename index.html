@@ -1707,6 +1707,33 @@ document
     }
 
 });
+
+document
+.getElementById("btn-claim-treasure-x5")
+?.addEventListener("click", async () => {
+
+    try {
+
+        const result =
+            await TreasureX5Ad.show();
+
+        if (!result.done) return;
+
+        alert(
+            "✅ Anuncio completado"
+        );
+
+    } catch (err) {
+
+        console.error(err);
+
+        alert(
+            "No fue posible mostrar el anuncio"
+        );
+
+    }
+
+});
         // TABS NAVIGATION SYSTEM
         document.querySelectorAll(".nav-item").forEach(button => {
             button.addEventListener("click", () => {

@@ -1488,7 +1488,19 @@ if (treasureCounter) {
 
     treasureCounter.innerText =
         `📦 Aperturas: ${opened}/7`;
+      
+        if (opened >= 7) {
 
+const cells =
+    document.querySelectorAll(
+        "#treasure-grid .mine-cell"
+    );
+
+cells.forEach(cell => {
+    cell.style.pointerEvents = "none";
+});
+
+}
 }
 
     } catch (err) {

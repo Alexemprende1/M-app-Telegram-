@@ -725,6 +725,15 @@ class="btn btn-secondary btn-block">
                    💰 Cobrar Tesoro
        
                </button>
+
+               <button
+    id="btn-claim-treasure-x5"
+    class="btn btn-warning btn-block"
+    disabled>
+
+    📺 Cobrar x5
+
+</button>
        
            </div>
 
@@ -1454,6 +1463,11 @@ cellElement.innerHTML = "💎";
                     "btn-claim-treasure"
                 )
                 .disabled = false;
+                document
+    .getElementById(
+        "btn-claim-treasure-x5"
+    )
+    .disabled = false;
 
         } else if (
     data.status === "silver"
@@ -1471,6 +1485,12 @@ cellElement.innerHTML = "💎";
                     "btn-claim-treasure"
                 )
                 .disabled = false;
+
+                document
+    .getElementById(
+        "btn-claim-treasure-x5"
+    )
+    .disabled = false;
 
         } else {
 
@@ -1581,6 +1601,13 @@ updateBatteryDisplay();
             "btn-claim-treasure"
         )
         .disabled = true;
+
+        document
+.getElementById(
+    "btn-claim-treasure-x5"
+)
+.disabled = true;
+
         const treasureCounter =
     document.getElementById(
         "treasure-counter"

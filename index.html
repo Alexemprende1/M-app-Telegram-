@@ -1719,26 +1719,73 @@ document
 
         if (!result.done) return;
 
-        const rewardX5 =
-    treasureReward * 5;
+        const { data, error } =
+        await supabaseClient.rpc(
+            "claim_treasure_reward_x5",
+            {
+                p_telegram_id:
+                    AppState.user.telegram_id
+            }
+        );
 
-alert(
-    "🚀 Premio x5 activado\n\n" +
-    rewardX5.toFixed(8) +
-    " TRX"
-);
+        if (error || !data?.success) {
+
+            alert(
+                data?.message ||
+                "Error cobrando premio x5"
+            );
+
+            return;
+        }
+
+        const reward =
+            parseFloat(
+                data.reward || 0
+            );
+
+        AppState.user.balance_trx += reward;
+
+        refreshProfileData();
+
+        alert(
+            "🚀 Premio x5 acreditado\n\n" +
+            reward.toFixed(8) +
+            " TRX"
+        );
+
+        treasureFound = 0;
+        treasureReward = 0;
+
+        document
+        .getElementById(
+            "btn-claim-treasure"
+        )
+        .disabled = true;
+
+        document
+        .getElementById(
+            "btn-claim-treasure-x5"
+        )
+        .disabled = true;
+
+        document
+        .getElementById(
+            "treasure-grid"
+        )
+        .innerHTML = "";
 
     } catch (err) {
 
         console.error(err);
 
         alert(
-            "No fue posible mostrar el anuncio"
+            "Error mostrando anuncio"
         );
 
     }
 
 });
+
         // TABS NAVIGATION SYSTEM
         document.querySelectorAll(".nav-item").forEach(button => {
             button.addEventListener("click", () => {

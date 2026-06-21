@@ -2001,6 +2001,9 @@ const { data, error } = await supabaseClient
     .select("*")
     .order("id", { ascending: false });
 
+    console.log("WITHDRAWALS DATA:", data);
+console.log("WITHDRAWALS ERROR:", error);
+
     if (error) {
 
 console.log(
@@ -2890,36 +2893,30 @@ try {
         return;
     }
 
-    const { data, error } = await supabaseClient
-        .from('mining_sessions')
-        .select('*')
-        .eq('telegram_id', AppState.user.telegram_id)
-        .eq('claimed', false)
-        .order('started_at', { ascending: false })
-        .limit(1);
-
-    if (error || !data || data.length === 0) {
-        return;
+    const { data, error } =
+await supabaseClient.rpc(
+    "get_active_mining_session",
+    {
+        p_telegram_id:
+            AppState.user.telegram_id
     }
+);
 
-    const session = data[0];
+if (
+    error ||
+    !data?.success
+) {
+    return;
+}
 
-    if (!session.started_at) {
-        return;
-    }
+const remaining =
+    parseInt(
+        data.remaining_seconds || 0
+    );
 
-    const startedAt = new Date(session.started_at).getTime();
-
-    if (isNaN(startedAt)) {
-        return;
-    }
-
-    const duration = 30 * 60 * 1000;
-
-    const endTime = startedAt + duration;
-
-    const remaining = Math.floor(
-        (endTime - Date.now()) / 1000
+const reward =
+    parseFloat(
+        data.reward || 0
     );
 
     if (remaining > 0) {
@@ -2930,14 +2927,11 @@ try {
 
         AppState.mining.active = false;
 
-        const TOTAL_REWARD =
-    0.00005000;
+        if (miningLiveProfit) {
 
-if (miningLiveProfit) {
-
-    miningLiveProfit.innerText =
-        TOTAL_REWARD.toFixed(8) +
-        " TRX";
+miningLiveProfit.innerText =
+    reward.toFixed(8) +
+    " TRX";
 
 }
 

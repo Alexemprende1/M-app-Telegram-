@@ -2671,6 +2671,18 @@ AppState.mining.intervalId = setInterval(async () => {
 
     updateTimerDisplay(remain);
 
+    const earned =
+    (1800 - remain) *
+    profitPerSecond;
+
+if (miningLiveProfit) {
+
+    miningLiveProfit.innerText =
+        earned.toFixed(8) +
+        " TRX";
+
+}
+
     if (remain === 0) {
 
 clearInterval(AppState.mining.intervalId);

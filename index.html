@@ -2585,7 +2585,7 @@ resetMinesGameUI();
                 }
 
                 alert(`💰 Retiro exitoso. Has asegurado +${parseFloat(data.prize).toFixed(6)} TRX.`);
-                AppState.user.balance_trx += parseFloat(data.prize);
+                await syncUserSession();
                 refreshProfileData();
                 resetMinesGameUI();
             } catch(e) { console.error(e); }
@@ -2621,8 +2621,7 @@ try {
         `${parseFloat(data.prize).toFixed(8)} TRX`
     );
 
-    AppState.user.balance_trx +=
-        parseFloat(data.prize);
+   await syncUserSession();
 
     refreshProfileData();
 

@@ -1854,6 +1854,11 @@ if (error) {
 
 if (!data || data.length === 0) {
 
+    console.log(
+    "MINERIA TERMINADA",
+    miningLiveProfit?.innerText
+);
+
     container.innerHTML =
     "Aún no has girado la ruleta.";
 
@@ -2725,6 +2730,10 @@ miningTimer.innerText = `${h}:${m}:${s}`;
 }
 
 async function claimMiningReward() {
+
+    console.log(
+    "CLAIM EJECUTADO"
+);
 
 try {
     await show_11148552();

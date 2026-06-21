@@ -828,6 +828,18 @@ class="btn btn-secondary btn-block">
                     </div>
                     <h3>Minero Cloud TRX</h3>
                     <div id="mining-timer" class="timer-display">00:30:00</div>
+                    <div
+    id="mining-live-profit"
+    class="timer-display"
+    style="
+        font-size:18px;
+        margin-top:10px;
+        color:#00ff88;
+    ">
+
+    0.00000000 TRX
+
+</div>
                     <p id="mining-status-text" class="text-muted">Listo para iniciar operaciones</p>
                     <button id="btn-mining-action" class="btn btn-primary btn-block">INICIAR MINERÍA</button>
                 </div>
@@ -2562,6 +2574,10 @@ minesGrid.innerHTML = "";
 const miningTimer = document.getElementById("mining-timer");
 const miningStatusText = document.getElementById("mining-status-text");
 const miningGraphicBox = document.getElementById("mining-graphic-box");
+const miningLiveProfit =
+    document.getElementById(
+        "mining-live-profit"
+    );
 
 btnMiningAction.addEventListener("click", async () => {
 
@@ -2620,7 +2636,25 @@ miningStatusText.innerText = "⛏️ Extrayendo bloques en la nube...";
 
 let remain = Math.max(0, parseInt(secondsLeft));
 
+const TOTAL_REWARD =
+    0.00005000;
+
+const profitPerSecond =
+    TOTAL_REWARD / (30 * 60);
+
 updateTimerDisplay(remain);
+
+const earned =
+    (1800 - remain) *
+    profitPerSecond;
+
+if (miningLiveProfit) {
+
+    miningLiveProfit.innerText =
+        earned.toFixed(8) +
+        " TRX";
+
+}
 
 if (AppState.mining.intervalId) {
     clearInterval(AppState.mining.intervalId);

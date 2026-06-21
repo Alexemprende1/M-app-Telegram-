@@ -1854,11 +1854,6 @@ if (error) {
 
 if (!data || data.length === 0) {
 
-    console.log(
-    "MINERIA TERMINADA",
-    miningLiveProfit?.innerText
-);
-
     container.innerHTML =
     "Aún no has girado la ruleta.";
 
@@ -2708,6 +2703,16 @@ miningStatusText.innerText =
 miningGraphicBox.classList.remove("mining-active");
 
 btnMiningAction.disabled = false;
+
+console.log(
+    "VALOR FINAL:",
+    miningLiveProfit?.innerText
+);
+
+console.log(
+    "REMAIN:",
+    remain
+);
 
 btnMiningAction.innerText = "RECLAMAR";
 

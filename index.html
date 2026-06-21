@@ -2852,25 +2852,14 @@ try {
 
         AppState.mining.active = false;
 
-        if (miningLiveProfit) {
-
-miningLiveProfit.innerText =
-    "0.00005000 TRX";
-
-}
-
-        console.log(
-    "RESTORE TERMINADO"
-);
-
-console.log(
-    "PROFIT ACTUAL:",
-    miningLiveProfit?.innerText
-);
+        const TOTAL_REWARD =
+    0.00005000;
 
 if (miningLiveProfit) {
 
-    miningLiveProfit.style.color = "red";
+    miningLiveProfit.innerText =
+        TOTAL_REWARD.toFixed(8) +
+        " TRX";
 
 }
 

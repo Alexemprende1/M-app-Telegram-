@@ -2852,6 +2852,21 @@ try {
 
         AppState.mining.active = false;
 
+        console.log(
+    "RESTORE TERMINADO"
+);
+
+console.log(
+    "PROFIT ACTUAL:",
+    miningLiveProfit?.innerText
+);
+
+if (miningLiveProfit) {
+
+    miningLiveProfit.style.color = "red";
+
+}
+
         miningTimer.innerText = "00:00:00";
 
         miningStatusText.innerText =

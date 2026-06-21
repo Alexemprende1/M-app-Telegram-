@@ -2094,21 +2094,24 @@ ${w.status === "rejected" ? "🔴 Rejected" : ""}
 `).join("");
 
 }
-
 async function approveWithdrawal(id) {
 
-const { error } = await supabaseClient
-    .from("withdrawals")
-    .update({
-        status: "completed"
-    })
-    .eq("id", id);
+const { data, error } =
+await supabaseClient.rpc(
+    'approve_withdrawal_admin',
+    {
+        p_withdrawal_id: id,
+        p_admin_id:
+            AppState.user.telegram_id
+    }
+);
 
-if (error) {
+if (error || !data.success) {
 
-    alert("Error al aprobar");
-
-    console.error(error);
+    alert(
+        data?.message ||
+        "Error al aprobar"
+    );
 
     return;
 }
@@ -2116,61 +2119,37 @@ if (error) {
 alert("Retiro aprobado");
 
 loadWithdrawals();
-
 }
 
 async function rejectWithdrawal(id) {
 
-const { data: wd } = await supabaseClient
-    .from("withdrawals")
-    .select("*")
-    .eq("id", id)
-    .single();
+const { data, error } =
+await supabaseClient.rpc(
+    'reject_withdrawal_admin',
+    {
+        p_withdrawal_id: id,
+        p_admin_id:
+            AppState.user.telegram_id
+    }
+);
 
-if (!wd) {
+if (error || !data.success) {
 
-    alert("Retiro no encontrado");
-
-    return;
-}
-
-const { data: user } = await supabaseClient
-    .from("users_tma")
-    .select("balance_trx")
-    .eq("telegram_id", wd.telegram_id)
-    .single();
-
-const nuevoSaldo =
-    Number(user.balance_trx) +
-    Number(wd.amount);
-
-await supabaseClient
-    .from("users_tma")
-    .update({
-        balance_trx: nuevoSaldo
-    })
-    .eq("telegram_id", wd.telegram_id);
-
-const { error } = await supabaseClient
-    .from("withdrawals")
-    .update({
-        status: "rejected"
-    })
-    .eq("id", id);
-
-if (error) {
-
-    alert("Error al rechazar");
-
-    console.error(error);
+    alert(
+        data?.message ||
+        "Error al rechazar"
+    );
 
     return;
 }
 
-alert("Retiro rechazado y saldo devuelto");
+alert(
+    "Retiro rechazado y saldo devuelto"
+);
 
 loadWithdrawals();
 }
+
  // WHEEL OF FORTUNE
 
  const btnSpin = document.getElementById("btn-spin");
@@ -2227,7 +2206,7 @@ let isSpinning = false;
                     alert(`¡Enhorabuena! Has obtenido +${task.reward} TRX.`);
                     btn.innerText = "Completado";
                     btn.className = "btn btn-success btn-sm";
-                    AppState.user.balance_trx += task.reward;
+                    await syncUserSession();
                     refreshProfileData();
                 } catch(e) {
                     btn.innerText = "Verificar";
@@ -2270,7 +2249,7 @@ try {
 
                 if(segmentIndex === -1) {
 
-AppState.user.balance_trx += rewardAmount;
+                    await syncUserSession();
 
 AppState.user.last_spin_at = new Date().toISOString();
 

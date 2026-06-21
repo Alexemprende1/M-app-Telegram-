@@ -2608,12 +2608,19 @@ btnMiningAction.addEventListener("click", async () => {
         );
 
         if (error || !data?.success) {
-            alert(data?.message || "No puedes minar ahora mismo.");
-            btnMiningAction.disabled = false;
-            return;
-        }
+    alert(data?.message || "No puedes minar ahora mismo.");
+    btnMiningAction.disabled = false;
+    return;
+}
 
-        startLocalMiningTimer(30 * 60);
+if (miningLiveProfit) {
+
+    miningLiveProfit.innerText =
+        "0.00000000 TRX";
+
+}
+
+startLocalMiningTimer(30 * 60);
 
     } catch (e) {
 
@@ -2741,6 +2748,13 @@ btnMiningAction.disabled = false;
 btnMiningAction.innerText = "INICIAR MINERÍA";
 
 miningTimer.innerText = "00:30:00";
+
+if (miningLiveProfit) {
+
+miningLiveProfit.innerText =
+    "0.00000000 TRX";
+
+}
 
 miningStatusText.innerText = "Listo para iniciar operaciones";
 

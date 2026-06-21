@@ -653,6 +653,15 @@ animation:
                     <div class="game-buttons">
                         <button id="btn-start-mines" class="btn btn-primary btn-block">Empezar Partida</button>
                         <button id="btn-cashout-mines" class="btn btn-success btn-block" disabled>Asegurar Ganancias</button>
+                        
+                        <button
+id="btn-cashout-mines-x8"
+class="btn btn-warning btn-block"
+disabled>
+
+📺 Cobrar x8
+
+</button>
                         <button
 id="btn-detector"
 class="btn btn-secondary btn-block">
@@ -2285,6 +2294,10 @@ updateWheelTimer();
         // MINES GAME OPERATION
         const btnStartMines = document.getElementById("btn-start-mines");
         const btnCashoutMines = document.getElementById("btn-cashout-mines");
+        const btnCashoutMinesX8 =
+document.getElementById(
+    "btn-cashout-mines-x8"
+);
         const btnDetector =
 document.getElementById(
     "btn-detector"
@@ -2445,6 +2458,7 @@ detectorUsed = false;
                 AppState.minesGame.safeCells = totalCells - MINES_CONFIG[difficulty].bombs;
 
                 btnCashoutMines.disabled = false;
+                btnCashoutMinesX8.disabled = false;
                 buildMinesBoard(totalCells);
 
             } catch(e) {
@@ -2531,6 +2545,7 @@ resetMinesGameUI();
         }
 
         btnCashoutMines.addEventListener("click", () => {
+
             if(AppState.minesGame.revealedCount === 0) {
                 alert("Debes revelar al menos un diamante antes de retirar.");
                 return;
@@ -2538,7 +2553,26 @@ resetMinesGameUI();
             claimMinesCashout();
         });
 
+        btnCashoutMinesX8.addEventListener(
+    async () => {
+
+    if (
+        AppState.minesGame.revealedCount === 0
+    ) {
+
+        alert(
+            "Debes revelar al menos un diamante antes de retirar."
+        );
+
+        return;
+    }
+
+    await claimMinesCashoutX8();
+
+});
+
         async function claimMinesCashout() {
+
             try {
                 const { data, error } = await supabaseClient.rpc('cashout_mines_game', {
                     p_telegram_id: AppState.user.telegram_id
@@ -2556,6 +2590,51 @@ resetMinesGameUI();
             } catch(e) { console.error(e); }
         }
 
+        async function claimMinesCashoutX8() {
+
+try {
+
+    await show_11148552();
+
+    const { data, error } =
+    await supabaseClient.rpc(
+        'cashout_mines_game_x8',
+        {
+            p_telegram_id:
+                AppState.user.telegram_id
+        }
+    );
+
+    if (error || !data.success) {
+
+        alert(
+            data?.message ||
+            "Error procesando cobro x8."
+        );
+
+        return;
+    }
+
+    alert(
+        `🚀 Premio x8 acreditado\n\n` +
+        `${parseFloat(data.prize).toFixed(8)} TRX`
+    );
+
+    AppState.user.balance_trx +=
+        parseFloat(data.prize);
+
+    refreshProfileData();
+
+    resetMinesGameUI();
+
+} catch (e) {
+
+    console.error(e);
+
+}
+
+}
+
         function resetMinesGameUI() {
 
 AppState.minesGame.active = false;
@@ -2565,6 +2644,7 @@ detectorUsed = false;
 
 btnStartMines.disabled = false;
 btnCashoutMines.disabled = true;
+btnCashoutMinesX8.disabled = true;
 
 minesGrid.innerHTML = "";
 }

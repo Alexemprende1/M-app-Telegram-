@@ -1996,32 +1996,40 @@ ${w.status === "rejected"
 
 async function loadWithdrawals() {
 
-const { data, error } = await supabaseClient
-    .from("withdrawals")
-    .select("*")
-    .order("id", { ascending: false });
-
-    console.log("WITHDRAWALS DATA:", data);
-console.log("WITHDRAWALS ERROR:", error);
-
-    if (error) {
-
-console.log(
-    "ERROR WITHDRAWALS:",
-    error
+    const { data, error } =
+await supabaseClient.rpc(
+    "get_all_withdrawals_admin",
+    {
+        p_admin_id:
+            AppState.user.telegram_id
+    }
 );
 
-alert(
-    JSON.stringify(error)
-);
+if (error || !data?.success) {
 
-return;
+    console.log(
+        "ERROR WITHDRAWALS:",
+        error || data
+    );
+
+    alert(
+        data?.message ||
+        "Acceso denegado"
+    );
+
+    return;
 }
+
+const withdrawals =
+    data.data || [];
 
 const container =
     document.getElementById("withdrawals-list");
 
-if (!data || data.length === 0) {
+    if (
+    !withdrawals ||
+    withdrawals.length === 0
+) {
 
     container.innerHTML =
         "No hay solicitudes.";
@@ -2029,7 +2037,7 @@ if (!data || data.length === 0) {
     return;
 }
 
-container.innerHTML = data.map(w => `
+container.innerHTML = withdrawals.map(w => `
     <div class="card">
 
        <b>ID:</b> ${w.id}<br>

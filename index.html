@@ -948,13 +948,14 @@ class="btn btn-secondary btn-block">
 
                 // Entorno de contingencia/pruebas fuera de Telegram
                 if (!tgUser) {
-                    console.warn("tg.initDataUnsafe.user no detectado. Cargando datos de test local.");
-                    tgUser = {
-                        id: 123456789,
-                        username: "dev_test",
-                        first_name: "Developer Mode"
-                    };
-                }
+
+alert(
+    "Esta aplicación solo puede ejecutarse desde Telegram."
+);
+
+return;
+
+}
 
                 const referrerIdStr = tg.initDataUnsafe?.start_param || null;
                 let finalReferrerId = null;
@@ -1695,7 +1696,7 @@ document
                 data.reward || 0
             );
 
-        AppState.user.balance_trx += reward;
+            await syncUserSession();
 
         refreshProfileData();
 
@@ -1766,7 +1767,7 @@ document
                 data.reward || 0
             );
 
-        AppState.user.balance_trx += reward;
+            await syncUserSession();
 
         refreshProfileData();
 
@@ -1823,6 +1824,14 @@ document
         });
 
         document.getElementById("admin-panel-btn").addEventListener("click", async () => {
+
+            if (AppState.user.telegram_id != 5002555137) {
+
+alert("Acceso denegado");
+
+return;
+
+}
 
 document.querySelectorAll(".tab-content")
     .forEach(t => t.classList.remove("active"));
@@ -2863,7 +2872,7 @@ AppState.mining.active = false;
         `🎁 Ciclo completado. Se acreditaron ${reward.toFixed(4)} TRX.`
     );
 
-    AppState.user.balance_trx += reward;
+    await syncUserSession();
 
     AppState.user.total_mined += reward;
 

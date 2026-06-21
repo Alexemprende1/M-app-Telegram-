@@ -2273,11 +2273,12 @@ return;
 
                 wheel.style.transform = `rotate(${finalRotation}deg)`;
 
-                setTimeout(() => {
+                setTimeout(async () => {
                     alert(`🎯 ¡Felicidades! Ganaste ${rewardAmount.toFixed(8)} TRX directos.`);
-                    AppState.user.balance_trx += rewardAmount;
                     AppState.user.last_spin_at = new Date().toISOString();
 updateWheelTimer();
+                    
+                    await syncUserSession();
                     refreshProfileData();
                     wheel.style.transform = `rotate(${targetAngle}deg)`;
                     isSpinning = false;

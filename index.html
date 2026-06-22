@@ -2234,7 +2234,7 @@ renderSocialTasks();
                 item.innerHTML = `
                     <div>
                         <h4 style="font-size:0.95rem;">${task.title}</h4>
-                        <p style="color:var(--success-color); font-size:0.8rem; font-weight:bold;">+${task.reward.toFixed(2)} TRX</p>
+                        <p style="color:var(--success-color); font-size:0.8rem; font-weight:bold;">+${task.reward.toFixed(6)} TRX</p>
                     </div>
                     <div class="task-actions">
                         <button class="btn btn-secondary btn-sm" onclick="openTaskUrl('${task.id}','${task.url}')">Ir</button>

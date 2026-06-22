@@ -2194,6 +2194,16 @@ await supabaseClient
     AppState.user.telegram_id
 );
 
+console.log(
+    "TASK CLAIMS:",
+    data
+);
+
+console.log(
+    "TELEGRAM ID:",
+    AppState.user.telegram_id
+);
+
 if (error) {
     console.error(
         "Error cargando tareas completadas:",

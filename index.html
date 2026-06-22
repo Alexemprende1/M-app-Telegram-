@@ -920,9 +920,21 @@ class="btn btn-secondary btn-block">
             tgInitData: tg.initData || "",
             activeTab: "tab-profile",
             tasks: [
-                { id: "task_tg_channel", title: "Unirse al Canal Oficial", reward: 0.5, url: "https://t.me/Crypto_TMA_Oficial", completed: false },
-                { id: "task_youtube", title: "Suscribirse al canal de Youtube", reward: 0.75, url: "https://youtube.com/@AlexEmprendeOficial", completed: false }
-            ],
+{
+    id: "telegram_join",
+    title: "Unirse al Canal Oficial",
+    reward: 0.5,
+    url: "https://t.me/Crypto_TMA_Oficial",
+    completed: false
+},
+{
+    id: "youtube_subscribe",
+    title: "Suscribirse al canal de Youtube",
+    reward: 0.75,
+    url: "https://youtube.com/@inforcrypto?sub_confirmation=1",
+    completed: false
+}
+],
             mining: { active: false, endsAt: null, intervalId: null },
             minesGame: { active: false, board: [], difficulty: "easy", bet: 0, revealedCount: 0, safeCells: 0 },
             batteryTimer: { intervalId: null, batteryUpdatedAt: null }
@@ -2190,8 +2202,14 @@ let isSpinning = false;
         }
 
         function openTaskUrl(id, url) {
-            tg.openLink(url);
-        }
+
+console.log("TASK:", id);
+
+console.log("URL:", url);
+
+window.open(url, "_blank");
+
+}
 
         async function verifyTask(id) {
             const btn = document.getElementById(`btn-verify-${id}`);

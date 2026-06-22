@@ -1920,6 +1920,13 @@ const { data, error } =
             { ascending: false }
         );
 
+        console.log("WITHDRAW HISTORY:", data);
+console.log("WITHDRAW HISTORY ERROR:", error);
+console.log(
+    "USER ID:",
+    AppState.user.telegram_id
+);
+
 if (error) {
 
     console.error(error);

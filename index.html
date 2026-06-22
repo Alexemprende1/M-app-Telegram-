@@ -1908,36 +1908,29 @@ const container =
 if (!container || !AppState.user) return;
 
 const { data, error } =
-    await supabaseClient
-        .from("withdrawals")
-        .select("*")
-        .eq(
-            "telegram_id",
+await supabaseClient.rpc(
+    "get_user_withdrawals",
+    {
+        p_telegram_id:
             AppState.user.telegram_id
-        )
-        .order(
-            "created_at",
-            { ascending: false }
-        );
-
-        console.log("WITHDRAW HISTORY:", data);
-console.log("WITHDRAW HISTORY ERROR:", error);
-console.log(
-    "USER ID:",
-    AppState.user.telegram_id
+    }
 );
 
-if (error) {
+if (error || !data?.success) {
 
-    console.error(error);
+container.innerHTML =
+    "Error cargando historial.";
 
-    container.innerHTML =
-        "Error cargando historial.";
-
-    return;
+return;
 }
 
-if (!data || data.length === 0) {
+const withdrawals =
+data.data || [];
+
+if (
+    !withdrawals ||
+    withdrawals.length === 0
+) {
 
     container.innerHTML =
         "Aún no tienes retiros.";
@@ -1946,7 +1939,7 @@ if (!data || data.length === 0) {
 }
 
 container.innerHTML =
-    data.map(w => `
+    withdrawals.map(w => `
 
 <div class="card">
 

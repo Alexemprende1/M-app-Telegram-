@@ -1057,11 +1057,12 @@ AppState.user.referral_count = count || 0;
                 
                 // Actualizar elementos dinámicos en el DOM inmediatamente
                 refreshProfileData();
-                loadWithdrawHistory();
-                loadWheelHistory();
-                renderSocialTasks();
-                
-                updateWheelTimer();
+loadWithdrawHistory();
+loadWheelHistory();
+
+await loadCompletedTasks();
+
+updateWheelTimer();
 
 setInterval(() => {
     updateWheelTimer();
@@ -2179,6 +2180,39 @@ loadWithdrawals();
 const wheel = document.getElementById("wheel");
 
 let isSpinning = false;
+
+async function loadCompletedTasks() {
+
+if (!AppState.user?.telegram_id) return;
+
+const { data, error } =
+await supabaseClient
+.from("social_task_claims")
+.select("task_id")
+.eq(
+    "telegram_id",
+    AppState.user.telegram_id
+);
+
+if (error) {
+    console.error(
+        "Error cargando tareas completadas:",
+        error
+    );
+    return;
+}
+
+AppState.tasks.forEach(task => {
+
+    task.completed =
+    data.some(
+        row => row.task_id === task.id
+    );
+
+});
+
+renderSocialTasks();
+}
         // RENDER SOCIAL TASKS
         function renderSocialTasks() {
 
@@ -2249,14 +2283,13 @@ window.open(url, "_blank");
 
                     alert(`¡Enhorabuena! Has obtenido +${task.reward} TRX.`);
 
-task.completed = true;
+                    task.completed = true;
 
-btn.innerText = "✅ Completado";
-btn.disabled = true;
-btn.className = "btn btn-success btn-sm";
+renderSocialTasks();
 
 await syncUserSession();
 refreshProfileData();
+
                 } catch(e) {
                     btn.innerText = "Verificar";
                     btn.disabled = false;

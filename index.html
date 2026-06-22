@@ -2194,7 +2194,22 @@ let isSpinning = false;
                     </div>
                     <div class="task-actions">
                         <button class="btn btn-secondary btn-sm" onclick="openTaskUrl('${task.id}','${task.url}')">Ir</button>
-                        <button class="btn btn-primary btn-sm" id="btn-verify-${task.id}" onclick="verifyTask('${task.id}')">Verificar</button>
+                       ${task.completed
+? `
+<button
+class="btn btn-success btn-sm"
+disabled>
+✅ Completado
+</button>
+`
+: `
+<button
+class="btn btn-primary btn-sm"
+id="btn-verify-${task.id}"
+onclick="verifyTask('${task.id}')">
+Verificar
+</button>
+`}
                     </div>
                 `;
                 container.appendChild(item);
@@ -2233,10 +2248,15 @@ window.open(url, "_blank");
                     }
 
                     alert(`¡Enhorabuena! Has obtenido +${task.reward} TRX.`);
-                    btn.innerText = "Completado";
-                    btn.className = "btn btn-success btn-sm";
-                    await syncUserSession();
-                    refreshProfileData();
+
+task.completed = true;
+
+btn.innerText = "✅ Completado";
+btn.disabled = true;
+btn.className = "btn btn-success btn-sm";
+
+await syncUserSession();
+refreshProfileData();
                 } catch(e) {
                     btn.innerText = "Verificar";
                     btn.disabled = false;

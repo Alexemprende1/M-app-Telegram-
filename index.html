@@ -61,7 +61,7 @@
     height:100vh;
     justify-content:space-between;
 
-    padding-top:45px;
+    padding-top:10px;
 }
 
         .app-header {
@@ -72,87 +72,118 @@
             align-items: center;
             border-bottom: 1px solid #222b3d;
         }
-
         .premium-header{
 
 display:flex;
 justify-content:space-between;
 align-items:center;
 
-padding:6px 15px;
-margin-top:0px;
+gap:12px;
+
+margin-top:35px;
 margin-bottom:15px;
 
-gap:12px;
+background:transparent;
 
 }
 
-.profile-card{
+.user-card{
 
 flex:1;
 
 display:flex;
 align-items:center;
 
-gap:6px;
-
-padding:6px;
-
-background:#151a26;
-
-border-radius:18px;
-
-border:1px solid #222b3d;
+gap:12px;
 
 }
 
-.profile-avatar{
+.avatar-box{
 
-width:32px;
-height:32px;
+width:70px;
+height:70px;
 
 display:flex;
 align-items:center;
 justify-content:center;
 
+border-radius:20px;
+
 background:
-radial-gradient(
-circle,
-rgba(246,166,9,.18),
-transparent
-);
+rgba(21,26,38,.75);
 
-border-radius:16px;
+backdrop-filter:blur(12px);
+
+border:1px solid #222b3d;
 
 }
 
-.profile-info{
+.logo-svg-header{
 
-display:flex;
-flex-direction:column;
+width:50px;
+height:50px;
 
 }
 
-.profile-info span{
+.user-info{
 
-font-size:.88rem;
-font-weight:700;
+flex:1;
 
-}.profile-info small{
+}
 
-color:#8491a5;
+.user-name{
+
+font-size:1.1rem;
+font-weight:800;
+
+}
+
+.user-level{
+
+color:#aab3c5;
+
+margin-top:4px;
+
+margin-bottom:8px;
+
+}
+
+.level-bar{
+
+height:8px;
+
+border-radius:20px;
+
+background:#111827;
+
+overflow:hidden;
+
+}
+
+.level-fill{
+
+width:50%;
+
+height:100%;
+
+background:#f6a609;
+
+border-radius:20px;
 
 }
 
 .balance-card{
 
-min-width:150px;
+min-width:180px;
 
-padding:8px;
+padding:14px;
 
-background:#151a26;
+border-radius:22px;
 
-border-radius:18px;
+background:
+rgba(21,26,38,.75);
+
+backdrop-filter:blur(12px);
 
 border:1px solid rgba(246,166,9,.25);
 
@@ -162,55 +193,37 @@ border:1px solid rgba(246,166,9,.25);
 
 display:block;
 
-font-size:.7rem;
+color:#aab3c5;
 
-color:#8491a5;
-
-margin-bottom:6px;
+margin-bottom:8px;
 
 }
 
 .balance-row{
 
 display:flex;
-
 align-items:center;
-
-gap:6px;
+gap:8px;
 
 }
 
 #global-balance{
 
-font-size:1.35rem;
-
+font-size:1.7rem;
 font-weight:800;
 
 color:#02c39a;
 
 }
 
-        .user-pill {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
+.trx-label{
 
-        .logo-svg-header {
-            width: 26px;
-            height: 26px;
-        }
+font-size:1.1rem;
+font-weight:700;
 
-        .balance-display {
-            font-weight: 700;
-            font-size: 1.1rem;
-            color: var(--success-color);
-        }
+color:#ffffff;
 
-        .asset-ticker {
-            font-size: 0.8rem;
-            color: var(--text-muted);
-        }
+}
 
         main {
             flex: 1;
@@ -568,29 +581,38 @@ animation:
       
         <header class="premium-header">
 
-            <div class="profile-card">
+            <div class="user-card">
         
-                <div class="profile-avatar">
+                <div class="avatar-box">
         
                     <svg class="logo-svg-header"
                          viewBox="0 0 512 512">
-        
                         <path fill="#f6a609"
                         d="M256 0L32 96v160c0 156.6 100.2 216.9 224 256 123.8-39.1 224-99.4 224-256V96L256 0z"/>
-        
                     </svg>
         
                 </div>
         
-                <div class="profile-info">
+                <div class="user-info">
         
-                    <span id="header-username">
-                        Cargando...
-                    </span>
+                    <div class="user-name"
+                         id="header-username">
         
-                    <small>
-                        Crypto Mine Pro
-                    </small>
+                         Cargando...
+        
+                    </div>
+        
+                    <div class="user-level">
+        
+                        Nivel 12
+        
+                    </div>
+        
+                    <div class="level-bar">
+        
+                        <div class="level-fill"></div>
+        
+                    </div>
         
                 </div>
         
@@ -612,7 +634,7 @@ animation:
         
                     </span>
         
-                    <span class="asset-ticker">
+                    <span class="trx-label">
         
                         TRX
         

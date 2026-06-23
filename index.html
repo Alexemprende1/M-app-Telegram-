@@ -561,6 +561,129 @@ animation:
 }
 
 }
+
+/* ========= NUEVOS GAME CARDS ========= */
+
+.games-premium-card{
+
+position:relative;
+
+overflow:hidden;
+
+border-radius:24px;
+
+padding:20px;
+
+margin-top:14px;
+
+border:1px solid rgba(255,255,255,.08);
+
+cursor:pointer;
+
+transition:.25s;
+
+}
+
+.games-premium-card:hover{
+
+transform:translateY(-2px);
+
+}
+
+.games-card-content{
+
+position:relative;
+z-index:2;
+
+}
+
+.games-premium-card h3{
+
+font-size:1.6rem;
+margin-bottom:8px;
+
+}
+
+.games-premium-card p{
+
+color:#b8c0d0;
+line-height:1.4;
+
+}
+
+.games-action{
+
+margin-top:18px;
+
+display:flex;
+justify-content:space-between;
+align-items:center;
+
+}
+
+.games-btn{
+
+border:none;
+
+border-radius:16px;
+
+padding:12px 22px;
+
+font-weight:800;
+
+cursor:pointer;
+
+}
+
+.ads-card{
+
+background:
+linear-gradient(
+    135deg,
+    #151a26,
+    #30240d
+);
+
+}
+
+.mines-card{
+
+background:
+linear-gradient(
+    135deg,
+    #0f1720,
+    #063d2d
+);
+
+}
+
+.treasure-card{
+
+background:
+linear-gradient(
+    135deg,
+    #101827,
+    #103e63
+);
+
+}
+
+.games-icon-bg{
+
+position:absolute;
+
+right:20px;
+top:50%;
+
+transform:translateY(-50%);
+
+font-size:80px;
+
+opacity:.12;
+
+z-index:1;
+
+}
     </style>
 </head>
 <body>
@@ -816,28 +939,49 @@ animation:
                             
                             </div>
 
-                            <div class="card" style="margin-top:10px;">
+                            <div class="games-premium-card ads-card">
 
-                                <div style="margin-bottom:8px;">
-                                    🎟 Tickets:
-                                    <span id="ticket-counter">0/3</span> → +2🔋
+                                <div class="games-icon-bg">
+                                    📺
                                 </div>
                             
-                                <div style="margin-bottom:8px;">
-                                    📊 Hoy:
-                                    <span id="ticket-daily-counter">0/15</span>
+                                <div class="games-card-content">
+                            
+                                    <h3>📺 Ver Anuncios</h3>
+                            
+                                    <p>
+                                        Mira anuncios y gana tickets para
+                                        convertirlos en energía extra.
+                                    </p>
+                            
+                                    <div class="games-action">
+                            
+                                        <div>
+                            
+                                            🎟 Tickets:
+                                            <span id="ticket-counter">0/3</span>
+                                            → +2🔋
+                            
+                                            <br><br>
+                            
+                                            📊 Hoy:
+                                            <span id="ticket-daily-counter">0/15</span>
+                            
+                                        </div>
+                            
+                                        <button
+                                            id="btn-ticket-ad"
+                                            class="games-btn">
+                            
+                                            ADS
+                            
+                                        </button>
+                            
+                                    </div>
+                            
                                 </div>
-                            
-                                <button
-                                    id="btn-ticket-ad"
-                                    class="btn btn-primary btn-block">
-                            
-                                    📺 Ver anuncio (+1 Ticket)
-                            
-                                </button>
                             
                             </div>
-                    
                             <div class="card game-card"
                                  onclick="showGame('mines')">
                     

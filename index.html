@@ -613,11 +613,29 @@ line-height:1.4;
 
 .games-action{
 
-margin-top:18px;
+margin-top:16px;
 
 display:flex;
 justify-content:space-between;
 align-items:center;
+
+gap:12px;
+
+}
+
+.games-stats{
+
+display:flex;
+
+align-items:center;
+
+gap:20px;
+
+flex-wrap:wrap;
+
+font-size:1rem;
+
+font-weight:600;
 
 }
 
@@ -955,28 +973,30 @@ z-index:1;
                                     </p>
                             
                                     <div class="games-action">
-                            
-                                        <div>
-                            
-                                            🎟 Tickets:
-                                            <span id="ticket-counter">0/3</span>
-                                            → +2🔋
-                            
-                                            <br><br>
-                            
-                                            📊 Hoy:
-                                            <span id="ticket-daily-counter">0/15</span>
-                            
+
+                                        <div class="games-stats">
+                                    
+                                            <span>
+                                                🎟 Tickets:
+                                                <span id="ticket-counter">0/3</span>
+                                                → +2🔋
+                                            </span>
+                                    
+                                            <span>
+                                                📊 Hoy:
+                                                <span id="ticket-daily-counter">0/15</span>
+                                            </span>
+                                    
                                         </div>
-                            
+                                    
                                         <button
                                             id="btn-ticket-ad"
                                             class="games-btn">
-                            
+                                    
                                             ADS
-                            
+                                    
                                         </button>
-                            
+                                    
                                     </div>
                             
                                 </div>

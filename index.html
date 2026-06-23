@@ -158,7 +158,7 @@ font-weight:800;
 
 .balance-card{
 
-min-width:120px;
+min-width:180px;
 
 padding:6px;
 
@@ -211,10 +211,10 @@ color:#ffffff;
 
 .trx-icon{
 
-width:24px;
-height:24px;
+width:28px;
+height:28px;
 
-object-fit:contain;
+flex-shrink:0;
 
 }
 
@@ -616,10 +616,13 @@ animation:
                     </span>
                 
                     <svg
-                    <img
-                    src="https://cryptologos.cc/logos/tron-trx-logo.png"
-                    class="trx-icon"
-                    alt="TRX">
+                    <svg class="trx-icon"
+                    viewBox="0 0 256 256">
+               
+                   <path fill="#ff060a"
+                   d="M37 32l155 29 27 129-82 34-100-124zm27 18l118 22-63 69L64 50zm67 101l54-58 16 77-70-19zm-7 7l66 18-42 18-24-36z"/>
+               
+               </svg>
                 
                     <span class="trx-label">
                 

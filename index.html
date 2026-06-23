@@ -80,10 +80,17 @@ align-items:center;
 
 gap:12px;
 
-margin-top:35px;
-margin-bottom:15px;
+padding-top:60px;
+padding-bottom:10px;
+padding-left:10px;
+padding-right:10px;
 
-background:transparent;
+background:rgba(21,26,38,.25);
+
+backdrop-filter:blur(18px);
+-webkit-backdrop-filter:blur(18px);
+
+border-bottom:1px solid rgba(255,255,255,.05);
 
 }
 
@@ -204,10 +211,10 @@ color:#ffffff;
 
 .trx-icon{
 
-width:22px;
-height:22px;
+width:24px;
+height:24px;
 
-flex-shrink:0;
+object-fit:contain;
 
 }
 
@@ -609,14 +616,10 @@ animation:
                     </span>
                 
                     <svg
-                        class="trx-icon"
-                        viewBox="0 0 24 24">
-                
-                        <path
-                            fill="#ff1e1e"
-                            d="M18.6 3H5l2.7 13.8L12 21l4.3-4.2L19 3z"/>
-                
-                    </svg>
+                    <img
+                    src="https://cryptologos.cc/logos/tron-trx-logo.png"
+                    class="trx-icon"
+                    alt="TRX">
                 
                     <span class="trx-label">
                 

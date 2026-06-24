@@ -1925,7 +1925,10 @@ setInterval(() => {
         document.addEventListener("DOMContentLoaded", async () => {
             if (tg.ready) tg.ready();
             if (tg.expand) tg.expand();
-
+            console.log(
+    "INIT DATA:",
+    tg.initData
+);
             try {
                 // Validación RPC obligatoria existente
                 await supabaseClient.rpc('validate_telegram_auth_rpc', {

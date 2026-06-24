@@ -515,6 +515,56 @@ border-radius: 50%;
 
 }
 
+@keyframes gemPop{
+
+0%{
+    transform:scale(.4);
+    opacity:0;
+}
+
+50%{
+    transform:scale(1.25);
+}
+
+100%{
+    transform:scale(1);
+    opacity:1;
+}
+
+}
+
+.gem-found{
+
+animation:gemPop .35s ease;
+
+box-shadow:
+0 0 18px rgba(0,255,120,.7);
+
+}
+
+@keyframes bombShake{
+
+0%{transform:translateX(0);}
+20%{transform:translateX(-4px);}
+40%{transform:translateX(4px);}
+60%{transform:translateX(-4px);}
+80%{transform:translateX(4px);}
+100%{transform:translateX(0);}
+
+}
+
+.bomb-hit{
+
+animation:bombShake .4s ease;
+
+box-shadow:
+0 0 20px rgba(255,0,0,.8);
+
+background:
+rgba(255,0,0,.15);
+
+}
+
 .mining-sparks {
 
 position: absolute;
@@ -3237,6 +3287,7 @@ detectorUsed = false;
                 if (data.status === "bomb") {
 
 cellElement.classList.add("bomb");
+cellElement.classList.add("bomb-hit");
 cellElement.innerHTML = "💥";
 
 document
@@ -3278,6 +3329,7 @@ alert(
 resetMinesGameUI();
 } else {
                     cellElement.innerHTML = "💎";
+                    cellElement.classList.add("gem-found");
 
                     document
 .getElementById("sound-gem")

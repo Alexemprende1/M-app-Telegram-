@@ -3011,6 +3011,9 @@ return;
                 wheel.style.transform = `rotate(${finalRotation}deg)`;
 
                 setTimeout(async () => {
+                    document
+.getElementById("sound-win")
+?.play();
                     alert(`🎯 ¡Felicidades! Ganaste ${rewardAmount.toFixed(8)} TRX directos.`);
                     AppState.user.last_spin_at = new Date().toISOString();
 updateWheelTimer();

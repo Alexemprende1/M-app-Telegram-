@@ -623,6 +623,54 @@ opacity:.8;
 
 }
 
+@keyframes treasureOpen{
+
+0%{
+    transform:scale(.6);
+    opacity:0;
+}
+
+50%{
+    transform:scale(1.15);
+}
+
+100%{
+    transform:scale(1);
+    opacity:1;
+}
+
+}
+
+.treasure-found{
+
+animation:
+treasureOpen .45s ease,
+treasureGlow 1.5s infinite;
+
+box-shadow:
+0 0 20px rgba(255,215,0,.65);
+
+}
+
+@keyframes treasureGlow{
+
+0%{
+box-shadow:
+0 0 8px rgba(255,215,0,.35);
+}
+
+50%{
+box-shadow:
+0 0 24px rgba(255,215,0,.95);
+}
+
+100%{
+box-shadow:
+0 0 8px rgba(255,215,0,.35);
+}
+
+}
+
 .bomb-hit{
 
 animation:bombShake .4s ease;
@@ -2258,10 +2306,19 @@ treasureFound++;
 treasureReward +=
     parseFloat(data.reward || 0);
 
-cellElement.innerHTML = "💎";
-cellElement.classList.add(
+    cellElement.innerHTML = "💎";
+
+cellElement.classList.remove(
     "treasure-found"
 );
+
+setTimeout(() => {
+
+    cellElement.classList.add(
+        "treasure-found"
+    );
+
+}, 10);
 
 document
 .getElementById("sound-gem")

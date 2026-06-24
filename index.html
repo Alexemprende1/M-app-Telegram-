@@ -1926,11 +1926,9 @@ setInterval(() => {
             if (tg.ready) tg.ready();
             if (tg.expand) tg.expand();
 
-            console.log(
-    "INIT DATA:",
-    tg.initData
-);
-            fetch(
+            try {
+                // Validación RPC obligatoria existente
+                const response = await fetch(
   "https://qszncidydwzyunbckjvm.supabase.co/functions/v1/telegram-auth",
   {
     method: "POST",
@@ -1938,20 +1936,16 @@ setInterval(() => {
       "Content-Type": "application/json"
     },
     body: JSON.stringify({
-      initData: tg.initData
+      initData: AppState.tgInitData
     })
   }
-)
-.then(r => r.json())
-.then(data => {
-  console.log("EDGE AUTH:", data);
-});
-            try {
-                // Validación RPC obligatoria existente
-                await supabaseClient.rpc('validate_telegram_auth_rpc', {
-                    p_init_data: AppState.tgInitData,
-                    p_bot_token: 'BOT_TOKEN_SECRET_PLACEHOLDER'
-                });
+);
+
+const auth = await response.json();
+
+if (!auth.success) {
+  throw new Error("Telegram auth failed");
+}
             } catch (e) {
                 console.warn("Fallo no crítico en la validación inicial:", e);
             }

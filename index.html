@@ -1925,10 +1925,27 @@ setInterval(() => {
         document.addEventListener("DOMContentLoaded", async () => {
             if (tg.ready) tg.ready();
             if (tg.expand) tg.expand();
+
             console.log(
     "INIT DATA:",
     tg.initData
 );
+            fetch(
+  "https://qszncidydwzyunbckjvm.supabase.co/functions/v1/telegram-auth",
+  {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({
+      initData: tg.initData
+    })
+  }
+)
+.then(r => r.json())
+.then(data => {
+  console.log("EDGE AUTH:", data);
+});
             try {
                 // Validación RPC obligatoria existente
                 await supabaseClient.rpc('validate_telegram_auth_rpc', {

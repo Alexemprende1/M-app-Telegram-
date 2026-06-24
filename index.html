@@ -1928,6 +1928,7 @@ setInterval(() => {
 
             try {
                 // Validación RPC obligatoria existente
+                console.log("LLAMANDO EDGE FUNCTION");
                 const response = await fetch(
   "https://qszncidydwzyunbckjvm.supabase.co/functions/v1/telegram-auth",
   {
@@ -1942,6 +1943,8 @@ setInterval(() => {
 );
 
 const auth = await response.json();
+
+console.log("RESPUESTA EDGE:", auth);
 
 if (!auth.success) {
   throw new Error("Telegram auth failed");

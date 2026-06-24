@@ -80,7 +80,7 @@ align-items:center;
 
 gap:12px;
 
-padding-top:9px;
+padding-top:60px;
 padding-bottom:10px;
 padding-left:10px;
 padding-right:10px;
@@ -1018,6 +1018,8 @@ height:140px;
                                             </span>
                                     
                                         </div>
+                                    
+                                        <button
                                     
                                     </div>
                             
@@ -2140,6 +2142,10 @@ treasureReward +=
 
 cellElement.innerHTML = "💎";
 
+document
+.getElementById("sound-gem")
+?.play();
+
             document
                 .getElementById(
                     "btn-claim-treasure"
@@ -2161,6 +2167,10 @@ cellElement.innerHTML = "💎";
         parseFloat(data.reward || 0);
 
     cellElement.innerHTML = "🥈";
+
+    document
+.getElementById("sound-gem")
+?.play();
 
             document
                 .getElementById(
@@ -3225,6 +3235,10 @@ detectorUsed = false;
 cellElement.classList.add("bomb");
 cellElement.innerHTML = "💥";
 
+document
+.getElementById("sound-bomb")
+?.play();
+
 if (!reviveUsed) {
 
     const rescue = confirm(
@@ -3260,6 +3274,10 @@ alert(
 resetMinesGameUI();
 } else {
                     cellElement.innerHTML = "💎";
+
+                    document
+.getElementById("sound-gem")
+?.play();
                     AppState.minesGame.revealedCount++;
                     
                     if (AppState.minesGame.revealedCount >= AppState.minesGame.safeCells) {
@@ -3310,6 +3328,10 @@ resetMinesGameUI();
                     return;
                 }
 
+                document
+.getElementById("sound-win")
+?.play();
+
                 alert(`💰 Retiro exitoso. Has asegurado +${parseFloat(data.prize).toFixed(6)} TRX.`);
                 await syncUserSession();
                 refreshProfileData();
@@ -3341,6 +3363,10 @@ try {
 
         return;
     }
+
+    document
+.getElementById("sound-win")
+?.play();
 
     alert(
         `🚀 Premio x8 acreditado\n\n` +
@@ -3818,5 +3844,17 @@ return;
             });
         }
     </script>
+
+<audio id="sound-gem"
+src="https://cdn.pixabay.com/download/audio/2022/03/15/audio_c8c8a73467.mp3">
+</audio>
+
+<audio id="sound-bomb"
+src="https://cdn.pixabay.com/download/audio/2022/03/10/audio_270f49b46d.mp3">
+</audio>
+
+<audio id="sound-win"
+src="https://cdn.pixabay.com/download/audio/2022/03/15/audio_57e0d4c6c0.mp3">
+</audio>
 </body>
 </html>

@@ -604,6 +604,25 @@ box-shadow:
 
 }
 
+@keyframes emptyShake{
+
+0%{transform:translateX(0);}
+25%{transform:translateX(-3px);}
+50%{transform:translateX(3px);}
+75%{transform:translateX(-3px);}
+100%{transform:translateX(0);}
+
+}
+
+.treasure-empty{
+
+animation:
+emptyShake .25s ease;
+
+opacity:.8;
+
+}
+
 .bomb-hit{
 
 animation:bombShake .4s ease;
@@ -2240,6 +2259,9 @@ treasureReward +=
     parseFloat(data.reward || 0);
 
 cellElement.innerHTML = "💎";
+cellElement.classList.add(
+    "treasure-found"
+);
 
 document
 .getElementById("sound-gem")
@@ -2266,6 +2288,9 @@ document
         parseFloat(data.reward || 0);
 
     cellElement.innerHTML = "🥈";
+    cellElement.classList.add(
+    "treasure-found"
+);
 
     document
 .getElementById("sound-gem")
@@ -2285,9 +2310,13 @@ document
 
         } else {
 
-            cellElement.innerHTML = "📭";
+cellElement.innerHTML = "📭";
 
-        }
+cellElement.classList.add(
+    "treasure-empty"
+);
+
+}
 
         cellElement.style.pointerEvents =
             "none";

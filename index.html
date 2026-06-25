@@ -1930,7 +1930,7 @@ setInterval(() => {
                 // Validación RPC obligatoria existente
                 console.log("LLAMANDO EDGE FUNCTION");
                 console.log("TG INIT RAW:", AppState.tgInitData);
-                
+
                 const response = await fetch(
   "https://qszncidydwzyunbckjvm.supabase.co/functions/v1/telegram-auth",
   {
@@ -1945,6 +1945,13 @@ setInterval(() => {
 );
 
 const auth = await response.json();
+
+console.log("RESPUESTA EDGE:", auth);
+
+if (auth.success) {
+    console.log("USUARIO AUTENTICADO:", auth.user);
+    console.log("TELEGRAM ID:", auth.user.id);
+}
 
 console.log("RESPUESTA EDGE:", auth);
 

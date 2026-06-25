@@ -1928,8 +1928,6 @@ setInterval(() => {
 
             try {
                 // Validación RPC obligatoria existente
-                console.log("LLAMANDO EDGE FUNCTION");
-                console.log("TG INIT RAW:", AppState.tgInitData);
 
                 const response = await fetch(
   "https://qszncidydwzyunbckjvm.supabase.co/functions/v1/telegram-auth",
@@ -1946,14 +1944,10 @@ setInterval(() => {
 
 const auth = await response.json();
 
-console.log("RESPUESTA EDGE:", auth);
-
 if (auth.success) {
     console.log("USUARIO AUTENTICADO:", auth.user);
     console.log("TELEGRAM ID:", auth.user.id);
 }
-
-console.log("RESPUESTA EDGE:", auth);
 
 if (!auth.success) {
   throw new Error("Telegram auth failed");
@@ -3286,14 +3280,21 @@ return;
                 const targetAngle = 360 - (segmentIndex * degreesPerSegment) - 30; 
                 const totalTurns = 5; 
                 const finalRotation = (totalTurns * 360) + targetAngle;
+                const spinSound = document.getElementById("sound-wheel-spin");
 
+if (spinSound) {
+    spinSound.currentTime = 0;
+    spinSound.play().catch(() => {});
+}
                 wheel.style.transform = `rotate(${finalRotation}deg)`;
 
                 setTimeout(async () => {
                     document
-.getElementById("sound-win")
-?.play();
+
                     alert(`🎯 ¡Felicidades! Ganaste ${rewardAmount.toFixed(8)} TRX directos.`);
+                    document.getElementById("sound-win")
+    ?.play()
+    .catch(() => {});
                     AppState.user.last_spin_at = new Date().toISOString();
 updateWheelTimer();
                     
@@ -4141,6 +4142,12 @@ src="https://qszncidydwzyunbckjvm.supabase.co/storage/v1/object/public/audio/cas
 <audio
 id="sound-bomb"
 src="https://qszncidydwzyunbckjvm.supabase.co/storage/v1/object/public/audio/explocion.mp3">
+
+<audio
+    id="sound-wheel-spin"
+    preload="auto"
+    src="https://qszncidydwzyunbckjvm.supabase.co/storage/v1/object/public/audio/victorabdo-spin-232536.mp3">
+</audio>
 </audio>
 </body>
 </html>

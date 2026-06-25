@@ -2312,10 +2312,7 @@ for (let i = 0; i < 20; i++) {
     cell.className = "mine-cell";
 
     cell.innerHTML = "📦";
-    document
-    .getElementById("sound-empty")
-    ?.play()
-    .catch(() => {});
+
     cell.dataset.index = i;
 
     cell.addEventListener("click", () => {
@@ -2461,6 +2458,13 @@ cellElement.innerHTML = "📭";
 cellElement.classList.add(
     "treasure-empty"
 );
+
+const emptySound = document.getElementById("sound-empty");
+
+if (emptySound) {
+    emptySound.currentTime = 0;
+    emptySound.play().catch(() => {});
+}
 
 }
 
@@ -4133,30 +4137,33 @@ return;
             });
         }
     </script>
-
+    
 <audio
 id="sound-win"
 src="https://qszncidydwzyunbckjvm.supabase.co/storage/v1/object/public/audio/moneda.mp3">
 </audio>
+
 <audio
 id="sound-gem"
 src="https://qszncidydwzyunbckjvm.supabase.co/storage/v1/object/public/audio/cash%20dinero.mp3">
 </audio>
+
 <audio
 id="sound-bomb"
 src="https://qszncidydwzyunbckjvm.supabase.co/storage/v1/object/public/audio/explocion.mp3">
-
-<audio
-    id="sound-wheel-spin"
-    preload="auto"
-    src="https://qszncidydwzyunbckjvm.supabase.co/storage/v1/object/public/audio/victorabdo-spin-232536.mp3">
 </audio>
 
 <audio
-    id="sound-empty"
-    preload="auto"
-    src="https://qszncidydwzyunbckjvm.supabase.co/storage/v1/object/public/audio/sounds-ui-error.mp3">
+id="sound-wheel-spin"
+preload="auto"
+src="https://qszncidydwzyunbckjvm.supabase.co/storage/v1/object/public/audio/victorabdo-spin-232536.mp3">
 </audio>
+
+<audio
+id="sound-empty"
+preload="auto"
+src="https://qszncidydwzyunbckjvm.supabase.co/storage/v1/object/public/audio/sounds-ui-error.mp3">
 </audio>
+
 </body>
 </html>

@@ -3309,14 +3309,18 @@ if (spinSound) {
                     document
 
                     alert(`🎯 ¡Felicidades! Ganaste ${rewardAmount.toFixed(8)} TRX directos.`);
-                    document.getElementById("sound-win")
-    ?.play()
-    .catch(() => {});
+                    const winSound = document.getElementById("sound-win");
+
+    if (winSound) {
+        winSound.currentTime = 0;
+        winSound.play().catch(() => {});
+    }
                     AppState.user.last_spin_at = new Date().toISOString();
 updateWheelTimer();
                     
                     await syncUserSession();
                     refreshProfileData();
+                    
                     wheel.style.transform = `rotate(${targetAngle}deg)`;
                     isSpinning = false;
                     btnSpin.disabled = false;

@@ -2709,12 +2709,15 @@ document
                 data.reward || 0
             );   
 
+            document
+.getElementById("sound-win")
+?.play();
+
         alert(
             "🚀 Premio x5 acreditado\n\n" +
             reward.toFixed(8) +
             " TRX"
         );
-        const winSound = document.getElementById("sound-win");
 
 if (winSound) {
     winSound.currentTime = 0;
@@ -3307,27 +3310,9 @@ if (spinSound) {
 
                 setTimeout(async () => {
                     document
-
+.getElementById("sound-win")
+?.play();
                     alert(`🎯 ¡Felicidades! Ganaste ${rewardAmount.toFixed(8)} TRX directos.`);
-                    const winSound = document.getElementById("sound-win");
-
-console.log("ANTES DE PLAY");
-
-if (winSound) {
-
-    console.log("INTENTANDO REPRODUCIR");
-
-    winSound.pause();
-    winSound.currentTime = 0;
-
-    winSound.play()
-        .then(() => {
-            console.log("PLAY EXITOSO");
-        })
-        .catch(err => {
-            console.error("PLAY ERROR", err);
-        });
-}
                     AppState.user.last_spin_at = new Date().toISOString();
 updateWheelTimer();
                     

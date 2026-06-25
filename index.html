@@ -2641,6 +2641,13 @@ document
             " TRX"
         );
 
+        const winSound = document.getElementById("sound-win");
+
+if (winSound) {
+    winSound.currentTime = 0;
+    winSound.play().catch(() => {});
+}
+
         treasureFound = 0;
 
         document
@@ -2706,15 +2713,17 @@ document
 
         refreshProfileData();
 
-        document
-.getElementById("sound-win")
-?.play();
         alert(
             "🚀 Premio x5 acreditado\n\n" +
             reward.toFixed(8) +
             " TRX"
         );
+        const winSound = document.getElementById("sound-win");
 
+if (winSound) {
+    winSound.currentTime = 0;
+    winSound.play().catch(() => {});
+}
         treasureFound = 0;
         treasureReward = 0;
 
@@ -4137,7 +4146,7 @@ return;
             });
         }
     </script>
-    
+
 <audio
 id="sound-win"
 src="https://qszncidydwzyunbckjvm.supabase.co/storage/v1/object/public/audio/moneda.mp3">

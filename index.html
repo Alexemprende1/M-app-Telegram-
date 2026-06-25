@@ -2707,24 +2707,24 @@ document
         const reward =
             parseFloat(
                 data.reward || 0
-            );
+            );   
 
-            await syncUserSession();
-
-        refreshProfileData();
-        
+        alert(
+            "🚀 Premio x5 acreditado\n\n" +
+            reward.toFixed(8) +
+            " TRX"
+        );
         const winSound = document.getElementById("sound-win");
 
 if (winSound) {
     winSound.currentTime = 0;
     winSound.play().catch(() => {});
 }
-        alert(
-            "🚀 Premio x5 acreditado\n\n" +
-            reward.toFixed(8) +
-            " TRX"
-        );
-        
+
+await syncUserSession();
+
+        refreshProfileData();
+
         treasureFound = 0;
         treasureReward = 0;
 

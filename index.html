@@ -3729,9 +3729,19 @@ detectorUsed = false;
                 });
         
                 if (error || !data.success) {
-                    alert(data?.message || "Movimiento inválido.");
-                    return;
-                }
+
+alert(data?.message || "Movimiento inválido.");
+
+if (
+    data?.message === "No hay partida activa"
+) {
+
+    resetMinesGameUI();
+
+}
+
+return;
+}
 
                 cellElement.classList.add("revealed");
 

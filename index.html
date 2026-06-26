@@ -2023,6 +2023,67 @@ console.log(data);
             return BATTERY_RECHARGE_SECONDS - remainder;
         }
 
+        // ======================================================
+// SISTEMA UNIFICADO DE ANUNCIOS RECOMPENSADOS
+// ======================================================
+
+async function showRewardedAd() {
+
+// 1. Intentar primero AdGram
+try {
+
+    if (
+    typeof TreasureX5Ad !== "undefined" &&
+    typeof TreasureX5Ad.show === "function"
+) {
+
+        const result = await TreasureX5Ad.show();
+
+        if (result?.done) {
+
+            console.log("✅ AdGram completado");
+
+            return true;
+
+        }
+
+        console.warn(
+    "AdGram no mostró anuncio. Probando Monetag..."
+);
+
+    }
+
+} catch (err) {
+
+    console.warn("AdGram sin anuncios:", err);
+
+}
+
+// 2. Si AdGram falla usar Monetag
+try {
+
+    console.log("🔄 Cambiando a Monetag...");
+
+    await show_11148552();
+
+    console.log("✅ Monetag completado");
+
+    return true;
+
+} catch (err) {
+
+    console.error("Monetag también falló:", err);
+
+}
+
+// 3. Ninguna red disponible
+alert(
+    "⚠️ No hay anuncios disponibles en este momento.\n\nInténtalo nuevamente dentro de unos minutos."
+);
+
+return false;
+}
+
         function updateBatteryDisplay() {
             const batteriesEl =
     document.getElementById("mines-batteries");
@@ -2680,10 +2741,9 @@ document
 
     try {
 
-        const result =
-            await TreasureX5Ad.show();
+        const ok = await showRewardedAd();
 
-        if (!result.done) return;
+if (!ok) return;
 
         const { data, error } =
         await supabaseClient.rpc(
@@ -3255,7 +3315,9 @@ btnSpin.disabled = true;
 try {
 
     // Mostrar anuncio recompensado
-    await show_11148552();
+    const ok = await showRewardedAd();
+
+if (!ok) return;
 
     const { data, error } = await supabaseClient.rpc(
         'spin_wheel_tma',
@@ -3360,7 +3422,9 @@ try {
 
     btnTicketAd.disabled = true;
 
-    await show_11148552();
+    const ok = await showRewardedAd();
+
+if (!ok) return;
 
     const { data, error } =
         await supabaseClient.rpc(
@@ -3432,7 +3496,9 @@ btnDetector.addEventListener(
             return;
         }
 
-        await show_11148552();
+        const ok = await showRewardedAd();
+
+if (!ok) return;
 
         detectorUsed = true;
 
@@ -3552,7 +3618,9 @@ if (!reviveUsed) {
 
     if (rescue) {
 
-        await show_11148552();
+        const ok = await showRewardedAd();
+
+if (!ok) return;
 
         await supabaseClient.rpc(
     'use_mines_rescue',
@@ -3648,7 +3716,9 @@ resetMinesGameUI();
 
 try {
 
-    await show_11148552();
+    const ok = await showRewardedAd();
+
+if (!ok) return;
 
     const { data, error } =
     await supabaseClient.rpc(

@@ -3335,6 +3335,9 @@ if (!ok) return;
                 }
 
                 const rewardAmount = parseFloat(data.reward);
+const bonusReward = parseFloat(data.bonus_reward || 0);
+const bonusMessage = data.bonus_message || "";
+
                 const segmentsValues = [0.0001, 0.0002, 0.0004, 0.01, 5.0, 10.0];
                 const segmentIndex = segmentsValues.findIndex(
     value => Math.abs(value - rewardAmount) < 0.00000001
@@ -3372,16 +3375,38 @@ if (spinSound) {
                 wheel.style.transform = `rotate(${finalRotation}deg)`;
 
                 setTimeout(async () => {
+
+                    if (spinSound) {
+    spinSound.pause();
+    spinSound.currentTime = 0;
+}
                     document
 .getElementById("sound-win")
 ?.play();
-                    alert(`🎯 ¡Felicidades! Ganaste ${rewardAmount.toFixed(8)} TRX directos.`);
                     AppState.user.last_spin_at = new Date().toISOString();
 updateWheelTimer();
-                    
-                    await syncUserSession();
-                    refreshProfileData();
+alert(`🎯 ¡Felicidades! Ganaste ${rewardAmount.toFixed(8)} TRX directos.`);
 
+if (bonusReward > 0) {
+
+    const winSound = document.getElementById("sound-win");
+
+if (winSound) {
+    winSound.pause();
+    winSound.currentTime = 0;
+    winSound.play().catch(() => {});
+}
+
+    alert(
+        `${bonusMessage}\n\n` +
+        `🎁 Bono Fidelidad: ${bonusReward.toFixed(8)} TRX`
+    );
+
+}
+
+await syncUserSession();
+
+refreshProfileData();
                     wheel.style.transform = `rotate(${targetAngle}deg)`;
                     isSpinning = false;
                     btnSpin.disabled = false;

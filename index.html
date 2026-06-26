@@ -3320,19 +3320,37 @@ try {
 
 if (!ok) return;
 
-    const { data, error } = await supabaseClient.rpc(
-        'spin_wheel_tma',
-        {
-            p_telegram_id: AppState.user.telegram_id
-        }
-    );
+const { data, error } = await supabaseClient.rpc(
+    "spin_wheel_tma",
+    {
+        p_telegram_id: AppState.user.telegram_id
+    }
+);
 
-                if (error || !data.success) {
-                    alert(data?.message || "No puedes girar la ruleta en este momento.");
-                    isSpinning = false;
-                    btnSpin.disabled = false;
-                    return;
-                }
+console.log("DATA:", data);
+console.log("ERROR:", error);
+
+if (error) {
+
+    console.error(error);
+
+    alert(error.message);
+
+    isSpinning = false;
+    btnSpin.disabled = false;
+
+    return;
+}
+
+if (!data.success) {
+
+    alert(data.message);
+
+    isSpinning = false;
+    btnSpin.disabled = false;
+
+    return;
+}
 
                 const rewardAmount = parseFloat(data.reward);
 const bonusReward = parseFloat(data.bonus_reward || 0);

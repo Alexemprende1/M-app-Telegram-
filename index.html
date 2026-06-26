@@ -1945,17 +1945,28 @@ setInterval(() => {
 const auth = await response.json();
 
 if (auth.success) {
-    console.log("USUARIO AUTENTICADO:", auth.user);
-    console.log("TELEGRAM ID:", auth.user.id);
+
+AppState.authUser = auth.user;
+
+console.log("USUARIO AUTENTICADO:", auth.user);
+console.log("TELEGRAM ID:", auth.user.id);
+
 }
 
 if (!auth.success) {
   throw new Error("Telegram auth failed");
 }
             } catch (e) {
-                console.warn("Fallo no crítico en la validación inicial:", e);
-            }
 
+console.error("Error de autenticación:", e);
+
+alert(
+    "No fue posible validar tu sesión de Telegram.\n\nCierra y vuelve a abrir la Mini App."
+);
+
+return;
+
+}
             // Ejecutar flujo de carga del usuario corregido
             await syncUserSession();
         });

@@ -2032,14 +2032,9 @@ async function showRewardedAd() {
 // 1. Intentar primero AdGram
 try {
 
-    if (
-    typeof TreasureX5Ad !== "undefined" &&
-    typeof TreasureX5Ad.show === "function"
-) {
+    if (typeof TreasureX5Ad !== "undefined") {
 
-    const ok = await showRewardedAd();
-
-if (!ok) return;
+        const result = await TreasureX5Ad.show();
 
         if (result?.done) {
 
@@ -2049,9 +2044,7 @@ if (!ok) return;
 
         }
 
-        console.warn(
-    "AdGram no mostró anuncio. Probando Monetag..."
-);
+        console.warn("AdGram cancelado.");
 
     }
 

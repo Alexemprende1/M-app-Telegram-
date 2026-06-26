@@ -2774,11 +2774,6 @@ if (!ok) return;
             " TRX"
         );
 
-if (winSound) {
-    winSound.currentTime = 0;
-    winSound.play().catch(() => {});
-}
-
 await syncUserSession();
 
         refreshProfileData();

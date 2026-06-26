@@ -1122,7 +1122,16 @@ height:140px;
 
                 <div class="card" id="ads-loyalty-card" style="margin-top:15px;">
                     <h3>🎯 Programa de Fidelidad</h3>
-                
+                    <div
+                    id="ads-last-goal"
+                    style="
+                        color:#32d583;
+                        font-weight:600;
+                        margin-bottom:8px;
+                    "
+                >
+                    ✔ Última meta: Ninguna
+                </div>
                     <p>
                         Anuncios vistos:
                         <span id="ads-progress-count">0</span>
@@ -1854,6 +1863,15 @@ return;
 
     total_spins: parseInt(rawRecord.total_spins || 0),
 
+    bonus_ads_10_claimed: rawRecord.bonus_ads_10_claimed,
+bonus_ads_25_claimed: rawRecord.bonus_ads_25_claimed,
+bonus_ads_50_claimed: rawRecord.bonus_ads_50_claimed,
+bonus_ads_100_claimed: rawRecord.bonus_ads_100_claimed,
+bonus_ads_250_claimed: rawRecord.bonus_ads_250_claimed,
+bonus_ads_500_claimed: rawRecord.bonus_ads_500_claimed,
+bonus_ads_1000_claimed: rawRecord.bonus_ads_1000_claimed,
+bonus_ads_1500_claimed: rawRecord.bonus_ads_1500_claimed,
+
     bonus_tickets: parseInt(rawRecord.bonus_tickets || 0),
     tickets_today: parseInt(rawRecord.tickets_today || 0),
 
@@ -2277,18 +2295,92 @@ const milestones = [
     { spins: 1500, reward: "1 TRX" }
 ];
 
-let next = milestones.find(m => total < m.spins);
+let previousMilestone = 0;
 
-if (!next) {
-    next = {
-        spins: 1500,
-        reward: "🏆 Máximo alcanzado"
-    };
+for (const m of milestones) {
+
+    const claimed =
+        AppState.user[`bonus_ads_${m.spins}_claimed`];
+
+    if (claimed) {
+        previousMilestone = m.spins;
+    }
+
 }
 
-document.getElementById("ads-progress-count").innerText = total;
+let next = milestones.find(m => {
+
+const claimed = AppState.user[
+    `bonus_ads_${m.spins}_claimed`
+];
+
+return total < m.spins || !claimed;
+
+});
+
+if (!next) {
+
+next = {
+    spins: 1500,
+    reward: "🏆 Todas las metas completadas"
+};
+
+}
+
+document.getElementById("ads-progress-count").innerText =
+`${total} / ${next.spins}`;
 document.getElementById("ads-next-goal").innerText = next.spins;
 document.getElementById("ads-next-reward").innerText = next.reward;
+
+// Barra de progreso
+let previous = 0;
+
+for (const m of milestones) {
+    if (m.spins === next.spins) break;
+    previous = m.spins;
+}
+
+const percent = Math.min(
+    100,
+    Math.floor(
+        ((total - previous) / (next.spins - previous)) * 100
+    )
+);
+
+const progressBar =
+document.getElementById("ads-progress-bar");
+
+if (progressBar) {
+    progressBar.style.width =
+        percent + "%";
+}
+
+const percentLabel =
+document.getElementById("ads-progress-percent");
+
+if (percentLabel) {
+    percentLabel.innerText =
+        percent + "%";
+        
+}
+const lastGoal =
+document.getElementById("ads-last-goal");
+
+if (lastGoal) {
+
+    if (previousMilestone === 0) {
+
+        lastGoal.innerText =
+            "🎯 Primera meta: 10 anuncios";
+
+    } else {
+
+        lastGoal.innerText =
+            `✔ Última meta: ${previousMilestone} anuncios`;
+
+    }
+
+}
 }
 
 let treasureFound = 0;

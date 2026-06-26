@@ -2037,7 +2037,9 @@ try {
     typeof TreasureX5Ad.show === "function"
 ) {
 
-    showRewardedAd()
+    const ok = await showRewardedAd();
+
+if (!ok) return;
 
         if (result?.done) {
 

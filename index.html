@@ -3745,7 +3745,10 @@ return;
 
                 cellElement.classList.add("revealed");
 
-                if (data.status === "bomb") {
+                if (
+    data.status === "bomb" ||
+    data.status === "bomb_final"
+) {
 
 cellElement.classList.add("bomb");
 cellElement.classList.add("bomb-hit");

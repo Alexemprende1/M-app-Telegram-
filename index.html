@@ -1040,6 +1040,38 @@ height:140px;
             
             </section>
             <section id="tab-tasks" class="tab-content">
+
+                <div class="card">
+
+                    <h3>🎁 Cofre Diario</h3>
+                
+                    <p>
+                        Reclama una recompensa gratuita cada 24 horas.
+                    </p>
+                
+                    <p>
+                        Estado:
+                        <span id="daily-chest-status">
+                            🟢 Disponible
+                        </span>
+                    </p>
+                
+                    <p>
+                        Próxima apertura:
+                        <span id="daily-chest-timer">
+                            Disponible
+                        </span>
+                    </p>
+                
+                    <button
+                        id="btn-daily-chest"
+                        class="btn-primary">
+                
+                        📦 Abrir Cofre
+                
+                    </button>
+                
+                </div>
                 <div class="card text-center" style="margin-bottom: 16px;">
                     <h3>🎯 Ruleta de la Fortuna</h3>
                     <p class="text-muted">Gira y gana premios directos en TRX cada 1 hora</p>
@@ -3423,6 +3455,61 @@ refreshProfileData();
                 }
             }, 3000);
         }
+
+        const btnDailyChest =
+document.getElementById("btn-daily-chest");
+
+btnDailyChest?.addEventListener(
+    "click",
+    async () => {
+
+        try {
+
+            btnDailyChest.disabled = true;
+
+            const { data, error } =
+            await supabaseClient.rpc(
+                "claim_daily_chest",
+                {
+                    p_telegram_id:
+                        AppState.user.telegram_id
+                }
+            );
+
+            if (error || !data?.success) {
+
+                alert(
+                    data?.message ||
+                    "No fue posible abrir el cofre."
+                );
+
+                btnDailyChest.disabled = false;
+
+                return;
+            }
+
+            await syncUserSession();
+
+            refreshProfileData();
+
+            alert("🎁 ¡Cofre abierto!");
+
+        } catch (err) {
+
+            console.error(err);
+
+            alert(
+                "Ocurrió un error al abrir el cofre."
+            );
+
+        } finally {
+
+            btnDailyChest.disabled = false;
+
+        }
+
+    }
+);
 
         btnSpin.addEventListener("click", async () => {
 

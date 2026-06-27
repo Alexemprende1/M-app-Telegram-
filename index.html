@@ -995,6 +995,66 @@ box-shadow:
 
 }
 
+.daily-chest-card{
+
+position:relative;
+
+overflow:hidden;
+
+background:
+linear-gradient(
+160deg,
+#16233d 0%,
+#111827 55%,
+#0a101b 100%
+);
+
+border:1px solid rgba(246,166,9,.18);
+
+box-shadow:
+0 0 18px rgba(246,166,9,.12);
+
+transition:.35s;
+
+}
+
+.daily-chest-card:hover{
+
+transform:translateY(-2px);
+
+box-shadow:
+0 0 28px rgba(246,166,9,.22);
+
+}
+
+.daily-chest-card::before{
+
+content:"";
+
+position:absolute;
+
+right:-15px;
+
+top:50%;
+
+transform:translateY(-50%);
+
+width:145px;
+
+height:145px;
+
+opacity:.08;
+
+background-repeat:no-repeat;
+
+background-position:center;
+
+background-size:contain;
+
+pointer-events:none;
+
+}
+
 .daily-chest-btn:hover{
 
 transform:translateY(-2px);
@@ -1236,7 +1296,7 @@ width:100%;
             </section>
             <section id="tab-tasks" class="tab-content">
 
-                <div class="card">
+                <div class="card daily-chest-card">
 
                     <h3>🎁 Cofre Diario</h3>
                 

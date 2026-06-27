@@ -2074,9 +2074,13 @@ loadWheelHistory();
 await loadCompletedTasks();
 
 updateWheelTimer();
+updateDailyChestTimer()
 
 setInterval(() => {
-    updateWheelTimer();
+
+updateWheelTimer();
+updateDailyChestTimer();
+
 }, 1000);
                 
                 await restoreMiningSession();
@@ -2401,6 +2405,7 @@ if (AppState.user.telegram_id == ADMIN_ID) {
             updateBatteryDisplay();
             updateAdsProgress();
             updateTicketDisplay();
+            updateDailyChestTimer();
         }
             function updateWheelTimer() {
 
@@ -2430,6 +2435,74 @@ if (AppState.user.telegram_id == ADMIN_ID) {
         `⏳ ${hours.toString().padStart(2,'0')}:` +
         `${minutes.toString().padStart(2,'0')}:` +
         `${seconds.toString().padStart(2,'0')}`;
+}
+
+function updateDailyChestTimer() {
+
+const status =
+    document.getElementById("daily-chest-status");
+
+const timer =
+    document.getElementById("daily-chest-timer");
+
+const button =
+    document.getElementById("btn-daily-chest");
+
+if (
+    !AppState.user?.last_daily_chest_at
+) {
+
+    status.innerText = "🟢 Disponible";
+    timer.innerText = "Disponible";
+    button.disabled = false;
+
+    return;
+
+}
+
+const last =
+    new Date(
+        AppState.user.last_daily_chest_at
+    ).getTime();
+
+const next =
+    last + (24 * 60 * 60 * 1000);
+
+const remaining =
+    next - Date.now();
+
+if (remaining <= 0) {
+
+    status.innerText = "🟢 Disponible";
+    timer.innerText = "Disponible";
+    button.disabled = false;
+
+    return;
+
+}
+
+const hours =
+    Math.floor(remaining / 3600000);
+
+const minutes =
+    Math.floor(
+        (remaining % 3600000) / 60000
+    );
+
+const seconds =
+    Math.floor(
+        (remaining % 60000) / 1000
+    );
+
+status.innerText = "🔴 En espera";
+
+timer.innerText =
+    `${hours.toString().padStart(2,'0')}:` +
+    `${minutes.toString().padStart(2,'0')}:` +
+    `${seconds.toString().padStart(2,'0')}`;
+
+button.disabled = true;
+
 }
 
 function updateAdsProgress() {

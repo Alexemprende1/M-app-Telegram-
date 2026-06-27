@@ -2455,6 +2455,7 @@ if (
     status.innerText = "🟢 Disponible";
     timer.innerText = "Disponible";
     button.disabled = false;
+button.innerText = "📦 Abrir Cofre";
 
     return;
 
@@ -2494,7 +2495,7 @@ const seconds =
         (remaining % 60000) / 1000
     );
 
-status.innerText = "🔴 En espera";
+    status.innerText = "🔴 En espera";
 
 timer.innerText =
     `${hours.toString().padStart(2,'0')}:` +
@@ -2502,6 +2503,11 @@ timer.innerText =
     `${seconds.toString().padStart(2,'0')}`;
 
 button.disabled = true;
+
+button.innerText =
+    `⏳ ${hours.toString().padStart(2,'0')}:` +
+    `${minutes.toString().padStart(2,'0')}:` +
+    `${seconds.toString().padStart(2,'0')}`;
 
 }
 

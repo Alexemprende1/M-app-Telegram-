@@ -1029,29 +1029,55 @@ box-shadow:
 
 .daily-chest-card::before{
 
-content:"";
+content:"📦";
 
 position:absolute;
 
-right:-15px;
+right:18px;
 
 top:50%;
 
 transform:translateY(-50%);
 
-width:145px;
+font-size:115px;
 
-height:145px;
+opacity:.06;
 
-opacity:.08;
-
-background-repeat:no-repeat;
-
-background-position:center;
-
-background-size:contain;
+filter:grayscale(.2);
 
 pointer-events:none;
+
+transition:.35s;
+
+}
+
+.daily-chest-card.available{
+
+box-shadow:
+0 0 10px rgba(246,166,9,.30),
+0 0 25px rgba(246,166,9,.18);
+
+animation:
+dailyChestGlow 2.2s infinite;
+
+}
+
+.daily-chest-card.available
+.daily-chest-btn{
+
+animation:
+chestButtonPulse
+1.8s infinite;
+
+}
+
+.daily-chest-card.available::before{
+
+opacity:.13;
+
+transform:
+translateY(-50%)
+scale(1.05);
 
 }
 
@@ -1116,6 +1142,52 @@ transform:scale(1);
 
 }
 
+@keyframes dailyChestGlow{
+
+0%{
+
+box-shadow:
+0 0 10px rgba(246,166,9,.18);
+
+}
+
+50%{
+
+box-shadow:
+0 0 28px rgba(246,166,9,.38);
+
+}
+
+100%{
+
+box-shadow:
+0 0 10px rgba(246,166,9,.18);
+
+}
+
+}
+
+@keyframes chestButtonPulse{
+
+0%{
+
+transform:scale(1);
+
+}
+
+50%{
+
+transform:scale(1.03);
+
+}
+
+100%{
+
+transform:scale(1);
+
+}
+
+}
 /* ================================================= */
                   /* COFRE DIARIO */
 /* ================================================= */
@@ -2590,6 +2662,11 @@ if (AppState.user.telegram_id == ADMIN_ID) {
 
     if (remaining <= 0) {
         timerEl.innerText = "✅ Disponible";
+
+        document
+.querySelector(".daily-chest-card")
+?.classList.add("available");
+
         return;
     }
 
@@ -2669,6 +2746,10 @@ timer.innerText =
     `${seconds.toString().padStart(2,'0')}`;
 
 button.disabled = true;
+
+document
+.querySelector(".daily-chest-card")
+?.classList.remove("available");
 
 button.innerText =
     `⏳ ${hours.toString().padStart(2,'0')}:` +

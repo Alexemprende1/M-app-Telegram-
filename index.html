@@ -1201,6 +1201,21 @@ animation:chestPulse 1.8s infinite;
 
 }
 
+.info-icon{
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    margin-left:6px;
+    cursor:pointer;
+    font-size:18px;
+    user-select:none;
+    transition:transform .2s;
+}
+
+.info-icon:hover{
+    transform:scale(1.15);
+}
+
 @keyframes chestPulse{
 
 0%{
@@ -1517,6 +1532,31 @@ transform:scale(.97);
     </style>
 </head>
 <body>
+
+    <!-- Modal Información Cofre -->
+<div id="chest-info-modal" class="modal-overlay" style="display:none;">
+
+    <div class="modal-content">
+
+        <h3>🎁 Posibles recompensas</h3>
+
+        <p>Al abrir un cofre puedes recibir aleatoriamente una de las siguientes recompensas:</p>
+
+        <ul class="chest-rewards-list">
+            <li>🪙 TRX</li>
+            <li>⚡ Energía para Minas</li>
+            <li>🎡 Giros para la Ruleta</li>
+            <li>💎 Recompensas especiales</li>
+            <li>🎁 Premios sorpresa</li>
+        </ul>
+
+        <button id="close-chest-info" class="btn btn-primary">
+            Entendido
+        </button>
+
+    </div>
+
+</div>
 
     <div id="daily-chest-modal" class="daily-chest-modal">
 
@@ -1884,7 +1924,10 @@ fill="url(#goldGradient)"/>
 
                     </svg>
                 
-                    <h3>🎁 Cofre Diario</h3>
+                    <h3>
+                        🎁 Cofre Diario
+                        <span id="chest-info" class="info-icon">ℹ️</span>
+                    </h3>
                 
                     <p>
                         Reclama una recompensa gratuita cada 24 horas.

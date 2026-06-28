@@ -3299,24 +3299,29 @@ if (!status || !timer || !AppState.user) return;
 
 try {
 
-    const { data, error } =
-    await supabaseClient.rpc(
-        "get_withdraw_timer",
-        {
-            p_telegram_id:
-                AppState.user.telegram_id
-        }
-    );
+    console.log("ID enviado:", AppState.user.telegram_id);
 
-    console.log("Telegram ID:", AppState.user.telegram_id);
+const { data, error } =
+await supabaseClient.rpc(
+    "get_withdraw_timer",
+    {
+        p_telegram_id:
+            AppState.user.telegram_id
+    }
+);
 
-console.log("RPC completo:", {
-    data,
-    error
-});
+console.log("Respuesta RPC:", data);
+console.log("Error RPC:", error);
 
-console.log("Available:", data?.available);
-console.log("Seconds:", data?.seconds);
+const { data: test } =
+await supabaseClient
+.from("withdrawals")
+.select("created_at")
+.eq("telegram_id", AppState.user.telegram_id)
+.order("created_at", { ascending: false })
+.limit(1);
+
+console.log("Último retiro:", test);
 
     if (error) return;
 

@@ -1216,6 +1216,41 @@ animation:chestPulse 1.8s infinite;
     transform:scale(1.15);
 }
 
+.modal-overlay{
+    position:fixed;
+    inset:0;
+    background:rgba(0,0,0,.75);
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    z-index:99999;
+}
+
+.modal-content{
+    width:90%;
+    max-width:420px;
+    background:var(--card-bg);
+    border:1px solid rgba(255,255,255,.08);
+    border-radius:18px;
+    padding:22px;
+    text-align:left;
+    box-shadow:0 10px 35px rgba(0,0,0,.45);
+}
+
+.modal-content h3{
+    text-align:center;
+    margin-bottom:16px;
+}
+
+.chest-rewards-list{
+    margin:18px 0;
+    padding-left:20px;
+}
+
+.chest-rewards-list li{
+    margin-bottom:10px;
+}
+
 @keyframes chestPulse{
 
 0%{
@@ -4029,6 +4064,48 @@ await syncUserSession();
     }
 
 });
+
+//======================
+//INFORMACION DEL COFRE
+//======================
+const chestInfoBtn =
+    document.getElementById("chest-info");
+
+const chestInfoModal =
+    document.getElementById("chest-info-modal");
+
+const closeChestInfo =
+    document.getElementById("close-chest-info");
+
+if (
+    chestInfoBtn &&
+    chestInfoModal &&
+    closeChestInfo
+) {
+
+    chestInfoBtn.addEventListener("click", () => {
+
+        chestInfoModal.style.display = "flex";
+
+    });
+
+    closeChestInfo.addEventListener("click", () => {
+
+        chestInfoModal.style.display = "none";
+
+    });
+
+    chestInfoModal.addEventListener("click", (e) => {
+
+        if (e.target === chestInfoModal) {
+
+            chestInfoModal.style.display = "none";
+
+        }
+
+    });
+
+}
 
         // TABS NAVIGATION SYSTEM
         document.querySelectorAll(".nav-item").forEach(button => {

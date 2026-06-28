@@ -5405,6 +5405,9 @@ if (miningLiveProfit) {
         "0.00000000 TRX";
 
 }
+console.log("RPC START:", data);
+
+console.log("ANTES DEL TIMER");
 
 startLocalMiningTimer(30 * 60);
 
@@ -5412,7 +5415,11 @@ startLocalMiningTimer(30 * 60);
 
         console.error("Error iniciando minería:", e);
 
-        alert("Error de conexión con el servidor.");
+alert(
+    e?.message ||
+    JSON.stringify(e) ||
+    "Error desconocido"
+);
 
         btnMiningAction.disabled = false;
     }

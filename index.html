@@ -2556,6 +2556,19 @@ class="btn btn-secondary btn-block">
             <section id="tab-wallet" class="tab-content">
                 <div class="card">
                     <h3>💰 Retiros de Fondos</h3>
+                    <div class="card" id="withdraw-status-card">
+
+                        <h3>⏳ Próximo Retiro</h3>
+                    
+                        <p id="withdraw-status">
+                            ✅ Disponible
+                        </p>
+                    
+                        <p id="withdraw-timer">
+                            Disponible
+                        </p>
+                    
+                    </div>
                     <form id="withdrawal-form">
                         <div class="form-group">
                             <label>Método de Retiro</label>
@@ -2826,12 +2839,14 @@ loadWheelHistory();
 await loadCompletedTasks();
 
 updateWheelTimer();
-updateDailyChestTimer()
+updateDailyChestTimer();
+updateWithdrawTimer();
 
 setInterval(() => {
 
 updateWheelTimer();
 updateDailyChestTimer();
+updateWithdrawTimer();
 
 }, 1000);
                 
@@ -3269,6 +3284,71 @@ button.innerText =
     `⏳ ${hours.toString().padStart(2,'0')}:` +
     `${minutes.toString().padStart(2,'0')}:` +
     `${seconds.toString().padStart(2,'0')}`;
+
+}
+
+async function updateWithdrawTimer() {
+
+const status =
+    document.getElementById("withdraw-status");
+
+const timer =
+    document.getElementById("withdraw-timer");
+
+if (!status || !timer || !AppState.user) return;
+
+try {
+
+    const { data, error } =
+    await supabaseClient.rpc(
+        "get_withdraw_timer",
+        {
+            p_telegram_id:
+                AppState.user.telegram_id
+        }
+    );
+
+    if (error) return;
+
+    if (data.available) {
+
+        status.innerText =
+            "🟢 Disponible";
+
+        timer.innerText =
+            "Disponible";
+
+        return;
+
+    }
+
+    let seconds =
+        parseInt(data.seconds);
+
+    const hours =
+        Math.floor(seconds / 3600);
+
+    seconds %= 3600;
+
+    const minutes =
+        Math.floor(seconds / 60);
+
+    const secs =
+        seconds % 60;
+
+    status.innerText =
+        "🔴 En espera";
+
+    timer.innerText =
+        `${hours.toString().padStart(2,"0")}:` +
+        `${minutes.toString().padStart(2,"0")}:` +
+        `${secs.toString().padStart(2,"0")}`;
+
+} catch (err) {
+
+    console.error(err);
+
+}
 
 }
 

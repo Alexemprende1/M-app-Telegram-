@@ -1079,6 +1079,24 @@ overflow:hidden;
 
 }
 
+.bonus-spins-card{
+
+margin-top:10px;
+
+padding:8px;
+
+border-radius:8px;
+
+background:rgba(255,215,0,.12);
+
+border:1px solid rgba(255,215,0,.35);
+
+text-align:center;
+
+font-weight:bold;
+
+}
+
 .daily-chest-card:hover{
 
 transform:translateY(-2px);
@@ -2005,6 +2023,13 @@ fill="url(#goldGradient)"/>
     margin:10px 0;
 ">
     ⏳ Disponible
+</div>
+
+<div class="bonus-spins-card">
+
+    🎁 Giros Bonus:
+    <span id="bonus-spins-count">0</span>
+
 </div>
                     <div class="wheel-container">
                         <svg class="wheel-pointer" viewBox="0 0 28 36" xmlns="http://www.w3.org/2000/svg">
@@ -3252,6 +3277,16 @@ if (AppState.user.telegram_id == ADMIN_ID) {
             updateTicketDisplay();
             updateDailyChestTimer();
         }
+
+        const bonusSpins =
+    document.getElementById("bonus-spins-count");
+
+if (bonusSpins) {
+
+    bonusSpins.innerText =
+        AppState.user.bonus_spins || 0;
+
+}
             function updateWheelTimer() {
 
     const timerEl = document.getElementById("wheel-timer");
@@ -4789,14 +4824,33 @@ btnSpin.disabled = true;
 try {
 
     // Mostrar anuncio recompensado
+    let usingBonusSpin = false;
+
+if ((AppState.user.bonus_spins || 0) > 0) {
+
+    usingBonusSpin = true;
+
+} else {
+
     const ok = await showRewardedAd();
 
-if (!ok) return;
+    if (!ok) {
 
-const { data, error } = await supabaseClient.rpc(
+        isSpinning = false;
+        btnSpin.disabled = false;
+
+        return;
+
+    }
+
+}
+
+const { data, error } =
+await supabaseClient.rpc(
     "spin_wheel_tma",
     {
-        p_telegram_id: AppState.user.telegram_id
+        p_telegram_id: AppState.user.telegram_id,
+        p_use_bonus_spin: usingBonusSpin
     }
 );
 
@@ -4837,6 +4891,7 @@ const bonusMessage = data.bonus_message || "";
                 if(segmentIndex === -1) {
 
                     await syncUserSession();
+                    refreshProfileData();
 
 AppState.user.last_spin_at = new Date().toISOString();
 

@@ -3278,21 +3278,19 @@ if (AppState.user.telegram_id == ADMIN_ID) {
 
             const botUser = "bot2026minertrx_bot"; 
             document.getElementById("referral-url").value = `https://t.me/${botUser}?start=${AppState.user.telegram_id}`;
+
+            const bonusSpins =
+    document.getElementById("bonus-spins-count");
+
+if (bonusSpins) {
+    bonusSpins.innerText =
+        AppState.user.bonus_spins || 0;
+}
             updateBatteryDisplay();
             updateAdsProgress();
             updateTicketDisplay();
             updateDailyChestTimer();
         }
-
-        const bonusSpins =
-    document.getElementById("bonus-spins-count");
-
-if (bonusSpins) {
-
-    bonusSpins.innerText =
-        AppState.user.bonus_spins || 0;
-
-}
             function updateWheelTimer() {
 
     const timerEl = document.getElementById("wheel-timer");

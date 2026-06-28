@@ -5520,6 +5520,19 @@ return;
 
 }
 
+if (
+    method === "faucetpay" &&
+    amount > 5
+) {
+
+    alert(
+        "FaucetPay permite un máximo de 5 TRX por retiro.\n\nPara montos mayores utiliza la opción Red TRON (TRC20)."
+    );
+
+    return;
+
+}
+
 if (method === "tron_network" && amount < 5) {
 
 alert("Mínimo Red TRON: 5 TRX");

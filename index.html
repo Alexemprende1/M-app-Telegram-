@@ -5366,10 +5366,6 @@ minesGrid.innerHTML = "";
 const miningTimer = document.getElementById("mining-timer");
 const miningStatusText = document.getElementById("mining-status-text");
 const miningGraphicBox = document.getElementById("mining-graphic-box");
-const miningLiveProfit =
-    document.getElementById(
-        "mining-live-profit"
-    );
 
 btnMiningAction.addEventListener("click", async () => {
 
@@ -5428,6 +5424,9 @@ startLocalMiningTimer(30 * 60);
 function startLocalMiningTimer(secondsLeft) {
 
 AppState.mining.active = true;
+
+const miningLiveProfit =
+    document.getElementById("mining-live-profit");
 
 miningGraphicBox.classList.add("mining-active");
 btnMiningAction.disabled = true;
@@ -5533,6 +5532,10 @@ async function claimMiningReward() {
 );
 
 try {
+
+    const miningLiveProfit =
+    document.getElementById("mining-live-profit");
+
     await show_11148552();
     const { data, error } = await supabaseClient.rpc(
         'claim_mining_tma',
@@ -5597,6 +5600,21 @@ AppState.mining.active = false;
 async function restoreMiningSession() {
 
 try {
+
+    const miningLiveProfit =
+    document.getElementById("mining-live-profit");
+
+const miningTimer =
+    document.getElementById("mining-timer");
+
+const miningStatusText =
+    document.getElementById("mining-status-text");
+
+const miningGraphicBox =
+    document.getElementById("mining-graphic-box");
+
+const btnMiningAction =
+    document.getElementById("btn-mining-action");
 
     if (!AppState.user?.telegram_id) {
         return;

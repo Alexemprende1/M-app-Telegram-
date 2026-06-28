@@ -3308,8 +3308,15 @@ try {
         }
     );
 
-    console.log("Withdraw timer:", data);
-console.log("Withdraw error:", error);
+    console.log("Telegram ID:", AppState.user.telegram_id);
+
+console.log("RPC completo:", {
+    data,
+    error
+});
+
+console.log("Available:", data?.available);
+console.log("Seconds:", data?.seconds);
 
     if (error) return;
 

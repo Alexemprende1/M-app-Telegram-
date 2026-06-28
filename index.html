@@ -2831,26 +2831,7 @@ AppState.user.referral_count = count || 0;
                 await rechargeBatteries();
                 startBatteryCountdownTimer();
                 
-                // Actualizar elementos dinámicos en el DOM inmediatamente
-                refreshProfileData();
-loadWithdrawHistory();
-loadWheelHistory();
-
-await loadCompletedTasks();
-
-updateWheelTimer();
-updateDailyChestTimer();
-updateWithdrawTimer();
-
-setInterval(() => {
-
-updateWheelTimer();
-updateDailyChestTimer();
-updateWithdrawTimer();
-
-}, 1000);
-                
-                await restoreMiningSession();
+        
 
                 // Quitar pantalla de bloqueo e incorporar contenedor de la aplicación
                 document.getElementById("blocking-screen").style.display = "none";
@@ -3310,19 +3291,6 @@ await supabaseClient.rpc(
     }
 );
 
-console.log("Respuesta RPC:", data);
-console.log("Error RPC:", error);
-
-const { data: test } =
-await supabaseClient
-.from("withdrawals")
-.select("created_at")
-.eq("telegram_id", AppState.user.telegram_id)
-.order("created_at", { ascending: false })
-.limit(1);
-
-console.log("Último retiro:", test);
-
     if (error) return;
 
     if (data.available) {
@@ -3331,7 +3299,7 @@ console.log("Último retiro:", test);
             "🟢 Disponible";
 
         timer.innerText =
-            "Disponible";
+            "puedes reirar";
 
         return;
 

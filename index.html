@@ -4406,6 +4406,17 @@ return;
 
 }
 
+const chestOpenAudio =
+document.getElementById("audio-chest-open");
+
+if (chestOpenAudio) {
+
+    chestOpenAudio.currentTime = 0;
+
+    chestOpenAudio.play().catch(() => {});
+
+}
+
         try {
 
             btnDailyChest.disabled = true;
@@ -4457,6 +4468,17 @@ const message =
 document.getElementById("daily-chest-message");
 
 modal.style.display = "flex";
+
+const rewardAudio =
+document.getElementById("audio-reward");
+
+if (rewardAudio) {
+
+    rewardAudio.currentTime = 0;
+
+    rewardAudio.play().catch(() => {});
+
+}
 
 switch (data.reward_type) {
 
@@ -5553,6 +5575,18 @@ src="https://qszncidydwzyunbckjvm.supabase.co/storage/v1/object/public/audio/vic
 id="sound-empty"
 preload="auto"
 src="https://qszncidydwzyunbckjvm.supabase.co/storage/v1/object/public/audio/sounds-ui-error.mp3">
+</audio>
+
+<audio id="audio-chest-open" preload="auto">
+    <source
+        src="https://qszncidydwzyunbckjvm.supabase.co/storage/v1/object/public/audio/sonido%20de%20puerta%20abriendose.mp3"
+        type="audio/mpeg">
+</audio>
+
+<audio id="audio-reward" preload="auto">
+    <source
+        src="https://qszncidydwzyunbckjvm.supabase.co/storage/v1/object/public/audio/sonido%20de%20recompensa.mp3"
+        type="audio/mpeg">
 </audio>
 
 </body>

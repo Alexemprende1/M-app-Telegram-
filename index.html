@@ -2831,7 +2831,26 @@ AppState.user.referral_count = count || 0;
                 await rechargeBatteries();
                 startBatteryCountdownTimer();
                 
-        
+                // Actualizar elementos dinámicos en el DOM inmediatamente
+                refreshProfileData();
+loadWithdrawHistory();
+loadWheelHistory();
+
+await loadCompletedTasks();
+
+updateWheelTimer();
+updateDailyChestTimer();
+updateWithdrawTimer();
+
+setInterval(() => {
+
+updateWheelTimer();
+updateDailyChestTimer();
+updateWithdrawTimer();
+
+}, 1000);
+                
+                await restoreMiningSession();
 
                 // Quitar pantalla de bloqueo e incorporar contenedor de la aplicación
                 document.getElementById("blocking-screen").style.display = "none";

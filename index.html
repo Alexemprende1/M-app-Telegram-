@@ -3206,23 +3206,29 @@ if (menuCountdownEl) {
         countdownText;
 }
         }
-function updateTicketDisplay() {
+        function updateTicketDisplay() {
 
-    if (!AppState.user) return;
+if (!AppState.user) return;
 
-    if (ticketCounter) {
+const ticketCounter =
+    document.getElementById("ticket-counter");
 
-        ticketCounter.innerText =
-            `${AppState.user.bonus_tickets || 0}/3`;
+const ticketDailyCounter =
+    document.getElementById("ticket-daily-counter");
 
-    }
+if (ticketCounter) {
 
-    if (ticketDailyCounter) {
+    ticketCounter.innerText =
+        `${AppState.user.bonus_tickets || 0}/3`;
 
-        ticketDailyCounter.innerText =
-            `${AppState.user.tickets_today || 0}/15`;
+}
 
-    }
+if (ticketDailyCounter) {
+
+    ticketDailyCounter.innerText =
+        `${AppState.user.tickets_today || 0}/15`;
+
+}
 
 }
         function startBatteryCountdownTimer() {
@@ -4981,12 +4987,6 @@ document.getElementById("btn-ticket-ad");
 
 let reviveUsed = false;
 let detectorUsed = false;
-
-const ticketCounter =
-document.getElementById("ticket-counter");
-
-const ticketDailyCounter =
-document.getElementById("ticket-daily-counter");
 
 btnTicketAd.addEventListener("click", async () => {
 

@@ -3849,9 +3849,7 @@ setTimeout(() => {
 
 }, 10);
 
-document
-.getElementById("sound-gem")
-?.play();
+AudioManager.play("sound-gem");
 
             document
                 .getElementById(
@@ -3878,9 +3876,7 @@ document
     "treasure-found"
 );
 
-    document
-.getElementById("sound-gem")
-?.play();
+AudioManager.play("sound-gem");
 
             document
                 .getElementById(
@@ -4084,12 +4080,7 @@ document
             " TRX"
         );
 
-        const winSound = document.getElementById("sound-win");
-
-if (winSound) {
-    winSound.currentTime = 0;
-    winSound.play().catch(() => {});
-}
+        AudioManager.play("sound-win");
 
         treasureFound = 0;
 
@@ -4151,9 +4142,7 @@ if (!ok) return;
                 data.reward || 0
             );   
 
-            document
-.getElementById("sound-win")
-?.play();
+            AudioManager.play("sound-win");
 
         alert(
             "🚀 Premio x5 acreditado\n\n" +
@@ -4864,7 +4853,7 @@ switch (data.reward_type) {
 
         icon.innerHTML = "👑";
 
-        document.getElementById("sound-win")?.play();
+        AudioManager.play("sound-win");
 
         message.innerHTML =
             `<span style="color:#FFD700;font-size:22px;">
@@ -5270,9 +5259,7 @@ cellElement.classList.add("bomb");
 cellElement.classList.add("bomb-hit");
 cellElement.innerHTML = "💥";
 
-document
-.getElementById("sound-bomb")
-?.play();
+AudioManager.play("sound-bomb");
 
 if (!reviveUsed) {
 
@@ -5313,9 +5300,8 @@ resetMinesGameUI();
                     cellElement.innerHTML = "💎";
                     cellElement.classList.add("gem-found");
 
-                    document
-.getElementById("sound-gem")
-?.play();
+                    AudioManager.play("sound-gem");
+
                     AppState.minesGame.revealedCount++;
                     
                     if (AppState.minesGame.revealedCount >= AppState.minesGame.safeCells) {
@@ -5366,9 +5352,7 @@ resetMinesGameUI();
                     return;
                 }
 
-                document
-.getElementById("sound-win")
-?.play();
+                AudioManager.play("sound-win");
 
                 alert(`💰 Retiro exitoso. Has asegurado +${parseFloat(data.prize).toFixed(6)} TRX.`);
                 await syncUserSession();
@@ -5404,9 +5388,7 @@ if (!ok) return;
         return;
     }
 
-    document
-.getElementById("sound-win")
-?.play();
+    AudioManager.play("sound-win");
 
     alert(
         `🚀 Premio x8 acreditado\n\n` +

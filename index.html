@@ -3098,36 +3098,39 @@ unlock() {
 
 play(id) {
 
-    const audio = document.getElementById(id);
+const original = document.getElementById(id);
 
-    if (!audio) return;
+if (!original) return;
 
-    try {
+try {
 
-        audio.pause();
-        audio.currentTime = 0;
+    const audio = new Audio(original.src);
 
-        const promise = audio.play();
+    audio.volume = original.volume;
 
-        if (promise) {
+    audio.currentTime = 0;
 
-            promise.catch(err => {
+    const promise = audio.play();
 
-                console.warn(
-                    "Audio bloqueado:",
-                    id,
-                    err
-                );
+    if (promise) {
 
-            });
+        promise.catch(err => {
 
-        }
+            console.warn(
+                "Audio bloqueado:",
+                id,
+                err
+            );
 
-    } catch(err) {
-
-        console.warn(err);
+        });
 
     }
+
+} catch(err) {
+
+    console.warn(err);
+
+}
 
 },
 

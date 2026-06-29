@@ -4151,9 +4151,7 @@ if (!ok) return;
                 data.reward || 0
             );   
 
-            document
-.getElementById("sound-win")
-?.play();
+            AudioManager.play("sound-win");
 
         alert(
             "🚀 Premio x5 acreditado\n\n" +
@@ -5404,9 +5402,7 @@ if (!ok) return;
         return;
     }
 
-    document
-.getElementById("sound-win")
-?.play();
+    AudioManager.play("sound-win");
 
     alert(
         `🚀 Premio x8 acreditado\n\n` +

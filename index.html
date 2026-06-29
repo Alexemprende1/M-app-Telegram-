@@ -3083,6 +3083,94 @@ console.log(data);
         }
 
         // ======================================================
+// AUDIO MANAGER V2
+// ======================================================
+
+const AudioManager = {
+
+unlocked: false,
+
+unlock() {
+
+    this.unlocked = true;
+
+},
+
+play(id) {
+
+    const audio = document.getElementById(id);
+
+    if (!audio) return;
+
+    try {
+
+        audio.pause();
+        audio.currentTime = 0;
+
+        const promise = audio.play();
+
+        if (promise) {
+
+            promise.catch(err => {
+
+                console.warn(
+                    "Audio bloqueado:",
+                    id,
+                    err
+                );
+
+            });
+
+        }
+
+    } catch(err) {
+
+        console.warn(err);
+
+    }
+
+},
+
+stop(id) {
+
+    const audio = document.getElementById(id);
+
+    if (!audio) return;
+
+    audio.pause();
+    audio.currentTime = 0;
+
+}
+
+};
+
+// Primera interacción del usuario
+document.addEventListener(
+"pointerdown",
+() => AudioManager.unlock(),
+{ once: true }
+);
+
+// Cuando vuelve desde un anuncio
+document.addEventListener(
+"visibilitychange",
+() => {
+
+    if (!document.hidden) {
+
+        AudioManager.unlock();
+
+    }
+
+}
+);
+
+window.addEventListener(
+"focus",
+() => AudioManager.unlock()
+);
+
+        // ======================================================
 // SISTEMA UNIFICADO DE ANUNCIOS RECOMPENSADOS
 // ======================================================
 

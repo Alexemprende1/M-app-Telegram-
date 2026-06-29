@@ -5009,8 +5009,10 @@ return;
 
                 AudioManager.play("sound-wheel-spin");
 
+                console.log("ANTES DE GIRAR");
                 wheel.style.transform = `rotate(${finalRotation}deg)`;
-
+                console.log("DESPUÉS DE GIRAR");
+                
                 setTimeout(async () => {
 
                     AudioManager.stop("sound-wheel-spin");

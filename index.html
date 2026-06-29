@@ -5007,36 +5007,24 @@ return;
                 const targetAngle = 360 - (segmentIndex * degreesPerSegment) - 30; 
                 const totalTurns = 5; 
                 const finalRotation = (totalTurns * 360) + targetAngle;
-                const spinSound = document.getElementById("sound-wheel-spin");
 
-if (spinSound) {
-    spinSound.currentTime = 0;
-    spinSound.play().catch(() => {});
-}
+                AudioManager.play("sound-wheel-spin");
+
                 wheel.style.transform = `rotate(${finalRotation}deg)`;
 
                 setTimeout(async () => {
 
-                    if (spinSound) {
-    spinSound.pause();
-    spinSound.currentTime = 0;
-}
-                    document
-.getElementById("sound-win")
-?.play();
+                    AudioManager.stop("sound-wheel-spin");
+
+                    AudioManager.play("sound-win");
+
                     AppState.user.last_spin_at = new Date().toISOString();
 updateWheelTimer();
 alert(`🎯 ¡Felicidades! Ganaste ${rewardAmount.toFixed(8)} TRX directos.`);
 
 if (bonusReward > 0) {
 
-    const winSound = document.getElementById("sound-win");
-
-if (winSound) {
-    winSound.pause();
-    winSound.currentTime = 0;
-    winSound.play().catch(() => {});
-}
+    AudioManager.play("sound-win");
 
     alert(
         `${bonusMessage}\n\n` +

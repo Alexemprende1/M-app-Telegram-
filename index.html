@@ -4800,16 +4800,7 @@ document.getElementById("daily-chest-message");
 
 modal.style.display = "flex";
 
-const rewardAudio =
-document.getElementById("audio-reward");
-
-if (rewardAudio) {
-
-    rewardAudio.currentTime = 0;
-
-    rewardAudio.play().catch(() => {});
-
-}
+AudioManager.play("audio-reward");
 
 switch (data.reward_type) {
 

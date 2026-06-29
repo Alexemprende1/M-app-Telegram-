@@ -2869,8 +2869,6 @@ return;
                     // Manejar tanto si el RPC retorna un array como un objeto plano directo
                     const rawRecord = Array.isArray(data) ? data[0] : data;
 
-                    console.log(rawRecord);
-
                     if (rawRecord) {
                         AppState.user = {
     telegram_id: rawRecord.telegram_id || rawRecord.p_telegram_id || tgUser.id,
@@ -4892,7 +4890,7 @@ if (!data.success) {
 const bonusReward = parseFloat(data.bonus_reward || 0);
 const bonusMessage = data.bonus_message || "";
 
-                const segmentsValues = [0.0001, 0.0002, 0.0004, 0.01, 5.0, 10.0];
+                const segmentsValues = [0.0003, 0.0007, 0.001, 0.01, 5.0, 10.0];
                 const segmentIndex = segmentsValues.findIndex(
     value => Math.abs(value - rewardAmount) < 0.00000001
 );

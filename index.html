@@ -2869,6 +2869,8 @@ return;
                     // Manejar tanto si el RPC retorna un array como un objeto plano directo
                     const rawRecord = Array.isArray(data) ? data[0] : data;
 
+                    console.log(rawRecord);
+
                     if (rawRecord) {
                         AppState.user = {
     telegram_id: rawRecord.telegram_id || rawRecord.p_telegram_id || tgUser.id,
@@ -2893,9 +2895,12 @@ bonus_ads_1500_claimed: rawRecord.bonus_ads_1500_claimed,
 
 last_daily_chest_at:
 rawRecord.last_daily_chest_at,
-    bonus_tickets: parseInt(rawRecord.bonus_tickets || 0),
-    tickets_today: parseInt(rawRecord.tickets_today || 0),
+bonus_tickets: parseInt(rawRecord.bonus_tickets || 0),
+tickets_today: parseInt(rawRecord.tickets_today || 0),
 
+bonus_spins: parseInt(rawRecord.bonus_spins || 0),
+
+referrer_id: rawRecord.referrer_id || null,
     referrer_id: rawRecord.referrer_id || null,
 
     batteries: parseInt(

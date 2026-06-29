@@ -3098,39 +3098,39 @@ unlock() {
 
 play(id) {
 
-const original = document.getElementById(id);
+    const original = document.getElementById(id);
 
-if (!original) return;
+    if (!original) return;
 
-try {
+    try {
 
-    const audio = new Audio(original.src);
+        const audio = new Audio(original.src);
 
-    audio.volume = original.volume;
+        audio.volume = original.volume;
 
-    audio.currentTime = 0;
+        audio.currentTime = 0;
 
-    const promise = audio.play();
+        const promise = audio.play();
 
-    if (promise) {
+        if (promise) {
 
-        promise.catch(err => {
+            promise.catch(err => {
 
-            console.warn(
-                "Audio bloqueado:",
-                id,
-                err
-            );
+                console.warn(
+                    "Audio bloqueado:",
+                    id,
+                    err
+                );
 
-        });
+            });
+
+        }
+
+    } catch(err) {
+
+        console.warn(err);
 
     }
-
-} catch(err) {
-
-    console.warn(err);
-
-}
 
 },
 
@@ -3849,7 +3849,9 @@ setTimeout(() => {
 
 }, 10);
 
-AudioManager.play("sound-gem");
+document
+.getElementById("sound-gem")
+?.play();
 
             document
                 .getElementById(
@@ -3876,7 +3878,9 @@ AudioManager.play("sound-gem");
     "treasure-found"
 );
 
-AudioManager.play("sound-gem");
+    document
+.getElementById("sound-gem")
+?.play();
 
             document
                 .getElementById(
@@ -4080,7 +4084,12 @@ document
             " TRX"
         );
 
-        AudioManager.play("sound-win");
+        const winSound = document.getElementById("sound-win");
+
+if (winSound) {
+    winSound.currentTime = 0;
+    winSound.play().catch(() => {});
+}
 
         treasureFound = 0;
 
@@ -4142,7 +4151,9 @@ if (!ok) return;
                 data.reward || 0
             );   
 
-            AudioManager.play("sound-win");
+            document
+.getElementById("sound-win")
+?.play();
 
         alert(
             "🚀 Premio x5 acreditado\n\n" +
@@ -4853,7 +4864,7 @@ switch (data.reward_type) {
 
         icon.innerHTML = "👑";
 
-        AudioManager.play("sound-win");
+        document.getElementById("sound-win")?.play();
 
         message.innerHTML =
             `<span style="color:#FFD700;font-size:22px;">
@@ -5259,7 +5270,9 @@ cellElement.classList.add("bomb");
 cellElement.classList.add("bomb-hit");
 cellElement.innerHTML = "💥";
 
-AudioManager.play("sound-bomb");
+document
+.getElementById("sound-bomb")
+?.play();
 
 if (!reviveUsed) {
 
@@ -5300,8 +5313,9 @@ resetMinesGameUI();
                     cellElement.innerHTML = "💎";
                     cellElement.classList.add("gem-found");
 
-                    AudioManager.play("sound-gem");
-
+                    document
+.getElementById("sound-gem")
+?.play();
                     AppState.minesGame.revealedCount++;
                     
                     if (AppState.minesGame.revealedCount >= AppState.minesGame.safeCells) {
@@ -5352,7 +5366,9 @@ resetMinesGameUI();
                     return;
                 }
 
-                AudioManager.play("sound-win");
+                document
+.getElementById("sound-win")
+?.play();
 
                 alert(`💰 Retiro exitoso. Has asegurado +${parseFloat(data.prize).toFixed(6)} TRX.`);
                 await syncUserSession();
@@ -5388,7 +5404,9 @@ if (!ok) return;
         return;
     }
 
-    AudioManager.play("sound-win");
+    document
+.getElementById("sound-win")
+?.play();
 
     alert(
         `🚀 Premio x8 acreditado\n\n` +

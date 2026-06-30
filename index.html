@@ -5498,14 +5498,24 @@ btnMiningAction.addEventListener("click", async () => {
 
     try {
 
-        
+let useBooster = false;
 
-        const { data, error } = await supabaseClient.rpc(
-            'start_mining_tma',
-            {
-                p_telegram_id: AppState.user.telegram_id
-            }
-        );
+if ((AppState.user.mining_booster_x2 || 0) > 0) {
+
+    useBooster = confirm(
+        `🚀 Tienes ${AppState.user.mining_booster_x2} Booster(s) x2 disponibles.\n\n` +
+        `¿Deseas utilizar uno en esta minería?`
+    );
+
+}
+
+const { data, error } = await supabaseClient.rpc(
+    'start_mining_tma',
+    {
+        p_telegram_id: AppState.user.telegram_id,
+        p_use_booster: useBooster
+    }
+);
 
         if (error || !data?.success) {
     alert(data?.message || "No puedes minar ahora mismo.");
@@ -5525,6 +5535,15 @@ console.log("RPC START:", data);
 await syncUserSession();
 
 refreshProfileData();
+
+if (useBooster) {
+
+alert(
+    "🚀 Booster x2 activado.\n\n" +
+    "La recompensa de esta minería será duplicada."
+);
+
+}
 
 console.log("ANTES DEL TIMER");
 

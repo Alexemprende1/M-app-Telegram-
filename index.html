@@ -5515,11 +5515,16 @@ btnMiningAction.addEventListener("click", async () => {
 
 if (miningLiveProfit) {
 
-    miningLiveProfit.innerText =
-        "0.00000000 TRX";
+miningLiveProfit.innerText =
+    "0.00000000 TRX";
 
 }
+
 console.log("RPC START:", data);
+
+await syncUserSession();
+
+refreshProfileData();
 
 console.log("ANTES DEL TIMER");
 

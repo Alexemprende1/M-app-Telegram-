@@ -5469,6 +5469,10 @@ minesGrid.innerHTML = "";
 
         // MINING SYSTEM OPERATIONS
         const btnMiningAction = document.getElementById("btn-mining-action");
+        const btnMiningBooster =
+document.getElementById(
+    "btn-mining-booster"
+);
 const miningTimer = document.getElementById("mining-timer");
 const miningStatusText = document.getElementById("mining-status-text");
 const miningGraphicBox = document.getElementById("mining-graphic-box");
@@ -5535,6 +5539,71 @@ alert(
     }
 
 });
+
+btnMiningBooster.addEventListener(
+"click",
+async () => {
+
+try {
+
+    btnMiningBooster.disabled = true;
+
+    const ok =
+        await showRewardedAd();
+
+    if (!ok) {
+
+        btnMiningBooster.disabled = false;
+        return;
+
+    }
+
+    const { data, error } =
+        await supabaseClient.rpc(
+            "claim_mining_booster",
+            {
+                p_telegram_id:
+                    AppState.user.telegram_id
+            }
+        );
+
+    if (error || !data?.success) {
+
+        alert(
+            data?.message ||
+            "No fue posible obtener el Booster."
+        );
+
+        btnMiningBooster.disabled = false;
+
+        return;
+
+    }
+
+    AppState.user.mining_booster_x2 =
+        data.boosters;
+
+    refreshProfileData();
+
+    AudioManager.play("sound-win");
+
+    alert(
+        `🚀 Booster x2 obtenido.\n\n` +
+        `Disponibles: ${data.boosters}`
+    );
+
+} catch(err) {
+
+    console.error(err);
+
+} finally {
+
+    btnMiningBooster.disabled = false;
+
+}
+
+}
+);
   
 function startLocalMiningTimer(secondsLeft) {
 

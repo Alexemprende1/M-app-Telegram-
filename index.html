@@ -2653,6 +2653,29 @@ class="btn btn-secondary btn-block">
 </div>
                     <p id="mining-status-text" class="text-muted">Listo para iniciar operaciones</p>
                     <button id="btn-mining-action" class="btn btn-primary btn-block">INICIAR MINERÍA</button>
+
+                    <div class="card" style="margin-top:15px;">
+
+                        <h3>🚀 Booster x2</h3>
+                    
+                        <p style="font-size:14px;">
+                            Duplica la recompensa de tu próxima minería.
+                        </p>
+                    
+                        <p>
+                            Boosters disponibles:
+                            <b id="mining-booster-count">0</b>
+                        </p>
+                    
+                        <button
+                            id="btn-mining-booster"
+                            class="btn btn-warning btn-block">
+                    
+                            📺 Obtener Booster x2
+                    
+                        </button>
+                    
+                    </div>
                 </div>
             </section>
 
@@ -2897,6 +2920,10 @@ bonus_tickets: parseInt(rawRecord.bonus_tickets || 0),
 tickets_today: parseInt(rawRecord.tickets_today || 0),
 
 bonus_spins: parseInt(rawRecord.bonus_spins || 0),
+
+mining_booster_x2:
+parseInt(
+    rawRecord.mining_booster_x2 || 0),
 
 referrer_id: rawRecord.referrer_id || null,
     referrer_id: rawRecord.referrer_id || null,
@@ -3379,6 +3406,18 @@ if (AppState.user.telegram_id == ADMIN_ID) {
 if (bonusSpins) {
     bonusSpins.innerText =
         AppState.user.bonus_spins || 0;
+}
+
+const boosterCounter =
+document.getElementById(
+    "mining-booster-count"
+);
+
+if (boosterCounter) {
+
+    boosterCounter.innerText =
+        AppState.user.mining_booster_x2 || 0;
+
 }
             updateBatteryDisplay();
             updateAdsProgress();

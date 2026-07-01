@@ -3075,11 +3075,15 @@ return;
 
         async function rechargeBatteries() {
             if (!AppState.user?.telegram_id) return;
-            try {
+            try { console.log("RECHARGE EJECUTADO");
                 const { data, error } = await supabaseClient.rpc("recharge_batteries", {
                     p_telegram_id: AppState.user.telegram_id
                 });
 console.log(data);
+console.log(
+    "BATTERIES RPC:",
+    data
+);
                 if (error) {
                     console.error("Error en recharge_batteries:", error);
                     return;

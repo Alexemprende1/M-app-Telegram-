@@ -3044,6 +3044,10 @@ return;
 }
             // Ejecutar flujo de carga del usuario corregido
             await syncUserSession();
+
+            console.log("ANTES DE syncUserSession");
+            console.log("DESPUÉS DE syncUserSession");
+console.log("Baterías:", AppState.user.batteries);
         });
 
         // BATTERY RECHARGE SYSTEM
@@ -3075,15 +3079,18 @@ return;
 
         async function rechargeBatteries() {
             if (!AppState.user?.telegram_id) return;
-            try { console.log("RECHARGE EJECUTADO");
-                const { data, error } = await supabaseClient.rpc("recharge_batteries", {
-                    p_telegram_id: AppState.user.telegram_id
-                });
-console.log(data);
-console.log(
-    "BATTERIES RPC:",
-    data
+            try {
+                console.log("🚨 recharge_batteries EJECUTADO");
+
+const { data, error } = await supabaseClient.rpc(
+    "recharge_batteries",
+    {
+        p_telegram_id: AppState.user.telegram_id
+    }
 );
+
+console.log("RPC recharge:", data);
+console.log(data);
                 if (error) {
                     console.error("Error en recharge_batteries:", error);
                     return;

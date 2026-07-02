@@ -3044,10 +3044,6 @@ return;
 }
             // Ejecutar flujo de carga del usuario corregido
             await syncUserSession();
-
-            console.log("ANTES DE syncUserSession");
-            console.log("DESPUÉS DE syncUserSession");
-console.log("Baterías:", AppState.user.batteries);
         });
 
         // BATTERY RECHARGE SYSTEM
@@ -5409,10 +5405,20 @@ resetMinesGameUI();
 .getElementById("sound-win")
 ?.play();
 
-                alert(`💰 Retiro exitoso. Has asegurado +${parseFloat(data.prize).toFixed(6)} TRX.`);
-                await syncUserSession();
-                refreshProfileData();
-                resetMinesGameUI();
+alert(`💰 Retiro exitoso. Has asegurado +${parseFloat(data.prize).toFixed(6)} TRX.`);
+
+console.log("ANTES DE syncUserSession");
+console.log("Baterías antes:", AppState.user.batteries);
+
+await syncUserSession();
+
+console.log("DESPUÉS DE syncUserSession");
+console.log("Baterías después:", AppState.user.batteries);
+
+refreshProfileData();
+
+resetMinesGameUI();
+                
             } catch(e) { console.error(e); }
         }
 

@@ -3076,7 +3076,10 @@ return;
         async function rechargeBatteries() {
             if (!AppState.user?.telegram_id) return;
             try {
+
+
                 console.log("🚨 recharge_batteries EJECUTADO");
+console.trace("Origen de recharge_batteries");
 
 const { data, error } = await supabaseClient.rpc(
     "recharge_batteries",
@@ -3359,7 +3362,7 @@ if (ticketDailyCounter) {
 }
 
                // TIEMPO DE ESPERA //
-               
+
         function startBatteryCountdownTimer() {
             if (AppState.batteryTimer.intervalId) {
                 clearInterval(AppState.batteryTimer.intervalId);

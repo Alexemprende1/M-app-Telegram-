@@ -6044,7 +6044,7 @@ return;
 }
 
                 try {
-                    const { data, error } = await supabaseClient.rpc('create_withdrawal', {
+                    const { data, error } = await supabaseClient.rpc('create_withdrawal_secure', {
                         p_telegram_id: AppState.user.telegram_id,
                         p_method: method,
                         p_address: address,

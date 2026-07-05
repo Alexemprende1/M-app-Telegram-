@@ -6051,10 +6051,26 @@ return;
                         p_amount: amount
                     });
 
-                    if (error || !data.success) {
-                        alert(data?.message || "Transacción denegada.");
-                        return;
-                    }
+                    if (error) {
+
+console.error("RPC ERROR:", error);
+
+alert(
+    "ERROR RPC:\n\n" +
+    JSON.stringify(error, null, 2)
+);
+
+return;
+}
+
+if (!data.success) {
+
+alert(data.message);
+
+return;
+}
+
+console.log("RPC DATA:", data);
 
                     alert("🚀 Retiro registrado correctamente. Procesando en cola de pagos.");
                     newForm.reset();

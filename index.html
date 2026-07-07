@@ -4585,13 +4585,57 @@ ${w.status === "rejected" ? "🔴 Rejected" : ""}
 }
 async function approveWithdrawal(id) {
 
+// Buscar el retiro seleccionado
+const { data: withdrawal, error: findError } =
+await supabaseClient
+    .from("withdrawals")
+    .select("*")
+    .eq("id", id)
+    .single();
+
+if (findError || !withdrawal) {
+    alert("No se encontró el retiro.");
+    return;
+}
+
+// =====================================================
+// FAUCETPAY = AUTOMÁTICO
+// =====================================================
+
+if (withdrawal.method === "faucetpay") {
+
+    const { data, error } =
+    await supabaseClient.functions.invoke(
+        "process-withdrawals"
+    );
+
+    if (error) {
+
+        console.error(error);
+
+        alert("Error ejecutando FaucetPay.");
+
+        return;
+
+    }
+
+    alert("Proceso automático ejecutado.");
+
+    await loadWithdrawals();
+
+    return;
+}
+
+// =====================================================
+// TRON = MANUAL
+// =====================================================
+
 const { data, error } =
 await supabaseClient.rpc(
-    'approve_withdrawal_admin',
+    "approve_withdrawal_admin",
     {
         p_withdrawal_id: id,
-        p_admin_id:
-            AppState.user.telegram_id
+        p_admin_id: AppState.user.telegram_id
     }
 );
 
@@ -4605,9 +4649,10 @@ if (error || !data.success) {
     return;
 }
 
-alert("Retiro aprobado");
+alert("Retiro aprobado.");
 
-loadWithdrawals();
+await loadWithdrawals();
+
 }
 
 async function rejectWithdrawal(id) {

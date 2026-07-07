@@ -6137,11 +6137,15 @@ if (method === "faucetpay") {
 
     if (processError) {
 
-        console.error(processError);
+console.error("FUNCTION ERROR:", processError);
 
-        alert("El retiro fue registrado, pero ocurrió un error al iniciar el pago automático.");
+alert(
+    JSON.stringify(processError, null, 2)
+);
 
-    } else {
+return;
+
+} else {
 
         console.log("PROCESS RESULT:", processData);
 

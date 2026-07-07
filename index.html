@@ -4563,21 +4563,29 @@ ${w.status === "rejected" ? "🔴 Rejected" : ""}
 
 <br><br>
 
-        ${w.status === "pending" ? `
+        ${w.status === "pending"
+? (
+    w.method === "tron_network"
+    ? `
 
 <button
-    class="btn btn-success"
-    onclick="approveWithdrawal(${w.id})">
-    ✅ Aprobar
+class="btn btn-success"
+onclick="approveWithdrawal(${w.id})">
+✅ Aprobar
 </button>
 
 <button
-    class="btn btn-danger"
-    onclick="rejectWithdrawal(${w.id})">
-    ❌ Rechazar
+class="btn btn-danger"
+onclick="rejectWithdrawal(${w.id})">
+❌ Rechazar
 </button>
 
-` : ""}
+`
+    : `<span style="color:#00d084;font-weight:bold;">
+🤖 Procesamiento automático FaucetPay
+</span>`
+)
+: ""}
 
     </div>
 `).join("");
@@ -6119,10 +6127,40 @@ return;
 
 console.log("RPC DATA:", data);
 
-                    alert("🚀 Retiro registrado correctamente. Procesando en cola de pagos.");
-                    newForm.reset();
-                    refreshProfileData();
-                    loadWithdrawHistory();
+// Si es FaucetPay, procesar automáticamente
+if (method === "faucetpay") {
+
+    const { data: processData, error: processError } =
+    await supabaseClient.functions.invoke(
+        "process-withdrawals"
+    );
+
+    if (processError) {
+
+        console.error(processError);
+
+        alert("El retiro fue registrado, pero ocurrió un error al iniciar el pago automático.");
+
+    } else {
+
+        console.log("PROCESS RESULT:", processData);
+
+        alert("✅ Retiro enviado a FaucetPay automáticamente.");
+
+    }
+
+} else {
+
+    // TRON sigue siendo manual
+    alert("✅ Retiro registrado correctamente. Esperando aprobación del administrador.");
+
+}
+
+newForm.reset();
+
+await refreshProfileData();
+
+await loadWithdrawHistory();
                 } catch(err){ console.error(err); }
             });
         }

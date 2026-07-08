@@ -4609,29 +4609,38 @@ if (findError || !withdrawal) {
 // =====================================================
 // FAUCETPAY = AUTOMÁTICO
 // =====================================================
-
 if (withdrawal.method === "faucetpay") {
 
-    const { data, error } =
-    await supabaseClient.functions.invoke(
-        "process-withdrawals"
-    );
+const { data: processData, error: processError } =
+await supabaseClient.functions.invoke(
+    "process-withdrawals"
+);
 
-    if (error) {
+console.log("PROCESS ERROR:", processError);
+console.log("PROCESS DATA:", processData);
 
-        console.error(error);
+alert(
+    JSON.stringify({
+        error: processError,
+        data: processData
+    }, null, 2)
+);
 
-        alert("Error ejecutando FaucetPay.");
+if (processError) {
 
-        return;
+    console.error(processError);
 
-    }
-
-    alert("Proceso automático ejecutado.");
-
-    await loadWithdrawals();
+    alert("Error ejecutando FaucetPay.");
 
     return;
+
+}
+
+alert("Proceso automático ejecutado.");
+
+await loadWithdrawals();
+
+return;
 }
 
 // =====================================================

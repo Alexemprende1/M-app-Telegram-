@@ -6014,7 +6014,7 @@ function updateWithdrawUI() {
 
 withdrawAddress.placeholder =
     "Ej: correo@ejemplo.com";
-    
+
 
     } else {
 
@@ -6143,7 +6143,7 @@ console.log("RPC DATA:", data);
 if (method === "faucetpay") {
 
     const response = await fetch(
-    "https://qszncidydwzyunbckjvm.supabase.co/functions/v1/process-withdrawals",
+    "https://qszncidydwzyunbckjvm.supabase.co/functions/v1/process-withdrawals-v2",
     {
         method: "POST",
         headers: {
@@ -6151,7 +6151,9 @@ if (method === "faucetpay") {
             "apikey": SUPABASE_ANON_KEY,
             "Authorization": `Bearer ${SUPABASE_ANON_KEY}`
         },
-        body: JSON.stringify({})
+        body: JSON.stringify({
+            withdrawal_id: data.withdrawal_id
+        })
     }
 );
 
@@ -6159,10 +6161,10 @@ const processData = await response.json();
 
 console.log("PROCESS RESULT:", processData);
 
-if (!response.ok) {
+if (!response.ok || !processData.success) {
 
     alert(
-        "Error:\n\n" +
+        "Error procesando el retiro:\n\n" +
         JSON.stringify(processData, null, 2)
     );
 
@@ -6170,7 +6172,7 @@ if (!response.ok) {
 
 }
 
-alert("✅ Retiro enviado a FaucetPay automáticamente.");
+alert("✅ Retiro enviado automáticamente a FaucetPay.");
 
 } else {
 

@@ -2936,12 +2936,31 @@ referrer_id: rawRecord.referrer_id || null,
 
     last_spin_at: rawRecord.last_spin_at || null
 };
-                        const { count } = await supabaseClient
-    .from('users_tma')
-    .select('*', { count: 'exact', head: true })
-    .eq('referrer_id', AppState.user.telegram_id);
+const {
+    data: referralCount,
+    error: referralError
+} = await supabaseClient.rpc(
+    "get_referral_count",
+    {
+        p_telegram_id: AppState.user.telegram_id
+    }
+);
 
-AppState.user.referral_count = count || 0;
+if (referralError) {
+
+    console.error(
+        "Error obteniendo referral_count:",
+        referralError
+    );
+
+    AppState.user.referral_count = 0;
+
+} else {
+
+    AppState.user.referral_count =
+        referralCount ?? 0;
+
+}
                     }
                 }
 
@@ -3057,21 +3076,38 @@ return;
         }
 
         async function fetchBatteryUpdatedAt() {
-            if (!AppState.user?.telegram_id) return;
-            try {
-                const { data, error } = await supabaseClient
-                    .from("users_tma")
-                    .select("battery_updated_at")
-                    .eq("telegram_id", AppState.user.telegram_id)
-                    .maybeSingle();
 
-                if (!error && data?.battery_updated_at) {
-                    AppState.batteryTimer.batteryUpdatedAt = new Date(data.battery_updated_at).getTime();
-                }
-            } catch (err) {
-                console.error("Error obteniendo battery_updated_at:", err);
-            }
+if (!AppState.user?.telegram_id) return;
+
+try {
+
+    const { data, error } = await supabaseClient.rpc(
+        "get_battery_updated_at",
+        {
+            p_telegram_id: AppState.user.telegram_id
         }
+    );
+
+    if (error) {
+        console.error("Error obteniendo battery_updated_at:", error);
+        return;
+    }
+
+    if (data) {
+        AppState.batteryTimer.batteryUpdatedAt =
+            new Date(data).getTime();
+    }
+
+} catch (err) {
+
+    console.error(
+        "Error obteniendo battery_updated_at:",
+        err
+    );
+
+}
+
+}
             // CONOSALAS DE PRUEBAS //
         async function rechargeBatteries() {
             if (!AppState.user?.telegram_id) return;

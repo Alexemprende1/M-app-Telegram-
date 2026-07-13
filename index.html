@@ -5082,7 +5082,7 @@ if ((AppState.user.bonus_spins || 0) > 0) {
 
 const { data, error } =
 await supabaseClient.rpc(
-    "spin_wheel_tma",
+    "spin_wheel_tma_old",
     {
         p_telegram_id: AppState.user.telegram_id,
         p_use_bonus_spin: usingBonusSpin

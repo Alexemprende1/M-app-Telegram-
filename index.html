@@ -2576,8 +2576,8 @@ class="btn btn-secondary btn-block">
 
             <section id="tab-referrals" class="tab-content">
                 <div class="card">
-                    <h3>👥 Sistema de Invitación Real</h3>
-                    <p class="text-muted">Recibe automáticamente el 15% de comisión de lo que minen tus referidos directos.</p>
+                    <h3>👥 INVITA AMIGOS Y GANA DINERO</h3>
+                    <p class="text-muted">Recibe automáticamente el 10% 4% 1% de comisión en 3 niveles.</p>
                     <div class="invite-link-box">
                         <input type="text" id="referral-url" class="form-control" readonly value="Cargando enlace...">
                         <button id="btn-copy-ref" class="btn btn-primary">Copiar</button>
@@ -3482,7 +3482,7 @@ if (AppState.user.telegram_id == ADMIN_ID) {
             document.getElementById("stat-withdrawable").innerText = AppState.user.balance_trx.toFixed(8) + " TRX";
             document.getElementById("stat-mined").innerText = AppState.user.total_mined.toFixed(4) + " TRX";
             document.getElementById("stat-referrals").innerText =
-    AppState.user.referral_count || 0;
+            AppState.user.referral_stats?.level1_count || 0;
             document.getElementById("stat-date").innerText = "Activo";
 
             const stats = AppState.user.referral_stats;

@@ -2584,8 +2584,30 @@ class="btn btn-secondary btn-block">
                     </div>
                 </div>
                 <div class="grid-stats">
-                    <div class="stat-box"><h5>Referidos Totales</h5><p id="ref-count-panel">0</p></div>
-                    <div class="stat-box"><h5>Tus Ganancias (15%)</h5><p id="ref-earnings-panel">0.0000</p></div>
+
+                    <div class="stat-box">
+                        <h5>Nivel 1 (10%)</h5>
+                        <p id="level1-count">0</p>
+                        <small id="level1-earnings">0.00000000 TRX</small>
+                    </div>
+                
+                    <div class="stat-box">
+                        <h5>Nivel 2 (4%)</h5>
+                        <p id="level2-count">0</p>
+                        <small id="level2-earnings">0.00000000 TRX</small>
+                    </div>
+                
+                    <div class="stat-box">
+                        <h5>Nivel 3 (1%)</h5>
+                        <p id="level3-count">0</p>
+                        <small id="level3-earnings">0.00000000 TRX</small>
+                    </div>
+                
+                    <div class="stat-box">
+                        <h5>Total Ganado</h5>
+                        <p id="ref-total-earnings">0.00000000 TRX</p>
+                    </div>
+                
                 </div>
             </section>
 
@@ -2959,6 +2981,29 @@ if (referralError) {
 
     AppState.user.referral_count =
         referralCount ?? 0;
+
+        const {
+    data: referralStats,
+    error: referralStatsError
+} = await supabaseClient.rpc(
+    "get_referral_stats",
+    {
+        p_telegram_id: AppState.user.telegram_id
+    }
+);
+
+if (!referralStatsError && referralStats?.success) {
+
+    AppState.user.referral_stats = referralStats;
+
+} else {
+
+    console.error(
+        "Error obteniendo referral_stats:",
+        referralStatsError
+    );
+
+}
 
 }
                     }
@@ -3440,10 +3485,32 @@ if (AppState.user.telegram_id == ADMIN_ID) {
     AppState.user.referral_count || 0;
             document.getElementById("stat-date").innerText = "Activo";
 
-            document.getElementById("ref-count-panel").innerText =
-            AppState.user.referral_count || 0;
-            document.getElementById("ref-earnings-panel").innerText = AppState.user.total_ref_earnings.toFixed(6);
+            const stats = AppState.user.referral_stats;
 
+if (stats) {
+
+    document.getElementById("level1-count").innerText =
+        stats.level1_count || 0;
+
+    document.getElementById("level2-count").innerText =
+        stats.level2_count || 0;
+
+    document.getElementById("level3-count").innerText =
+        stats.level3_count || 0;
+
+    document.getElementById("level1-earnings").innerText =
+        Number(stats.level1_earnings || 0).toFixed(8) + " TRX";
+
+    document.getElementById("level2-earnings").innerText =
+        Number(stats.level2_earnings || 0).toFixed(8) + " TRX";
+
+    document.getElementById("level3-earnings").innerText =
+        Number(stats.level3_earnings || 0).toFixed(8) + " TRX";
+
+    document.getElementById("ref-total-earnings").innerText =
+        Number(stats.total_earnings || 0).toFixed(8) + " TRX";
+
+}
             const botUser = "bot2026minertrx_bot"; 
             document.getElementById("referral-url").value = `https://t.me/${botUser}?start=${AppState.user.telegram_id}`;
 

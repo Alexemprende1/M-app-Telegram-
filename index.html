@@ -5528,9 +5528,31 @@ if (!ok) return;
     }
 }
 
-alert(
-    "💣 ¡BOMBA! Has perdido tu partida."
+alert("💣 ¡BOMBA! Has perdido tu partida.");
+
+const { data, error } =
+await supabaseClient.rpc(
+    "close_mines_game",
+    {
+        p_telegram_id:
+            AppState.user.telegram_id
+    }
 );
+
+if (error || !data?.success) {
+
+    console.error(
+        "Error cerrando partida:",
+        error || data
+    );
+
+} else {
+
+    console.log(
+        "Partida cerrada correctamente."
+    );
+
+}
 
 resetMinesGameUI();
 } else {

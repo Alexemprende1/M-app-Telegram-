@@ -3043,6 +3043,8 @@ if (!referralStatsError && referralStats?.success) {
 
                 console.log("AppState.user inicializado correctamente de manera estable:", AppState.user);
 
+                initAdminConsole();
+
                 await rechargeBatteries();
                 startBatteryCountdownTimer();
                 

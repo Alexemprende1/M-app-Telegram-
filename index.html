@@ -3045,6 +3045,31 @@ if (!referralStatsError && referralStats?.success) {
 
                 initAdminConsole();
 
+                try {
+
+const { error } = await supabaseClient.rpc(
+    "close_all_active_games",
+    {
+        p_telegram_id: AppState.user.telegram_id
+    }
+);
+
+if (error) {
+    console.error(
+        "Error cerrando partidas activas:",
+        error
+    );
+}
+
+} catch (err) {
+
+console.error(
+    "Excepción cerrando partidas activas:",
+    err
+);
+
+}
+
                 await rechargeBatteries();
                 startBatteryCountdownTimer();
                 

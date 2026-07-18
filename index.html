@@ -5539,6 +5539,10 @@ await supabaseClient.rpc(
     }
 );
 
+console.log("Resultado close_mines_game:");
+console.log("DATA:", data);
+console.log("ERROR:", error);
+
 if (error || !data?.success) {
 
     console.error(

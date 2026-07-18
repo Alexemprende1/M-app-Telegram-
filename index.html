@@ -4468,29 +4468,32 @@ document.getElementById("tab-admin")
 await loadWithdrawals();
 
 });
-
 async function loadWheelHistory() {
-
 const container =
-    document.getElementById("wheel-history");
+document.getElementById("wheel-history");
 
 if (!container || !AppState.user) return;
 
 const { data, error } =
-    await supabaseClient.rpc(
-        "get_wheel_history",
-        {
-            p_telegram_id:
-                AppState.user.telegram_id
-        }
-    );
+await supabaseClient
+.from("wheel_history")
+.select("*")
+.eq(
+    "telegram_id",
+    AppState.user.telegram_id
+)
+.order(
+    "created_at",
+    { ascending:false }
+)
+.limit(20);
 
 if (error) {
 
     console.error(error);
 
     container.innerHTML =
-        "Error cargando historial.";
+    "Error cargando historial.";
 
     return;
 }
@@ -4498,23 +4501,118 @@ if (error) {
 if (!data || data.length === 0) {
 
     container.innerHTML =
-        "Aún no has girado la ruleta.";
+    "Aún no has girado la ruleta.";
 
     return;
 }
 
 container.innerHTML =
-    data.map(item => `
+data.map(item => `
 
 <div class="card">
 
 🎯 Premio:
-<b>${Number(item.reward).toFixed(8)} TRX</b>
+<b>${item.reward} TRX</b>
 
 <br>
 
 📅 Fecha:
-${new Date(item.created_at).toLocaleString("es-ES")}
+${new Date(
+item.created_at
+).toLocaleString("es-ES")}
+
+</div>
+
+`).join("");
+
+}
+async function loadWithdrawHistory() {
+
+const container =
+    document.getElementById("withdraw-history");
+
+if (!container || !AppState.user) return;
+
+const { data, error } =
+await supabaseClient.rpc(
+    "get_user_withdrawals",
+    {
+        p_telegram_id:
+            AppState.user.telegram_id
+    }
+);
+
+if (error || !data?.success) {
+
+container.innerHTML =
+    "Error cargando historial.";
+
+return;
+}
+
+const withdrawals =
+data.data || [];
+
+if (
+    !withdrawals ||
+    withdrawals.length === 0
+) {
+
+    container.innerHTML =
+        "Aún no tienes retiros.";
+
+    return;
+}
+
+container.innerHTML =
+    withdrawals.map(w => `
+
+<div class="card">
+
+<b>📅 Fecha:</b>
+${new Date(w.created_at)
+.toLocaleString("es-ES")}
+<br>
+
+<b>🏦 Método:</b>
+${w.method === "faucetpay"
+? "🟢 FaucetPay"
+: "🔵 TRC20"}
+<br>
+
+<b>📍 Destino:</b>
+${w.address}
+<br>
+
+<b>💸 Monto:</b>
+${w.amount} TRX
+<br>
+
+<b>Estado:</b>
+
+<span style="
+font-weight:bold;
+color:
+${w.status === "pending"
+? "#f6a609"
+: w.status === "completed"
+? "#00d084"
+: "#ff4d4f"};
+">
+
+${w.status === "pending"
+? "🟡 Pending"
+: ""}
+
+${w.status === "completed"
+? "🟢 Completed"
+: ""}
+
+${w.status === "rejected"
+? "🔴 Rejected"
+: ""}
+
+</span>
 
 </div>
 

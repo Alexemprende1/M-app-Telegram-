@@ -4476,17 +4476,12 @@ if (!container || !AppState.user) return;
 
 const { data, error } =
 await supabaseClient
-.from("wheel_history")
-.select("*")
-.eq(
-    "telegram_id",
-    AppState.user.telegram_id
-)
-.order(
-    "created_at",
-    { ascending:false }
-)
-.limit(20);
+await supabaseClient.rpc(
+    "get_wheel_history",
+    {
+        p_telegram_id: AppState.user.telegram_id
+    }
+);
 
 if (error) {
 

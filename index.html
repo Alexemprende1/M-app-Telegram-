@@ -4962,12 +4962,17 @@ window.open(url, "_blank");
             setTimeout(async () => {
                 try {
                     const task = AppState.tasks.find(t => t.id === id);
-                    const { data, error } = await supabaseClient.rpc('claim_social_task_secure', {
-                        p_telegram_id: AppState.user.telegram_id,
-                        p_task_id: id,
-                        p_reward: task.reward
-                    });
-
+                    const { data, error } =
+await supabaseClient.functions.invoke(
+    "verify-social-task",
+    {
+        body: {
+            telegram_id:
+                AppState.user.telegram_id,
+            task_id: id
+        }
+    }
+);
                     if (error || !data.success) {
                         alert(data?.message || "Validación fallida. Revisa el cumplimiento de la tarea.");
                         btn.innerText = "Verificar";

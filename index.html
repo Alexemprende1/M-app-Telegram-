@@ -2756,6 +2756,33 @@ class="btn btn-secondary btn-block">
                         </div>
                         <button type="submit" class="btn btn-success btn-block">Solicitar Retiro</button>
                     </form>
+
+                    <div
+    id="faucetpay-referral-card"
+    class="card"
+>
+
+<h3>🚀 ¿Aún no tienes una cuenta de FaucetPay?</h3>
+
+<p style="margin-top:10px; line-height:1.6;">
+
+Recibe tus retiros de TRX de forma rápida y segura.
+
+Crea tu cuenta gratuita en FaucetPay y comienza a cobrar tus recompensas en minutos.
+
+</p>
+
+    <button
+        class="btn btn-primary btn-block"
+        onclick="openFaucetPayReferral()"
+        style="margin-top:15px;"
+    >
+
+        Crear cuenta en FaucetPay
+
+    </button>
+
+</div>
                     <div class="card">
                         <h3>📜 Historial de Retiros</h3>
                     
@@ -2887,6 +2914,9 @@ class="btn btn-secondary btn-block">
 
         const BATTERY_RECHARGE_SECONDS = 30 * 60;
         const BATTERY_MAX = 6;
+
+        const FAUCETPAY_REFERRAL_URL =
+    "https://faucetpay.io/?r=2657527";
 
         const MINES_CONFIG = {
             easy: { cells: 16, bombs: 3 },
@@ -4954,6 +4984,15 @@ window.open(url, "_blank");
 
 }
 
+function openFaucetPayReferral() {
+
+window.open(
+    FAUCETPAY_REFERRAL_URL,
+    "_blank"
+);
+
+}
+
         async function verifyTask(id) {
             const btn = document.getElementById(`btn-verify-${id}`);
             btn.innerText = "Verificando...";
@@ -6232,6 +6271,11 @@ const withdrawAddressLabel =
 
 function updateWithdrawUI() {
 
+    const faucetpayReferralCard =
+    document.getElementById(
+        "faucetpay-referral-card"
+    );
+
     if (withdrawMethod.value === "faucetpay") {
 
         withdrawAddressLabel.innerText =
@@ -6239,6 +6283,13 @@ function updateWithdrawUI() {
 
 withdrawAddress.placeholder =
     "Ej: correo@ejemplo.com";
+
+    if (faucetpayReferralCard) {
+
+faucetpayReferralCard.style.display =
+    "block";
+
+}
 
 
     } else {
@@ -6249,7 +6300,14 @@ withdrawAddress.placeholder =
         withdrawAddress.placeholder =
             "Ej: TJvrd1iDP...";
 
-    }
+
+        if (faucetpayReferralCard) {
+
+faucetpayReferralCard.style.display = 
+    "none";
+     }
+  }
+
 }
 
 withdrawMethod.addEventListener(

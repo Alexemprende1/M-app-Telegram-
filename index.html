@@ -1600,6 +1600,221 @@ transform:scale(.97);
 
 }
 
+/* =======================================================
+   MINERIA POWER
+======================================================= */
+
+.power-header{
+
+display:flex;
+align-items:center;
+gap:14px;
+
+padding:14px 16px;
+
+border-radius:14px;
+
+background:linear-gradient(
+    135deg,
+    #163d7a 0%,
+    #1d5db8 100%
+);
+
+margin-bottom:18px;
+
+}
+
+.power-icon{
+
+width:54px;
+height:54px;
+
+border-radius:50%;
+
+display:flex;
+align-items:center;
+justify-content:center;
+
+font-size:28px;
+
+background:rgba(255,255,255,.15);
+
+}
+
+.power-title h3{
+
+margin:0;
+
+color:#fff;
+
+font-size:20px;
+
+font-weight:700;
+
+letter-spacing:.8px;
+
+}
+
+.power-title span{
+
+display:block;
+
+margin-top:4px;
+
+color:rgba(255,255,255,.85);
+
+font-size:13px;
+
+}
+
+/* Tarjeta completa */
+
+#power-mining-card{
+
+border:1px solid rgba(40,120,255,.35);
+
+border-radius:18px;
+
+background:
+linear-gradient(
+    180deg,
+    #172742 0%,
+    #121b2d 100%
+);
+
+box-shadow:
+0 0 18px rgba(40,120,255,.18);
+
+}
+
+/* Información */
+
+#power-mining-card p{
+
+display:flex;
+
+justify-content:space-between;
+
+align-items:center;
+
+margin:14px 0;
+
+font-size:15px;
+
+}
+
+/* Valores */
+
+#power-energy,
+#power-status,
+#power-timer,
+#power-reward{
+
+    font-weight:700;
+
+}
+
+/* Botón */
+
+#btn-power-mining-action{
+
+margin-top:18px;
+
+height:52px;
+
+border:none;
+
+border-radius:14px;
+
+font-size:16px;
+
+font-weight:700;
+
+background:
+linear-gradient(
+    135deg,
+    #2d7dff,
+    #59a6ff
+);
+
+
+color:white;
+
+transition:.25s;
+
+}
+
+/* ===========================
+   Animación del rayo
+=========================== */
+
+#power-lightning-icon{
+
+filter:
+    drop-shadow(0 0 6px rgba(255,213,74,.45));
+
+animation:
+    powerIconIdle 2.5s ease-in-out infinite;
+
+}
+
+@keyframes powerIconIdle{
+
+0%{
+
+    transform:scale(1);
+
+    filter:
+    drop-shadow(0 0 6px rgba(255,213,74,.35));
+
+}
+
+50%{
+
+    transform:scale(1.08);
+
+    filter:
+    drop-shadow(0 0 14px rgba(255,213,74,.90));
+
+}
+
+100%{
+
+    transform:scale(1);
+
+    filter:
+    drop-shadow(0 0 6px rgba(255,213,74,.35));
+
+}
+
+}
+
+/* ==========================================
+   Estados de MINERIA POWER
+========================================== */
+
+/* Minería activa */
+
+#power-mining-card.power-active{
+
+border-color:#4aa3ff;
+
+box-shadow:
+    0 0 28px rgba(74,163,255,.45);
+
+}
+
+/* Recompensa disponible */
+
+#power-mining-card.power-ready{
+
+border-color:#ffd54a;
+
+box-shadow:
+    0 0 30px rgba(255,213,74,.55);
+
+}
+
     </style>
 </head>
 <body>
@@ -2716,7 +2931,85 @@ class="btn btn-secondary btn-block">
                         </button>
                     
                     </div>
-                </div>
+                <div
+    id="power-mining-card"
+    class="card"
+    style="margin-top:15px; display:none;"
+>
+
+<div class="power-header">
+
+    <div class="power-icon">
+
+        <svg
+            id="power-lightning-icon"
+            width="34"
+            height="34"
+            viewBox="0 0 24 24"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+        >
+        
+        <path
+            d="M13.2 2L5 13h5l-1.2 9L19 10h-5l-.8-8Z"
+            fill="#FFD54A"
+        />
+        
+        </svg>
+        
+        </div>
+
+    <div class="power-title">
+
+        <h3>MINERIA POWER</h3>
+
+        <span>
+            Minería de alto rendimiento
+        </span>
+
+    </div>
+
+</div>
+
+    <p style="font-size:14px;">
+        Minería de alto rendimiento.
+    </p>
+
+    <p>
+        ⚡ Energía disponible:
+        <b id="power-energy">0 / 10</b>
+    </p>
+
+    <p>
+        📊 Estado:
+        <span id="power-status">
+            Inactiva
+        </span>
+    </p>
+
+    <p>
+        ⏳ Tiempo restante:
+        <span id="power-timer">
+            00:00:00
+        </span>
+    </p>
+
+    <p>
+        🎁 Recompensa:
+        <span id="power-reward">
+            0.000000 TRX
+        </span>
+    </p>
+
+    <button
+        id="btn-power-mining-action"
+        class="btn btn-primary btn-block"
+    >
+        INICIAR MINERIA
+    </button>
+
+   </div>
+</div>
             </section>
 
             <section id="tab-wallet" class="tab-content">
@@ -2885,6 +3178,11 @@ features: {
 
 },
 
+powerMining: {
+    intervalId: null,
+    secondsRemaining: 0
+},
+
 tgInitData: tg.initData || "",
 
 activeTab: "tab-profile",
@@ -2994,6 +3292,208 @@ try {
 
 }
 
+async function loadPowerMiningStatus(){
+
+if(!AppState.user?.telegram_id)
+    return;
+
+try{
+
+    const { data, error } =
+        await supabaseClient.rpc(
+            "get_premium_mining_status",
+            {
+                p_telegram_id:
+                    AppState.user.telegram_id
+            }
+        );
+
+    if(error){
+
+        console.error(
+            "Power Mining:",
+            error
+        );
+
+        return;
+
+    }
+
+    if(!data?.success)
+        return;
+
+    updatePowerMiningUI(data);
+
+}
+
+catch(err){
+
+    console.error(
+        "Power Mining:",
+        err
+    );
+
+}
+
+}
+
+function updatePowerMiningUI(data){
+
+const card = document.getElementById("power-mining-card");
+
+const energy = document.getElementById("power-energy");
+
+const status = document.getElementById("power-status");
+
+const timer = document.getElementById("power-timer");
+
+const reward = document.getElementById("power-reward");
+
+const button = document.getElementById("btn-power-mining-action");
+
+if(!card)
+    return;
+
+card.classList.remove(
+    "power-active",
+    "power-ready"
+);
+
+energy.textContent =
+    `${data.miner_energy} / 10`;
+
+reward.textContent =
+    `${Number(data.reward ?? 0).toFixed(6)} TRX`;
+
+if(data.claim_available){
+
+    status.textContent =
+        "🎁 Lista para reclamar";
+
+    timer.textContent =
+        "00:00:00";
+
+    button.textContent =
+        "RECLAMAR RECOMPENSA";
+
+    card.classList.add(
+        "power-ready"
+    );
+
+    return;
+
+}
+
+if(data.active_session){
+
+    status.textContent =
+        "⛏️ Minando";
+
+    button.textContent =
+        "MINANDO...";
+
+    card.classList.add(
+        "power-active"
+    );
+
+    AppState.powerMining.secondsRemaining =
+    data.seconds_remaining;
+
+timer.textContent =
+    formatPowerTime(
+        AppState.powerMining.secondsRemaining
+    );
+
+startPowerMiningTimer();
+
+    return;
+
+}
+
+status.textContent =
+    "Inactiva";
+
+timer.textContent =
+    "00:00:00";
+
+button.textContent =
+    "INICIAR MINERIA";
+
+}
+
+function formatPowerTime(seconds){
+
+seconds = Math.max(
+    0,
+    Math.floor(seconds || 0)
+);
+
+const hours =
+    Math.floor(seconds / 3600);
+
+const minutes =
+    Math.floor((seconds % 3600) / 60);
+
+const secs =
+    seconds % 60;
+
+return [
+    hours,
+    minutes,
+    secs
+]
+.map(v => String(v).padStart(2,"0"))
+.join(":");
+
+}
+
+function startPowerMiningTimer(){
+
+clearInterval(AppState.powerMining.intervalId);
+
+AppState.powerMining.intervalId = setInterval(() => {
+
+    if(AppState.powerMining.secondsRemaining <= 0){
+
+        clearInterval(AppState.powerMining.intervalId);
+
+        const card = document.getElementById("power-mining-card");
+        const status = document.getElementById("power-status");
+        const timer = document.getElementById("power-timer");
+        const button = document.getElementById("btn-power-mining-action");
+
+        card?.classList.remove("power-active");
+        card?.classList.add("power-ready");
+
+        if(status)
+            status.textContent = "🎁 Lista para reclamar";
+
+        if(timer)
+            timer.textContent = "00:00:00";
+
+        if(button)
+            button.textContent = "RECLAMAR RECOMPENSA";
+
+        return;
+
+    }
+
+    AppState.powerMining.secondsRemaining--;
+
+    const timer = document.getElementById("power-timer");
+
+    if(timer){
+
+        timer.textContent =
+            formatPowerTime(
+                AppState.powerMining.secondsRemaining
+            );
+
+    }
+
+}, 1000);
+
+}
         // =================================================================
         // FUNCIÓN DE SINCRONIZACIÓN CORREGIDA - APPSATE.USER REPARADO
         // =================================================================
@@ -3190,6 +3690,8 @@ console.error(
                 refreshProfileData();
 
 await loadFeatureFlags();
+
+await loadPowerMiningStatus();
 
 loadWithdrawHistory();
 

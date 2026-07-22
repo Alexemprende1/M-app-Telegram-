@@ -3511,6 +3511,111 @@ AppState.powerMining.intervalId = setInterval(() => {
 }, 1000);
 
 }
+
+async function handlePowerMiningAction(){
+
+if(!AppState.user?.telegram_id)
+    return;
+
+try{
+
+    const button =
+        document.getElementById(
+            "btn-power-mining-action"
+        );
+
+    if(button)
+        button.disabled = true;
+
+        const status =
+    document.getElementById(
+        "power-status"
+    )?.textContent || "";
+
+let rpcName =
+    "start_premium_mining";
+
+if(status.includes("Lista para reclamar")){
+
+    rpcName =
+        "claim_premium_mining";
+
+}
+
+const {
+    data,
+    error
+} = await supabaseClient.rpc(
+    rpcName,
+    {
+        p_telegram_id:
+            AppState.user.telegram_id
+    }
+);
+
+if(error){
+
+if(button)
+    button.disabled = false;
+
+alert(
+    "Error ejecutando la Minería Power."
+);
+
+console.error(error);
+
+return;
+
+}
+
+if(!data?.success){
+
+if(button)
+    button.disabled = false;
+
+alert(
+    data?.message ||
+    "No fue posible ejecutar la acción."
+);
+
+return;
+
+}
+
+alert(
+    data.message
+);
+
+await loadPowerMiningStatus();
+
+refreshProfileData();
+
+    if(button)
+        button.disabled = false;
+
+}
+catch(err){
+
+    console.error(
+        "Power Mining:",
+        err
+    );
+
+    alert(
+        "Ocurrió un error inesperado."
+    );
+
+    const button =
+        document.getElementById(
+            "btn-power-mining-action"
+        );
+
+    if(button)
+        button.disabled = false;
+
+}
+
+}
         // =================================================================
         // FUNCIÓN DE SINCRONIZACIÓN CORREGIDA - APPSATE.USER REPARADO
         // =================================================================
@@ -5029,6 +5134,13 @@ await syncUserSession();
     }
 
 });
+
+document
+.getElementById("btn-power-mining-action")
+?.addEventListener(
+    "click",
+    handlePowerMiningAction
+);
 
 //======================
 //INFORMACION DEL COFRE

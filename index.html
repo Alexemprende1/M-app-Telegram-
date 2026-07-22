@@ -1637,7 +1637,35 @@ justify-content:center;
 
 font-size:28px;
 
-background:rgba(255,255,255,.15);
+background:
+radial-gradient(
+    circle,
+    rgba(255,226,102,.22) 0%,
+    rgba(255,213,74,.12) 45%,
+    rgba(255,255,255,.10) 100%
+);
+
+box-shadow:
+    0 0 12px rgba(255,213,74,.25);
+
+transition:.25s;
+
+}
+
+#power-mining-card.power-active .power-icon{
+
+box-shadow:
+0 0 16px rgba(255,213,74,.45),
+0 0 30px rgba(255,213,74,.30),
+0 0 48px rgba(255,213,74,.18);
+
+background:
+radial-gradient(
+circle,
+rgba(255,236,140,.42) 0%,
+rgba(255,213,74,.24) 45%,
+rgba(255,255,255,.10) 100%
+);
 
 }
 

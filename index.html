@@ -1751,10 +1751,16 @@ transition:.25s;
 #power-lightning-icon{
 
 filter:
-    drop-shadow(0 0 6px rgba(255,213,74,.45));
+    drop-shadow(0 0 10px rgba(255,213,74,.65));
+
+transform-origin:center;
 
 animation:
-    powerIconIdle 2.5s ease-in-out infinite;
+    powerIconIdle 1.15s ease-in-out infinite;
+
+will-change:
+    transform,
+    filter;
 
 }
 
@@ -1762,28 +1768,67 @@ animation:
 
 0%{
 
-    transform:scale(1);
+    transform:
+        scale(1)
+        rotate(0deg);
 
     filter:
-    drop-shadow(0 0 6px rgba(255,213,74,.35));
+        drop-shadow(0 0 10px rgba(255,213,74,.45));
 
 }
 
-50%{
+20%{
 
-    transform:scale(1.08);
+    transform:
+        scale(1.10)
+        rotate(-2deg);
 
     filter:
-    drop-shadow(0 0 14px rgba(255,213,74,.90));
+        drop-shadow(0 0 18px rgba(255,213,74,.80));
+
+}
+
+40%{
+
+    transform:
+        scale(1.18)
+        rotate(-4deg);
+
+    filter:
+        drop-shadow(0 0 28px rgba(255,213,74,1));
+
+}
+
+60%{
+
+    transform:
+        scale(1.10)
+        rotate(3deg);
+
+    filter:
+        drop-shadow(0 0 22px rgba(255,213,74,.95));
+
+}
+
+80%{
+
+    transform:
+        scale(1.06)
+        rotate(-2deg);
+
+    filter:
+        drop-shadow(0 0 16px rgba(255,213,74,.75));
 
 }
 
 100%{
 
-    transform:scale(1);
+    transform:
+        scale(1)
+        rotate(0deg);
 
     filter:
-    drop-shadow(0 0 6px rgba(255,213,74,.35));
+        drop-shadow(0 0 10px rgba(255,213,74,.45));
 
 }
 

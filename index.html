@@ -3251,9 +3251,12 @@ features: {
 
 },
 
-powerMining: {
-    intervalId: null,
-    secondsRemaining: 0
+powerMining:{
+    intervalId:null,
+    secondsRemaining:0,
+
+    totalSeconds:0,
+    finalReward:0
 },
 
 tgInitData: tg.initData || "",
@@ -3489,6 +3492,12 @@ if(data.active_session){
     AppState.powerMining.secondsRemaining =
     data.seconds_remaining;
 
+AppState.powerMining.totalSeconds =
+    data.seconds_remaining;
+
+AppState.powerMining.finalReward =
+    Number(data.reward || 0);
+
 timer.textContent =
     formatPowerTime(
         AppState.powerMining.secondsRemaining
@@ -3570,16 +3579,45 @@ AppState.powerMining.intervalId = setInterval(() => {
 
     AppState.powerMining.secondsRemaining--;
 
-    const timer = document.getElementById("power-timer");
+const timer =
+    document.getElementById("power-timer");
 
-    if(timer){
+const reward =
+    document.getElementById("power-reward");
 
-        timer.textContent =
-            formatPowerTime(
-                AppState.powerMining.secondsRemaining
-            );
+if(timer){
 
-    }
+    timer.textContent =
+        formatPowerTime(
+            AppState.powerMining.secondsRemaining
+        );
+
+}
+
+if(reward){
+
+    const elapsed =
+        AppState.powerMining.totalSeconds -
+        AppState.powerMining.secondsRemaining;
+
+    const progress =
+        Math.min(
+            1,
+            Math.max(
+                0,
+                elapsed /
+                AppState.powerMining.totalSeconds
+            )
+        );
+
+    const currentReward =
+        AppState.powerMining.finalReward *
+        progress;
+
+    reward.textContent =
+        `${currentReward.toFixed(6)} TRX`;
+
+}
 
 }, 1000);
 

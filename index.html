@@ -3276,10 +3276,12 @@ try {
 
     AppState.features = data;
 
-    console.log(
-        "Feature Flags:",
-        AppState.features
-    );
+applyFeatureFlags();
+
+console.log(
+    "Feature Flags:",
+    AppState.features
+);
 
 } catch (err) {
 
@@ -3289,6 +3291,21 @@ try {
     );
 
 }
+
+}
+
+function applyFeatureFlags(){
+
+const powerCard =
+    document.getElementById("power-mining-card");
+
+if(!powerCard)
+    return;
+
+powerCard.style.display =
+    AppState.features.premium_mining
+        ? "block"
+        : "none";
 
 }
 

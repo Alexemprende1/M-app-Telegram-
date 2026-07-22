@@ -3456,7 +3456,7 @@ energy.textContent =
     `${data.miner_energy} / 10`;
 
 reward.textContent =
-    `${Number(data.reward ?? 0).toFixed(6)} TRX`;
+    `${Number(data.reward ?? 0).toFixed(8)} TRX`;
 
 if(data.claim_available){
 
@@ -3490,10 +3490,15 @@ if(data.active_session){
     );
 
     AppState.powerMining.secondsRemaining =
-    data.seconds_remaining;
+    Number(data.seconds_remaining || 0);
 
 AppState.powerMining.totalSeconds =
-    data.seconds_remaining;
+    Math.floor(
+        (
+            new Date(data.finish_at) -
+            new Date(data.started_at)
+        ) / 1000
+    );
 
 AppState.powerMining.finalReward =
     Number(data.reward || 0);
@@ -3615,7 +3620,7 @@ if(reward){
         progress;
 
     reward.textContent =
-        `${currentReward.toFixed(6)} TRX`;
+        `${currentReward.toFixed(8)} TRX`;
 
 }
 

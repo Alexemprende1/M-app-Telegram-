@@ -2874,9 +2874,20 @@ Crea tu cuenta gratuita en FaucetPay y comienza a cobrar tus recompensas en minu
         const tg = window.Telegram.WebApp;
 
         const AppState = {
-            user: null,
-            tgInitData: tg.initData || "",
-            activeTab: "tab-profile",
+
+user: null,
+
+features: {
+
+    success: false,
+    is_admin: false,
+    premium_mining: false
+
+},
+
+tgInitData: tg.initData || "",
+
+activeTab: "tab-profile",
             tasks: [
 {
     id: "telegram_join",
@@ -2924,6 +2935,64 @@ Crea tu cuenta gratuita en FaucetPay y comienza a cobrar tus recompensas en minu
             hard: { cells: 16, bombs: 5 },
             expert: { cells: 16, bombs: 7 }
         };
+
+        async function loadFeatureFlags() {
+
+if (!AppState.user?.telegram_id)
+    return;
+
+try {
+
+    const {
+        data,
+        error
+    } = await supabaseClient.rpc(
+        "get_feature_flags",
+        {
+            p_telegram_id:
+                AppState.user.telegram_id
+        }
+    );
+
+    if (error) {
+
+        console.error(
+            "Error cargando Feature Flags:",
+            error
+        );
+
+        return;
+
+    }
+
+    if (!data?.success) {
+
+        console.warn(
+            data?.message ||
+            "Feature Flags no disponibles."
+        );
+
+        return;
+
+    }
+
+    AppState.features = data;
+
+    console.log(
+        "Feature Flags:",
+        AppState.features
+    );
+
+} catch (err) {
+
+    console.error(
+        "Error inesperado:",
+        err
+    );
+
+}
+
+}
 
         // =================================================================
         // FUNCIÓN DE SINCRONIZACIÓN CORREGIDA - APPSATE.USER REPARADO
@@ -3119,7 +3188,13 @@ console.error(
                 
                 // Actualizar elementos dinámicos en el DOM inmediatamente
                 refreshProfileData();
+
+await loadFeatureFlags();
+
+applyFeatureFlags();
+
 loadWithdrawHistory();
+
 loadWheelHistory();
 
 await loadCompletedTasks();

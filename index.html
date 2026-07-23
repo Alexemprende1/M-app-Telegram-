@@ -3704,12 +3704,23 @@ alert(
     data.message
 );
 
-await loadPowerMiningStatus();
+// Si se reclamó la recompensa
+if (rpcName === "claim_premium_mining") {
+
+    AudioManager.play("sound-win");
+
+    await syncUserSession();
+
+} else {
+
+    await loadPowerMiningStatus();
+
+}
 
 refreshProfileData();
 
-    if(button)
-        button.disabled = false;
+if(button)
+    button.disabled = false;
 
 }
 catch(err){

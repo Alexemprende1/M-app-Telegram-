@@ -1903,10 +1903,12 @@ box-shadow:
 
         <ul class="chest-rewards-list">
             <li>🪙 TRX</li>
-            <li>⚡ Energía para Minas</li>
+            <li>🎟 Tickets Bonus</li>
+            <li>🔋 Baterías</li>
+            <li>⚡ Miner Energy</li>
             <li>🎡 Giros para la Ruleta</li>
             <li>💎 Recompensas especiales</li>
-            <li>🎁 Premios sorpresa</li>
+            <li>👑 Jackpot</li>
         </ul>
 
         <button id="close-chest-info" class="btn btn-primary">
@@ -6070,23 +6072,32 @@ switch (data.reward_type) {
 
         break;
 
-    case "battery":
+        case "battery":
 
-        icon.innerHTML = "🔋";
+icon.innerHTML = "🔋";
 
-        message.innerHTML =
-            "¡Has ganado una Batería!";
+message.innerHTML =
+    "¡Has ganado una Batería!";
 
-        break;
+break;
 
-    case "spin":
+case "miner_energy":
 
-        icon.innerHTML = "🎡";
+icon.innerHTML = "⚡";
 
-        message.innerHTML =
-            "¡Has ganado un Giro Gratis!";
+message.innerHTML =
+    "¡Has obtenido 1 Miner Energy!";
 
-        break;
+break;
+
+case "spin":
+
+icon.innerHTML = "🎡";
+
+message.innerHTML =
+    "¡Has ganado un Giro Gratis!";
+
+break;
 
     case "full_energy":
 

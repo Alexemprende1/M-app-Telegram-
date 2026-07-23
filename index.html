@@ -5588,9 +5588,21 @@ onclick="rejectWithdrawal(${w.id})">
 </button>
 
 `
-    : `<span style="color:#00d084;font-weight:bold;">
+    : `
+
+<span style="color:#00d084;font-weight:bold;">
 🤖 Procesamiento automático FaucetPay
-</span>`
+</span>
+
+<br><br>
+
+<button
+class="btn btn-primary"
+onclick="reprocessWithdrawal(${w.id}, event)">
+🔄 Reintentar Pago
+</button>
+
+`
 )
 : ""}
 
@@ -5708,6 +5720,72 @@ alert(
 loadWithdrawals();
 }
 
+async function reprocessWithdrawal(id, event) {
+
+if (!confirm("¿Deseas reintentar este pago automáticamente?")) {
+    return;
+}
+
+const button = event.target;
+
+button.disabled = true;
+
+button.innerText = "⏳ Procesando...";
+
+try {
+
+    const response = await fetch(
+        "https://qszncidydwzyunbckjvm.supabase.co/functions/v1/process-withdrawals-v2",
+        {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "apikey": SUPABASE_ANON_KEY,
+                "Authorization": `Bearer ${SUPABASE_ANON_KEY}`
+            },
+            body: JSON.stringify({
+                withdrawal_id: id
+            })
+        }
+    );
+
+    const result = await response.json();
+
+    console.log("REPROCESS RESULT:", result);
+
+    if (!response.ok || !result.success) {
+
+        alert(
+            "Error al reprocesar:\n\n" +
+            JSON.stringify(result, null, 2)
+        );
+
+        return;
+
+    }
+
+    alert("✅ Retiro reprocesado correctamente.");
+
+button.disabled = false;
+button.innerText = "🔄 Reintentar Pago";
+
+await loadWithdrawals();
+
+} catch (err) {
+
+    console.error(err);
+
+    button.disabled = false;
+
+button.innerText = "🔄 Reintentar Pago";
+
+    alert(
+        "Error inesperado al reprocesar el retiro."
+    );
+
+}
+
+}
  // WHEEL OF FORTUNE
 
  const btnSpin = document.getElementById("btn-spin");

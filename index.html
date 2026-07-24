@@ -6411,15 +6411,29 @@ btnDetector.addEventListener(
 
 if (!ok) return;
 
-        detectorUsed = true;
+const unlock = await supabaseClient.rpc(
+    "unlock_mine_detector",
+    {
+        p_telegram_id: AppState.user.telegram_id
+    }
+);
 
-const hint =
-await supabaseClient.rpc(
+if (unlock.error || !unlock.data?.success) {
+    showToast(
+        unlock.data?.message || "No fue posible activar el detector",
+        "error"
+    );
+    return;
+}
+
+detectorUsed = true;
+
+const hint = await supabaseClient.rpc(
     "get_mine_hint",
-{
-    p_telegram_id:
-        AppState.user.telegram_id
-});
+    {
+        p_telegram_id: AppState.user.telegram_id
+    }
+);
 console.log("HINT:", hint);
 if (
     hint.data &&

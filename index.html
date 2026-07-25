@@ -5130,14 +5130,28 @@ document
 
     try {
 
-        const { data, error } =
-        await supabaseClient.rpc(
-            "claim_treasure_reward",
-            {
-                p_telegram_id:
-                    AppState.user.telegram_id
-            }
-        );
+        const response = await fetch(
+    `${SUPABASE_URL}/functions/v1/user-actions`,
+    {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            "apikey": SUPABASE_ANON_KEY,
+            "Authorization": `Bearer ${SUPABASE_ANON_KEY}`
+        },
+        body: JSON.stringify({
+            initData: AppState.tgInitData,
+            action: "claim_treasure"
+        })
+    }
+);
+
+const data = await response.json();
+
+const error =
+    !response.ok
+        ? data
+        : null;
 
         if (error || !data?.success) {
 
@@ -5207,14 +5221,28 @@ document
 
 if (!ok) return;
 
-        const { data, error } =
-        await supabaseClient.rpc(
-            "claim_treasure_reward_x5",
-            {
-                p_telegram_id:
-                    AppState.user.telegram_id
-            }
-        );
+const response = await fetch(
+    `${SUPABASE_URL}/functions/v1/user-actions`,
+    {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            "apikey": SUPABASE_ANON_KEY,
+            "Authorization": `Bearer ${SUPABASE_ANON_KEY}`
+        },
+        body: JSON.stringify({
+            initData: AppState.tgInitData,
+            action: "claim_treasure_x5"
+        })
+    }
+);
+
+const data = await response.json();
+
+const error =
+    !response.ok
+        ? data
+        : null;
 
         if (error || !data?.success) {
 
@@ -6571,14 +6599,28 @@ if (!ok) return;
 
 alert("💣 ¡BOMBA! Has perdido tu partida.");
 
-const { data, error } =
-await supabaseClient.rpc(
-    "close_mines_game",
+const response = await fetch(
+    `${SUPABASE_URL}/functions/v1/user-actions`,
     {
-        p_telegram_id:
-            AppState.user.telegram_id
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            "apikey": SUPABASE_ANON_KEY,
+            "Authorization": `Bearer ${SUPABASE_ANON_KEY}`
+        },
+        body: JSON.stringify({
+            initData: AppState.tgInitData,
+            action: "close_mines"
+        })
     }
 );
+
+const data = await response.json();
+
+const error =
+    !response.ok
+        ? data
+        : null;
 
 console.log("Resultado close_mines_game:");
 console.log("DATA:", data);
@@ -6648,9 +6690,28 @@ resetMinesGameUI();
         async function claimMinesCashout() {
 
             try {
-                const { data, error } = await supabaseClient.rpc('cashout_mines_game', {
-                    p_telegram_id: AppState.user.telegram_id
-                });
+                const response = await fetch(
+    `${SUPABASE_URL}/functions/v1/user-actions`,
+    {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            "apikey": SUPABASE_ANON_KEY,
+            "Authorization": `Bearer ${SUPABASE_ANON_KEY}`
+        },
+        body: JSON.stringify({
+            initData: AppState.tgInitData,
+            action: "cashout_mines"
+        })
+    }
+);
+
+const data = await response.json();
+
+const error =
+    !response.ok
+        ? data
+        : null;
 
                 if (error || !data.success) {
                     alert(data?.message || "Error procesando cobro.");
@@ -6686,14 +6747,28 @@ try {
 
 if (!ok) return;
 
-    const { data, error } =
-    await supabaseClient.rpc(
-        'cashout_mines_game_x8',
-        {
-            p_telegram_id:
-                AppState.user.telegram_id
-        }
-    );
+const response = await fetch(
+    `${SUPABASE_URL}/functions/v1/user-actions`,
+    {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            "apikey": SUPABASE_ANON_KEY,
+            "Authorization": `Bearer ${SUPABASE_ANON_KEY}`
+        },
+        body: JSON.stringify({
+            initData: AppState.tgInitData,
+            action: "cashout_mines_x8"
+        })
+    }
+);
+
+const data = await response.json();
+
+const error =
+    !response.ok
+        ? data
+        : null;
 
     if (error || !data.success) {
 

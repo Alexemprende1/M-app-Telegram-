@@ -5638,42 +5638,6 @@ if (findError || !withdrawal) {
     return;
 }
 
-// =====================================================
-// FAUCETPAY = AUTOMÁTICO
-// =====================================================
-if (withdrawal.method === "faucetpay") {
-
-const { data: processData, error: processError } =
-await supabaseClient.functions.invoke(
-    "process-withdrawals"
-);
-
-console.log("PROCESS ERROR:", processError);
-console.log("PROCESS DATA:", processData);
-
-alert(
-    JSON.stringify({
-        error: processError,
-        data: processData
-    }, null, 2)
-);
-
-if (processError) {
-
-    console.error(processError);
-
-    alert("Error ejecutando FaucetPay.");
-
-    return;
-
-}
-
-alert("Proceso automático ejecutado.");
-
-await loadWithdrawals();
-
-return;
-}
 
 // =====================================================
 // TRON = MANUAL

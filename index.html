@@ -5625,6 +5625,9 @@ onclick="reprocessWithdrawal(${w.id}, event)">
 }
 async function approveWithdrawal(id) {
 
+    console.log("================================");
+console.log("ID recibido:", id);
+
 // Buscar el retiro seleccionado
 const { data: withdrawal, error: findError } =
 await supabaseClient
@@ -5632,6 +5635,10 @@ await supabaseClient
     .select("*")
     .eq("id", id)
     .single();
+
+console.log("Retiro encontrado:", withdrawal);
+console.log("Error de búsqueda:", findError);
+console.log("================================");
 
 if (findError || !withdrawal) {
     alert("No se encontró el retiro.");

@@ -5623,32 +5623,12 @@ onclick="reprocessWithdrawal(${w.id}, event)">
 `).join("");
 
 }
-async function approveWithdrawal(id) {
-
-    console.log("================================");
-console.log("ID recibido:", id);
-
-// Buscar el retiro seleccionado
-const { data: withdrawal, error: findError } =
-await supabaseClient
-    .from("withdrawals")
-    .select("*")
-    .eq("id", id)
-    .single();
-
-console.log("Retiro encontrado:", withdrawal);
-console.log("Error de búsqueda:", findError);
-console.log("================================");
-
-if (findError || !withdrawal) {
-    alert("No se encontró el retiro.");
-    return;
-}
-
 
 // =====================================================
 // TRON = MANUAL
 // =====================================================
+
+async function approveWithdrawal(id) {
 
 const response = await fetch(
     "https://qszncidydwzyunbckjvm.supabase.co/functions/v1/approve-withdrawal-admin",

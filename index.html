@@ -3660,16 +3660,28 @@ if(status.includes("Lista para reclamar")){
 
 }
 
-const {
-    data,
-    error
-} = await supabaseClient.rpc(
-    rpcName,
+const response = await fetch(
+    `${SUPABASE_URL}/functions/v1/user-actions`,
     {
-        p_telegram_id:
-            AppState.user.telegram_id
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            "apikey": SUPABASE_ANON_KEY,
+            "Authorization": `Bearer ${SUPABASE_ANON_KEY}`
+        },
+        body: JSON.stringify({
+            initData: AppState.tgInitData,
+            action: rpcName
+        })
     }
 );
+
+const data = await response.json();
+
+const error =
+    !response.ok
+        ? data
+        : null;
 
 if(error){
 
@@ -6996,12 +7008,29 @@ try {
     document.getElementById("mining-live-profit");
 
     await show_11148552();
-    const { data, error } = await supabaseClient.rpc(
-        'claim_mining_tma',
-        {
-            p_telegram_id: AppState.user.telegram_id
-        }
-    );
+
+const response = await fetch(
+    `${SUPABASE_URL}/functions/v1/user-actions`,
+    {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            "apikey": SUPABASE_ANON_KEY,
+            "Authorization": `Bearer ${SUPABASE_ANON_KEY}`
+        },
+        body: JSON.stringify({
+            initData: AppState.tgInitData,
+            action: "claim_mining"
+        })
+    }
+);
+
+const data = await response.json();
+
+const error =
+    !response.ok
+        ? data
+        : null;
 
     if (error || !data?.success) {
 

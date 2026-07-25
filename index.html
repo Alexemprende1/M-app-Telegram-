@@ -6184,38 +6184,48 @@ if ((AppState.user.bonus_spins || 0) > 0) {
 
 }
 
-const { data, error } =
-await supabaseClient.rpc(
-    "spin_wheel_tma",
+const response = await fetch(
+    `${SUPABASE_URL}/functions/v1/user-actions`,
     {
-        p_telegram_id: AppState.user.telegram_id,
-        p_use_bonus_spin: usingBonusSpin
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            "apikey": SUPABASE_ANON_KEY,
+            "Authorization": `Bearer ${SUPABASE_ANON_KEY}`
+        },
+        body: JSON.stringify({
+            initData: AppState.tgInitData,
+            action: "spin_wheel",
+            params: {
+                p_use_bonus_spin: usingBonusSpin
+            }
+        })
     }
 );
+
+const data = await response.json();
+
+const error =
+    !response.ok
+        ? data
+        : null;
 
 console.log("DATA:", data);
 console.log("ERROR:", error);
 
-if (error) {
+if (error || !data?.success) {
 
-    console.error(error);
+    console.error("Spin Wheel:", error || data);
 
-    alert(error.message);
+alert(
+    data?.message ||
+    "No fue posible girar la ruleta."
+);
 
-    isSpinning = false;
-    btnSpin.disabled = false;
+isSpinning = false;
+btnSpin.disabled = false;
 
-    return;
-}
-
-if (!data.success) {
-
-    alert(data.message);
-
-    isSpinning = false;
-    btnSpin.disabled = false;
-
-    return;
+return;
 }
 
                 const rewardAmount = parseFloat(data.reward);

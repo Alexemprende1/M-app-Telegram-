@@ -1632,8 +1632,8 @@ margin-bottom:18px;
 
 .power-icon{
 
-width:84px;
-height:132px;
+width:140px;
+height:140px;
 
 display:flex;
 align-items:center;
@@ -1662,48 +1662,23 @@ overflow:visible;
 
 position:relative;
 
-padding:12px 0;
+padding:8px;
 
 }
 
-.power-icon::before,
-.power-icon::after{
+#power-asic{
 
-content:"";
+width:100%;
 
-position:absolute;
+height:100%;
 
-left:50%;
+object-fit:contain;
 
-transform:translateX(-50%);
+display:block;
 
-width:46px;
+pointer-events:none;
 
-height:8px;
-
-border-radius:20px;
-
-background:
-linear-gradient(
-180deg,
-rgba(255,215,90,.95),
-rgba(180,120,0,.85)
-);
-
-box-shadow:
-0 0 8px rgba(246,166,9,.35);
-
-}
-
-.power-icon::before{
-
-top:8px;
-
-}
-
-.power-icon::after{
-
-bottom:8px;
+user-select:none;
 
 }
 

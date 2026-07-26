@@ -1673,6 +1673,10 @@ rgba(255,255,255,.10) 100%
 
 margin:0;
 
+display:flex;
+flex-direction:column;
+align-items:flex-start;
+
 color:#fff;
 
 font-size:20px;
@@ -1681,17 +1685,67 @@ font-weight:700;
 
 letter-spacing:.8px;
 
+line-height:1.15;
+
 }
 
 .power-title span{
 
+display:inline-flex;
+
+align-items:center;
+
+justify-content:center;
+
+padding:4px 14px;
+
+margin-bottom:8px;
+
+border-radius:999px;
+
+border:1px solid rgba(246,166,9,.45);
+
+background:linear-gradient(
+180deg,
+rgba(246,166,9,.18),
+rgba(246,166,9,.08)
+);
+
+color:#ffd86b;
+
+font-size:11px;
+
+font-weight:700;
+
+letter-spacing:1px;
+
+text-transform:uppercase;
+
+}
+
+.power-subtitle{
+
 display:block;
 
-margin-top:4px;
+margin-top:2px;
 
-color:rgba(255,255,255,.85);
+padding:0;
+
+border:none;
+
+background:none;
+
+border-radius:0;
+
+color:rgba(255,255,255,.82);
 
 font-size:13px;
+
+font-weight:500;
+
+letter-spacing:0;
+
+text-transform:none;
 
 }
 
@@ -1699,19 +1753,19 @@ font-size:13px;
 
 #power-mining-card{
 
-border:1px solid rgba(40,120,255,.35);
+border:1px solid rgba(246,166,9,.28);
 
 border-radius:18px;
 
 background:
 linear-gradient(
     180deg,
-    #172742 0%,
-    #121b2d 100%
+    #17181f 0%,
+    #10141d 100%
 );
 
 box-shadow:
-0 0 18px rgba(40,120,255,.18);
+0 0 18px rgba(246,166,9,.12);
 
 }
 
@@ -1870,10 +1924,10 @@ will-change:
 
 #power-mining-card.power-active{
 
-border-color:#4aa3ff;
+border-color:#f6a609;
 
 box-shadow:
-    0 0 28px rgba(74,163,255,.45);
+    0 0 28px rgba(246,166,9,.45);
 
 }
 
@@ -1884,7 +1938,7 @@ box-shadow:
 border-color:#ffd54a;
 
 box-shadow:
-    0 0 30px rgba(255,213,74,.55);
+    0 0 30px rgba(255,213,74,.60);
 
 }
 
@@ -3535,15 +3589,23 @@ class="btn btn-secondary btn-block">
         
         </div>
 
-    <div class="power-title">
+        <div class="power-title">
 
-        <h3>MINERIA POWER</h3>
-
-        <span>
-            Minería de alto rendimiento
-        </span>
-
-    </div>
+            <h3>
+        
+                <span>MINERÍA</span>
+        
+                POWER
+        
+            </h3>
+        
+            <span class="power-subtitle">
+        
+                Minería de alto rendimiento
+        
+            </span>
+        
+        </div>
 
 </div>
 

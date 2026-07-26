@@ -1896,33 +1896,33 @@ overflow:hidden;
 
 margin-top:18px;
 
-padding:22px;
+padding:18px;
 
-border-radius:24px;
+border-radius:22px;
 
 background:
     linear-gradient(
         135deg,
-        #6a11cb 0%,
-        #8e2de2 55%,
-        #b721ff 100%
+        rgba(86,24,148,.72) 0%,
+        rgba(129,40,188,.68) 55%,
+        rgba(167,55,212,.70) 100%
     );
 
-border:1px solid rgba(255,255,255,.10);
+border:1px solid rgba(255,255,255,.08);
 
 box-shadow:
 
-    0 12px 30px rgba(111,45,189,.35),
+    0 10px 22px rgba(92,35,170,.22),
 
-    inset 0 1px 0 rgba(255,255,255,.15);
+    inset 0 1px 0 rgba(255,255,255,.08);
 
 }
 
 .coupon-ticket-icon{
 
-width:68px;
+width:58px;
 
-height:68px;
+height:58px;
 
 display:flex;
 
@@ -1932,7 +1932,7 @@ justify-content:center;
 
 flex-shrink:0;
 
-font-size:48px;
+font-size:40px;
 
 transform:rotate(-15deg);
 
@@ -1946,9 +1946,9 @@ filter:drop-shadow(
 
 display:block;
 
-width:72px;
+width:58px;
 
-height:72px;
+height:58px;
 
 filter:
 
@@ -1968,7 +1968,7 @@ display:flex;
 
 align-items:center;
 
-gap:18px;
+gap:14px;
 
 }
 
@@ -1986,29 +1986,29 @@ margin:0;
 
 color:#ffffff;
 
-font-size:22px;
+font-size:15px;
 
 font-weight:800;
 
-letter-spacing:.6px;
+letter-spacing:.4px;
 
 text-transform:uppercase;
 
-line-height:1.15;
+line-height:1.2;
 
 }
 
 .coupon-premium-info p{
 
-margin-top:8px;
+margin-top:6px;
 
 margin-bottom:0;
 
-color:rgba(255,255,255,.82);
+color:rgba(255,255,255,.78);
 
-font-size:15px;
+font-size:13px;
 
-line-height:1.45;
+line-height:1.35;
 
 }
 
@@ -2028,11 +2028,11 @@ align-items:center;
 
 justify-content:center;
 
-margin-left:14px;
+margin-left:10px;
 
-color:rgba(255,255,255,.88);
+color:rgba(255,255,255,.78);
 
-font-size:34px;
+font-size:24px;
 
 font-weight:300;
 
@@ -2040,27 +2040,25 @@ line-height:1;
 
 flex-shrink:0;
 
-user-select:none;
-
 }
 
 #btn-open-coupon-modal{
 
 width:100%;
 
-margin-top:20px;
+margin-top:14px;
 
-height:54px;
+height:44px;
 
 border:none;
 
-border-radius:16px;
+border-radius:14px;
 
 cursor:pointer;
 
 color:#ffffff;
 
-font-size:18px;
+font-size:15px;
 
 font-weight:700;
 
@@ -7984,7 +7982,7 @@ if (couponInput){
 await syncUserSession();
 
     refreshProfileData();
-    
+
     alert(
         data.message ||
         "✅ Cupón canjeado correctamente."

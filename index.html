@@ -1888,6 +1888,347 @@ box-shadow:
 
 }
 
+.coupon-premium-card{
+
+position:relative;
+
+overflow:hidden;
+
+margin-top:18px;
+
+padding:22px;
+
+border-radius:24px;
+
+background:
+    linear-gradient(
+        135deg,
+        #6a11cb 0%,
+        #8e2de2 55%,
+        #b721ff 100%
+    );
+
+border:1px solid rgba(255,255,255,.10);
+
+box-shadow:
+
+    0 12px 30px rgba(111,45,189,.35),
+
+    inset 0 1px 0 rgba(255,255,255,.15);
+
+}
+
+.coupon-ticket-icon{
+
+width:68px;
+
+height:68px;
+
+display:flex;
+
+align-items:center;
+
+justify-content:center;
+
+flex-shrink:0;
+
+font-size:48px;
+
+transform:rotate(-15deg);
+
+filter:drop-shadow(
+    0 6px 12px rgba(0,0,0,.22)
+);
+
+}
+
+.coupon-ticket-svg{
+
+display:block;
+
+width:72px;
+
+height:72px;
+
+filter:
+
+    drop-shadow(
+        0 6px 12px rgba(0,0,0,.22)
+    )
+
+    drop-shadow(
+        0 2px 4px rgba(255,255,255,.10)
+    );
+
+}
+
+.coupon-premium-header{
+
+display:flex;
+
+align-items:center;
+
+gap:18px;
+
+}
+
+.coupon-premium-info{
+
+flex:1;
+
+min-width:0;
+
+}
+
+.coupon-premium-info h3{
+
+margin:0;
+
+color:#ffffff;
+
+font-size:22px;
+
+font-weight:800;
+
+letter-spacing:.6px;
+
+text-transform:uppercase;
+
+line-height:1.15;
+
+}
+
+.coupon-premium-info p{
+
+margin-top:8px;
+
+margin-bottom:0;
+
+color:rgba(255,255,255,.82);
+
+font-size:15px;
+
+line-height:1.45;
+
+}
+
+.coupon-premium-info strong{
+
+color:#ffffff;
+
+font-weight:700;
+
+}
+
+.coupon-arrow{
+
+display:flex;
+
+align-items:center;
+
+justify-content:center;
+
+margin-left:14px;
+
+color:rgba(255,255,255,.88);
+
+font-size:34px;
+
+font-weight:300;
+
+line-height:1;
+
+flex-shrink:0;
+
+user-select:none;
+
+}
+
+#btn-open-coupon-modal{
+
+width:100%;
+
+margin-top:20px;
+
+height:54px;
+
+border:none;
+
+border-radius:16px;
+
+cursor:pointer;
+
+color:#ffffff;
+
+font-size:18px;
+
+font-weight:700;
+
+letter-spacing:.5px;
+
+background:
+    linear-gradient(
+        180deg,
+        rgba(170,90,255,.35),
+        rgba(122,55,210,.45)
+    );
+
+border:1px solid rgba(255,255,255,.12);
+
+box-shadow:
+
+    inset 0 1px 0 rgba(255,255,255,.15),
+
+    0 6px 16px rgba(85,20,170,.20);
+
+}
+
+/* ===============================
+   CUPÓN - MODAL PREMIUM
+=============================== */
+
+.coupon-modal{
+
+position:fixed;
+
+inset:0;
+
+display:none;
+
+align-items:center;
+
+justify-content:center;
+
+padding:20px;
+
+background:rgba(8,10,18,.72);
+
+backdrop-filter:blur(8px);
+
+z-index:9999;
+
+}
+
+.coupon-modal-content{
+
+position:relative;
+
+width:100%;
+
+max-width:420px;
+
+padding:26px;
+
+border-radius:24px;
+
+background:
+
+    linear-gradient(
+        180deg,
+        #2d144f,
+        #23103d
+    );
+
+border:1px solid rgba(255,255,255,.10);
+
+box-shadow:
+
+    0 18px 40px rgba(0,0,0,.45);
+
+}
+
+.coupon-modal-icon{
+
+display:flex;
+
+justify-content:center;
+
+margin-bottom:18px;
+
+}
+
+.coupon-modal h2{
+
+margin:0;
+
+text-align:center;
+
+color:#ffffff;
+
+font-size:24px;
+
+font-weight:800;
+
+}
+
+.coupon-modal p{
+
+margin:12px 0 22px;
+
+text-align:center;
+
+color:rgba(255,255,255,.78);
+
+line-height:1.5;
+
+}
+
+.coupon-modal input{
+
+width:100%;
+
+height:52px;
+
+padding:0 16px;
+
+border-radius:14px;
+
+border:1px solid rgba(255,255,255,.12);
+
+background:rgba(255,255,255,.05);
+
+color:#ffffff;
+
+font-size:16px;
+
+outline:none;
+
+box-sizing:border-box;
+
+}
+
+.coupon-modal input::placeholder{
+
+color:rgba(255,255,255,.45);
+
+}
+
+.coupon-modal-close{
+
+position:absolute;
+
+top:16px;
+
+right:16px;
+
+width:36px;
+
+height:36px;
+
+border:none;
+
+border-radius:50%;
+
+background:rgba(255,255,255,.08);
+
+color:#ffffff;
+
+font-size:18px;
+
+cursor:pointer;
+
+}
+
     </style>
 </head>
 <body>
@@ -2047,24 +2388,167 @@ box-shadow:
     style="display:none; margin-top:15px;">
     🔒 Panel Administrador
 </button>
-<div class="card coupon-card">
+<div
+    id="coupon-card"
+    class="coupon-premium-card">
 
-    <h3>🎟️ Canjear Cupón</h3>
+    <div class="coupon-premium-header">
 
-    <p>
-        Introduce un código promocional para recibir recompensas.
-    </p>
+        <div class="coupon-ticket-icon">
 
-    <input
-        type="text"
-        id="coupon-code"
-        placeholder="Ejemplo: WELCOME2026"
-        maxlength="50"
-        autocomplete="off"
-    >
+            <svg
+                class="coupon-ticket-svg"
+                width="72"
+                height="72"
+                viewBox="0 0 100 100"
+                xmlns="http://www.w3.org/2000/svg">
+            
+                <defs>
+            
+                    <linearGradient
+                        id="couponTicketGradient"
+                        x1="0%"
+                        y1="0%"
+                        x2="100%"
+                        y2="100%">
+            
+                        <stop offset="0%" stop-color="#ff73d9"/>
+            
+                        <stop offset="50%" stop-color="#d65cff"/>
+            
+                        <stop offset="100%" stop-color="#9d4dff"/>
+            
+                    </linearGradient>
+            
+                </defs>
+            
+                <!-- Ticket -->
+            
+                <path
+                    d="
+                    M18 25
+                    H82
+            
+                    Q88 25 88 31
+            
+                    V40
+            
+                    Q82 44 82 50
+            
+                    Q82 56 88 60
+            
+                    V69
+            
+                    Q88 75 82 75
+            
+                    H18
+            
+                    Q12 75 12 69
+            
+                    V60
+            
+                    Q18 56 18 50
+            
+                    Q18 44 12 40
+            
+                    V31
+            
+                    Q12 25 18 25
+            
+                    Z"
+            
+                    fill="url(#couponTicketGradient)"
+stroke="rgba(255,255,255,.18)"
+stroke-width="1"
+                />
+            
+                <!-- Barras -->
+            
+                <rect
+                    x="22"
+                    y="34"
+                    width="3"
+                    height="32"
+                    rx="1.5"
+                    fill="#202020"/>
+            
+                <rect
+                    x="75"
+                    y="34"
+                    width="3"
+                    height="32"
+                    rx="1.5"
+                    fill="#202020"/>
+            
+                <!-- Línea diagonal -->
+            
+                <line
+            
+                    x1="36"
+            
+                    y1="63"
+            
+                    x2="64"
+            
+                    y2="37"
+            
+                    stroke="#202020"
+            
+                    stroke-width="4"
+            
+                    stroke-linecap="round"/>
+            
+                <!-- Círculos -->
+            
+                <circle
+                    cx="38"
+                    cy="42"
+                    r="4.5"
+                    fill="#202020"/>
+            
+                <circle
+                    cx="62"
+                    cy="58"
+                    r="4.5"
+                    fill="#202020"/>
+            
+            </svg>
+            
+            </div>
 
-    <button id="btn-claim-coupon">
-        🎁 Canjear Cupón
+        <div class="coupon-premium-info">
+
+            <h3>
+
+                CUPONES PROMOCIONALES
+
+            </h3>
+
+            <p>
+
+                Canjea códigos y obtén recompensas como
+                <strong>TRX</strong>,
+                baterías,
+                <strong>Miner Energy</strong>,
+                tickets y más.
+
+            </p>
+
+        </div>
+
+        <div class="coupon-arrow">
+
+            ›
+        
+        </div>
+
+    </div>
+
+    <button
+        id="btn-open-coupon-modal">
+
+        CANJEAR CUPÓN
+
     </button>
 
 </div>
@@ -3190,6 +3674,58 @@ Crea tu cuenta gratuita en FaucetPay y comienza a cobrar tus recompensas en minu
             </section>
         </main>
 
+        <div
+    id="coupon-modal"
+    class="coupon-modal">
+
+    <div class="coupon-modal-content">
+
+        <button
+            id="coupon-modal-close"
+            class="coupon-modal-close">
+
+            ✕
+
+        </button>
+
+        <div class="coupon-modal-icon">
+
+            🎟️
+
+        </div>
+
+        <h2>
+
+            Canjear Cupón
+
+        </h2>
+
+        <p>
+
+            Introduce tu código promocional y recibe
+            recompensas exclusivas.
+
+        </p>
+
+        <input
+            type="text"
+            id="coupon-code"
+            class="form-control"
+            maxlength="50"
+            autocomplete="off"
+            placeholder="Ejemplo: WELCOME2026">
+
+        <button
+            id="btn-claim-coupon"
+            class="btn btn-primary btn-block">
+
+            🎁 CANJEAR CUPÓN
+
+        </button>
+
+    </div>
+
+</div>
         <nav class="bottom-nav">
 
             <button class="nav-item active" data-target="tab-profile">
@@ -5936,6 +6472,8 @@ window.open(
 
 }
 
+/// funciones de cupon ///
+
 const couponButton =
     document.getElementById("btn-claim-coupon");
 
@@ -5958,6 +6496,72 @@ if (couponButton) {
 
     }
 );
+
+}
+
+const couponOpenButton =
+    document.getElementById(
+        "btn-open-coupon-modal"
+    );
+
+const couponModal =
+    document.getElementById(
+        "coupon-modal"
+    );
+
+if (couponOpenButton && couponModal){
+
+    couponOpenButton.addEventListener(
+        "click",
+        () =>{
+
+            couponModal.style.display = "flex";
+
+document.getElementById(
+    "coupon-code"
+).focus();
+
+        }
+    );
+
+}
+
+const couponCloseButton =
+    document.getElementById(
+        "coupon-modal-close"
+    );
+
+if (couponCloseButton && couponModal){
+
+    couponCloseButton.addEventListener(
+        "click",
+        () =>{
+
+            couponModal.style.display = "none";
+
+            document.getElementById(
+                "coupon-code"
+            ).value = "";
+
+        }
+    );
+
+    couponModal.addEventListener(
+        "click",
+        (event)=>{
+
+            if(event.target === couponModal){
+
+                couponModal.style.display = "none";
+
+                document.getElementById(
+                    "coupon-code"
+                ).value = "";
+
+            }
+
+        }
+    );
 
 }
 
@@ -7355,14 +7959,37 @@ try {
 
     AudioManager.play("sound-win");
 
+    const couponModal =
+    document.getElementById(
+        "coupon-modal"
+    );
+
+if (couponModal){
+
+    couponModal.style.display = "none";
+
+}
+
+const couponInput =
+    document.getElementById(
+        "coupon-code"
+    );
+
+if (couponInput){
+
+    couponInput.value = "";
+
+}
+
+await syncUserSession();
+
+    refreshProfileData();
+    
     alert(
         data.message ||
         "✅ Cupón canjeado correctamente."
     );
 
-    await syncUserSession();
-
-    refreshProfileData();
 
 } catch (err) {
 

@@ -1632,8 +1632,8 @@ margin-bottom:18px;
 
 .power-icon{
 
-width:72px;
-height:72px;
+width:84px;
+height:132px;
 
 display:flex;
 align-items:center;
@@ -1641,13 +1641,14 @@ justify-content:center;
 
 flex-shrink:0;
 
-border-radius:22px;
+border-radius:42px;
 
 background:
 linear-gradient(
 180deg,
 #1b2130 0%,
 #111722 100%
+
 );
 
 border:1px solid rgba(246,166,9,.28);
@@ -1657,9 +1658,52 @@ box-shadow:
 
 transition:.25s;
 
-overflow:hidden;
+overflow:visible;
 
 position:relative;
+
+padding:12px 0;
+
+}
+
+.power-icon::before,
+.power-icon::after{
+
+content:"";
+
+position:absolute;
+
+left:50%;
+
+transform:translateX(-50%);
+
+width:46px;
+
+height:8px;
+
+border-radius:20px;
+
+background:
+linear-gradient(
+180deg,
+rgba(255,215,90,.95),
+rgba(180,120,0,.85)
+);
+
+box-shadow:
+0 0 8px rgba(246,166,9,.35);
+
+}
+
+.power-icon::before{
+
+top:8px;
+
+}
+
+.power-icon::after{
+
+bottom:8px;
 
 }
 
@@ -1786,6 +1830,16 @@ flex-shrink:0;
 
 filter:
 drop-shadow(0 0 4px rgba(246,166,9,.25));
+
+}
+
+.power-status-label{
+
+display:flex;
+
+align-items:center;
+
+gap:8px;
 
 }
 
@@ -3696,25 +3750,28 @@ class="btn btn-secondary btn-block">
                     </p>
                 
                     <p>
-                
-                        <svg
-                            class="power-status-icon"
-                            viewBox="0 0 24 24"
-                            xmlns="http://www.w3.org/2000/svg">
-                
-                            <rect x="3" y="12" width="4" height="9" rx="1.2"/>
-                
-                            <rect x="10" y="7" width="4" height="14" rx="1.2"/>
-                
-                            <rect x="17" y="3" width="4" height="18" rx="1.2"/>
-                
-                        </svg>
-                
-                        Estado:
+
+                        <span class="power-status-label">
+                    
+                            <svg
+                                class="power-status-icon"
+                                viewBox="0 0 24 24"
+                                xmlns="http://www.w3.org/2000/svg">
+                    
+                                <rect x="3" y="12" width="4" height="9" rx="1.2"/>
+                                <rect x="10" y="7" width="4" height="14" rx="1.2"/>
+                                <rect x="17" y="3" width="4" height="18" rx="1.2"/>
+                    
+                            </svg>
+                    
+                            Estado:
+                    
+                        </span>
+                    
                         <span id="power-status">
                             Inactiva
                         </span>
-                
+                    
                     </p>
                 
                     <p>

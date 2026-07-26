@@ -2047,6 +2047,27 @@ box-shadow:
     style="display:none; margin-top:15px;">
     🔒 Panel Administrador
 </button>
+<div class="card coupon-card">
+
+    <h3>🎟️ Canjear Cupón</h3>
+
+    <p>
+        Introduce un código promocional para recibir recompensas.
+    </p>
+
+    <input
+        type="text"
+        id="coupon-code"
+        placeholder="Ejemplo: WELCOME2026"
+        maxlength="50"
+        autocomplete="off"
+    >
+
+    <button id="btn-claim-coupon">
+        🎁 Canjear Cupón
+    </button>
+
+</div>
             </section>
             <section id="tab-admin" class="tab-content">
 
@@ -5809,6 +5830,7 @@ button.innerText = "🔄 Reintentar Pago";
 }
 
 }
+
  // WHEEL OF FORTUNE
 
  const btnSpin = document.getElementById("btn-spin");
@@ -5910,6 +5932,31 @@ function openFaucetPayReferral() {
 window.open(
     FAUCETPAY_REFERRAL_URL,
     "_blank"
+);
+
+}
+
+const couponButton =
+    document.getElementById("btn-claim-coupon");
+
+if (couponButton) {
+
+    couponButton.addEventListener(
+    "click",
+    async () => {
+
+        const couponCode =
+            document
+                .getElementById("coupon-code")
+                .value
+                .trim();
+
+        if (!couponCode)
+            return;
+
+        await claimCoupon(couponCode);
+
+    }
 );
 
 }
@@ -7254,6 +7301,80 @@ miningLiveProfit.innerText =
         "Error restaurando sesión de minería:",
         err
     );
+}
+
+}
+
+async function claimCoupon(couponCode) {
+
+    if (!couponCode || !couponCode.trim()) {
+
+alert("Introduce un código de cupón.");
+
+return;
+
+}
+
+try {
+
+    const response = await fetch(
+        `${SUPABASE_URL}/functions/v1/user-actions`,
+        {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "apikey": SUPABASE_ANON_KEY,
+                "Authorization": `Bearer ${SUPABASE_ANON_KEY}`
+            },
+            body: JSON.stringify({
+                initData: AppState.tgInitData,
+                action: "claim_coupon",
+                params: {
+                    p_coupon_code: couponCode
+                }
+            })
+        }
+    );
+
+    const data = await response.json();
+
+    const error =
+        !response.ok
+            ? data
+            : null;
+
+    if (error || !data?.success) {
+
+        alert(
+            data?.message ||
+            "No fue posible canjear el cupón."
+        );
+
+        return;
+    }
+
+    AudioManager.play("sound-win");
+
+    alert(
+        data.message ||
+        "✅ Cupón canjeado correctamente."
+    );
+
+    await syncUserSession();
+
+    refreshProfileData();
+
+} catch (err) {
+
+    console.error(
+        "Claim Coupon:",
+        err
+    );
+
+    alert(
+        "Error de conexión."
+    );
+
 }
 
 }

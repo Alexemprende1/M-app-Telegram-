@@ -1688,6 +1688,8 @@ user-select:none;
 
 transform:translateX(-18px);
 
+animation: powerAsicFloat 4s ease-in-out infinite;
+
 }
 
 #power-mining-card.power-active .power-icon{
@@ -2037,6 +2039,28 @@ drop-shadow(0 0 16px rgba(255,213,74,.95));
 
     filter:
         drop-shadow(0 0 10px rgba(255,213,74,.45));
+
+}
+
+}
+
+@keyframes powerAsicFloat{
+
+0%{
+
+transform:translateX(-18px) translateY(0px);
+
+}
+
+50%{
+
+transform:translateX(-18px) translateY(-5px);
+
+}
+
+100%{
+
+transform:translateX(-18px) translateY(0px);
 
 }
 

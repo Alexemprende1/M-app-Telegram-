@@ -1718,6 +1718,18 @@ inset 0 0 18px rgba(246,166,9,.12);
 
 }
 
+#power-mining-card.power-active #power-asic{
+
+    animation:
+powerAsicFloat 2.2s ease-in-out infinite,
+powerAsicGlow 1.3s ease-in-out infinite,
+powerAsicShake .18s linear infinite;
+
+filter:
+drop-shadow(0 0 18px rgba(255,210,70,.75));
+
+}
+
 .power-title h3{
 
 margin:0;
@@ -2070,6 +2082,34 @@ transform:translateX(-18px) translateY(-5px);
 
 transform:translateX(-18px) translateY(0px);
 
+}
+
+}
+
+@keyframes powerAsicShake{
+
+0%{
+transform:translateY(0) translateX(0);
+}
+
+20%{
+transform:translateY(-1px) translateX(.5px);
+}
+
+40%{
+transform:translateY(0) translateX(-.5px);
+}
+
+60%{
+transform:translateY(1px) translateX(.5px);
+}
+
+80%{
+transform:translateY(0) translateX(-.5px);
+}
+
+100%{
+transform:translateY(0) translateX(0);
 }
 
 }
@@ -4516,13 +4556,18 @@ alert(
 // Si se reclamó la recompensa
 if (rpcName === "claim_premium_mining") {
 
-    AudioManager.play("sound-win");
+AudioManager.play("sound-win");
 
-    await syncUserSession();
+await syncUserSession();
 
 } else {
 
-    await loadPowerMiningStatus();
+const asicAudio =
+    document.getElementById("sound-asic");
+
+asicAudio?.play().catch(() => {});
+
+await loadPowerMiningStatus();
 
 }
 
@@ -8517,6 +8562,11 @@ src="https://qszncidydwzyunbckjvm.supabase.co/storage/v1/object/public/audio/sou
     <source
         src="https://qszncidydwzyunbckjvm.supabase.co/storage/v1/object/public/audio/sonido%20de%20recompensa.mp3"
         type="audio/mpeg">
+</audio>
+
+<audio
+id="sound-asic"
+src="https://qszncidydwzyunbckjvm.supabase.co/storage/v1/object/public/audio/encender%20asic.mp3">
 </audio>
 
 </body>

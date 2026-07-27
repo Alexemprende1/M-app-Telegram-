@@ -1623,44 +1623,6 @@ margin-bottom:18px;
 
 }
 
-
-
-.power-icon{
-
-width:140px;
-height:140px;
-
-display:flex;
-align-items:center;
-justify-content:center;
-
-flex-shrink:0;
-
-border-radius:42px;
-
-background:
-linear-gradient(
-180deg,
-#1b2130 0%,
-#111722 100%
-
-);
-
-border:1px solid rgba(246,166,9,.28);
-
-box-shadow:
-0 8px 18px rgba(0,0,0,.35);
-
-transition:.25s;
-
-overflow:visible;
-
-position:relative;
-
-padding:8px;
-
-}
-
 #power-asic{
 
 width:110px;
@@ -1690,24 +1652,6 @@ filter;
 animation:
 powerAsicFloat 4s ease-in-out infinite,
 powerAsicGlow 3s ease-in-out infinite;
-
-}
-
-#power-mining-card.power-active .power-icon{
-
-border-color:#f6a609;
-
-background:
-linear-gradient(
-180deg,
-#272113,
-#17140d
-);
-
-box-shadow:
-0 0 12px rgba(246,166,9,.45),
-0 0 26px rgba(246,166,9,.28),
-inset 0 0 18px rgba(246,166,9,.12);
 
 }
 
@@ -4676,7 +4620,6 @@ mining_booster_x2:
 parseInt(
     rawRecord.mining_booster_x2 || 0),
 
-referrer_id: rawRecord.referrer_id || null,
     referrer_id: rawRecord.referrer_id || null,
 
     batteries: parseInt(
@@ -4751,8 +4694,6 @@ if (!referralStatsError && referralStats?.success) {
                         batteries: 6
                     };
                 }
-
-                console.log("AppState.user inicializado correctamente de manera estable:", AppState.user);
 
                 initAdminConsole();
 
@@ -4915,14 +4856,10 @@ try {
 }
 
 }
-            // CONOSALAS DE PRUEBAS //
+            // BATTERY RECHARGE SYSTEM //
         async function rechargeBatteries() {
             if (!AppState.user?.telegram_id) return;
             try {
-
-
-                console.log("🚨 recharge_batteries EJECUTADO");
-console.trace("Origen de recharge_batteries");
 
 const { data, error } = await supabaseClient.rpc(
     "recharge_batteries",
@@ -4931,8 +4868,6 @@ const { data, error } = await supabaseClient.rpc(
     }
 );
 
-console.log("RPC recharge:", data);
-console.log(data);
                 if (error) {
                     console.error("Error en recharge_batteries:", error);
                     return;
@@ -7653,13 +7588,7 @@ const error =
 
 alert(`💰 Retiro exitoso. Has asegurado +${parseFloat(data.prize).toFixed(6)} TRX.`);
 
-console.log("ANTES DE syncUserSession");
-console.log("Baterías antes:", AppState.user.batteries);
-
 await syncUserSession();
-
-console.log("DESPUÉS DE syncUserSession");
-console.log("Baterías después:", AppState.user.batteries);
 
 refreshProfileData();
 
@@ -7979,16 +7908,6 @@ miningStatusText.innerText =
 miningGraphicBox.classList.remove("mining-active");
 
 btnMiningAction.disabled = false;
-
-console.log(
-    "VALOR FINAL:",
-    miningLiveProfit?.innerText
-);
-
-console.log(
-    "REMAIN:",
-    remain
-);
 
 btnMiningAction.innerText = "RECLAMAR";
 

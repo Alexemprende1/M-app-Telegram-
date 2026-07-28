@@ -5693,9 +5693,9 @@ cellElement.classList.remove(
 
 setTimeout(() => {
 
-    cellElement.classList.add(
-        "treasure-found"
-    );
+cellElement.classList.add(
+    "treasure-found"
+);
 
 }, 10);
 
@@ -5703,48 +5703,94 @@ document
 .getElementById("sound-gem")
 ?.play();
 
-            document
-                .getElementById(
-                    "btn-claim-treasure"
-                )
-                .disabled = false;
-                document
-    .getElementById(
-        "btn-claim-treasure-x5"
-    )
-    .disabled = false;
+document
+.getElementById(
+    "btn-claim-treasure"
+)
+.disabled = false;
 
-        } else if (
-    data.status === "silver"
+document
+.getElementById(
+    "btn-claim-treasure-x5"
+)
+.disabled = false;
+
+} else if (
+data.status === "silver"
 ) {
 
-    treasureFound++;
+treasureFound++;
 
-    treasureReward +=
-        parseFloat(data.reward || 0);
+treasureReward +=
+    parseFloat(data.reward || 0);
 
-    cellElement.innerHTML = "🥈";
-    cellElement.classList.add(
+cellElement.innerHTML = "🥈";
+
+cellElement.classList.add(
     "treasure-found"
 );
 
-    document
-.getElementById("sound-gem")
-?.play();
+document
+    .getElementById("sound-gem")
+    ?.play();
 
-            document
-                .getElementById(
-                    "btn-claim-treasure"
-                )
-                .disabled = false;
+document
+    .getElementById(
+        "btn-claim-treasure"
+    )
+    .disabled = false;
 
-                document
+document
     .getElementById(
         "btn-claim-treasure-x5"
     )
     .disabled = false;
 
-        } else {
+} else if (
+data.status === "game_over"
+) {
+
+alert(
+    data.message ||
+    "😔 No encontraste ningún tesoro."
+);
+
+treasureFound = 0;
+treasureReward = 0;
+
+document
+    .getElementById(
+        "btn-claim-treasure"
+    )
+    .disabled = true;
+
+document
+    .getElementById(
+        "btn-claim-treasure-x5"
+    )
+    .disabled = true;
+
+document
+    .getElementById(
+        "treasure-grid"
+    )
+    .innerHTML = "";
+
+const treasureCounter =
+    document.getElementById(
+        "treasure-counter"
+    );
+
+if (treasureCounter) {
+
+    treasureCounter.innerText =
+        "📦 Aperturas: 0/7";
+
+}
+
+return;
+
+} else {
 
 cellElement.innerHTML = "📭";
 
@@ -5752,23 +5798,28 @@ cellElement.classList.add(
     "treasure-empty"
 );
 
-const emptySound = document.getElementById("sound-empty");
-
-if (emptySound) {
-    emptySound.currentTime = 0;
-    emptySound.play().catch(() => {});
-}
-
-}
-
-        cellElement.style.pointerEvents =
-            "none";
-
-            const treasureCounter =
+const emptySound =
     document.getElementById(
-        "treasure-counter"
+        "sound-empty"
     );
 
+if (emptySound) {
+
+    emptySound.currentTime = 0;
+
+    emptySound.play().catch(() => {});
+
+}
+
+}
+
+cellElement.style.pointerEvents =
+"none";
+
+const treasureCounter =
+document.getElementById(
+    "treasure-counter"
+);
 if (treasureCounter) {
 
     const opened =
@@ -5843,14 +5894,13 @@ document
             if (error || !data?.success) {
 
 alert(
-    JSON.stringify(error) +
-    "\n\n" +
-    JSON.stringify(data)
+    data?.message ||
+    error?.message ||
+    "Error iniciando la partida"
 );
 
 return;
 }
-
 AppState.user.batteries =
     data.remaining_batteries;
 

@@ -6860,22 +6860,30 @@ if (isTelegramTask) {
         }
     );
 
-    data = result.data;
-    error = result.error;
+    data = result;
+error = !response.ok ? result : null;
 
 } else {
 
-    const result =
-    await supabaseClient.rpc(
-        "claim_social_task_secure",
-        {
-            p_telegram_id:
-                AppState.user.telegram_id,
+    const response = await fetch(
+    `${SUPABASE_URL}/functions/v1/user-actions`,
+    {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${SUPABASE_ANON_KEY}`
+        },
+        body: JSON.stringify({
+            initData: AppState.tgInitData,
+            action: "claim_social_task",
+            params: {
+                p_task_id: id
+            }
+        })
+    }
+);
 
-            p_task_id:
-                id
-        }
-    );
+const result = await response.json();
 
     data = result.data;
     error = result.error;
@@ -6949,14 +6957,26 @@ if (!ok) {
 
 }
 
-            const { data, error } =
-            await supabaseClient.rpc(
-                "claim_daily_chest",
-                {
-                    p_telegram_id:
-                        AppState.user.telegram_id
-                }
-            );
+const response = await fetch(
+    `${SUPABASE_URL}/functions/v1/user-actions`,
+    {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${SUPABASE_ANON_KEY}`
+        },
+        body: JSON.stringify({
+            initData: AppState.tgInitData,
+            action: "claim_daily_chest",
+            params: {}
+        })
+    }
+);
+
+const result = await response.json();
+
+const data = result;
+const error = !response.ok ? result : null;
 
             if (error || !data?.success) {
 
@@ -7396,10 +7416,31 @@ if (
             btnStartMines.disabled = true;
 
             try {
-                const { data, error } = await supabaseClient.rpc('start_mines_game', {
-                    p_telegram_id: AppState.user.telegram_id,
-                    p_difficulty: difficulty
-                });
+                const response = await fetch(
+    `${SUPABASE_URL}/functions/v1/user-actions`,
+    {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            "apikey": SUPABASE_ANON_KEY,
+            "Authorization": `Bearer ${SUPABASE_ANON_KEY}`
+        },
+        body: JSON.stringify({
+            initData: AppState.tgInitData,
+            action: "start_mines_game",
+            params: {
+                p_difficulty: difficulty
+            }
+        })
+    }
+);
+
+const data = await response.json();
+
+const error =
+    !response.ok
+        ? data
+        : null;
 
                 if (error || !data.success) {
                     alert(data?.message || "No se pudo iniciar la partida. Revisa tus baterías.");

@@ -5628,17 +5628,31 @@ async function handleTreasureCellClick(
 
     try {
 
-        const { data, error } =
-        await supabaseClient.rpc(
-            "open_treasure_cell",
-            {
-                p_telegram_id:
-                    AppState.user.telegram_id,
-
-                p_cell_id:
-                    parseInt(index)
+        const response = await fetch(
+    `${SUPABASE_URL}/functions/v1/user-actions`,
+    {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            "apikey": SUPABASE_ANON_KEY,
+            "Authorization": `Bearer ${SUPABASE_ANON_KEY}`
+        },
+        body: JSON.stringify({
+            initData: AppState.tgInitData,
+            action: "open_treasure_cell",
+            params: {
+                p_cell_id: parseInt(index)
             }
-        );
+        })
+    }
+);
+
+const data = await response.json();
+
+const error =
+    !response.ok
+        ? data
+        : null;
 
         if (error || !data?.success) {
 
@@ -5879,17 +5893,31 @@ document
                 "treasure-difficulty"
             )?.value || "easy";
 
-        const { data, error } =
-            await supabaseClient.rpc(
-                "start_treasure_game",
-                {
-                    p_telegram_id:
-                        AppState.user.telegram_id,
+            const response = await fetch(
+    `${SUPABASE_URL}/functions/v1/user-actions`,
+    {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            "apikey": SUPABASE_ANON_KEY,
+            "Authorization": `Bearer ${SUPABASE_ANON_KEY}`
+        },
+        body: JSON.stringify({
+            initData: AppState.tgInitData,
+            action: "start_treasure_game",
+            params: {
+                p_difficulty: difficulty
+            }
+        })
+    }
+);
 
-                    p_difficulty:
-                        difficulty
-                }
-            );
+const data = await response.json();
+
+const error =
+    !response.ok
+        ? data
+        : null;
 
             if (error || !data?.success) {
 
@@ -7484,35 +7512,65 @@ detectorUsed = false;
         }
 
         async function handleMineCellClick(index, cellElement) {
-            if (!AppState.minesGame.active || cellElement.classList.contains("revealed")) return;
-
-            try {
-                const { data, error } = await supabaseClient.rpc('reveal_mine_cell', {
-                    p_telegram_id: AppState.user.telegram_id,
-                    p_cell_id: index
-                });
-        
-                if (error || !data.success) {
-
-alert(data?.message || "Movimiento inválido.");
 
 if (
-    data?.message === "No hay partida activa"
-) {
+    !AppState.minesGame.active ||
+    cellElement.classList.contains("revealed")
+) return;
 
-    resetMinesGameUI();
+try {
 
-}
+    const response = await fetch(
+        `${SUPABASE_URL}/functions/v1/user-actions`,
+        {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "apikey": SUPABASE_ANON_KEY,
+                "Authorization": `Bearer ${SUPABASE_ANON_KEY}`
+            },
+            body: JSON.stringify({
+                initData: AppState.tgInitData,
+                action: "reveal_mine_cell",
+                params: {
+                    p_cell_id: index
+                }
+            })
+        }
+    );
 
-return;
-}
+    const data = await response.json();
 
-                cellElement.classList.add("revealed");
+    const error =
+        !response.ok
+            ? data
+            : null;
 
-                if (
-    data.status === "bomb" ||
-    data.status === "bomb_final"
-) {
+    if (error || !data.success) {
+
+        alert(
+            data?.message ||
+            "Movimiento inválido."
+        );
+
+        if (
+            data?.message ===
+            "No hay partida activa"
+        ) {
+
+            resetMinesGameUI();
+
+        }
+
+        return;
+    }
+
+    cellElement.classList.add("revealed");
+
+    if (
+        data.status === "bomb" ||
+        data.status === "bomb_final"
+    ) {
 
 cellElement.classList.add("bomb");
 cellElement.classList.add("bomb-hit");

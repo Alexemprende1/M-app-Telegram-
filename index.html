@@ -2739,7 +2739,7 @@ stroke-width="1"
             <p>
 
                 Canjea códigos y obtén recompensas como TRX,
-                baterías,Energy,
+                baterías,miner Energy,
                 tickets y más.
 
             </p>
@@ -4432,7 +4432,12 @@ if(status.includes("Lista para reclamar")){
     rpcName =
         "claim_premium_mining";
 
+        const ok = await showRewardedAd();
+
+if (!ok) return;
+
 }
+
 
 const response = await fetch(
     `${SUPABASE_URL}/functions/v1/user-actions`,
@@ -8089,7 +8094,9 @@ try {
     const miningLiveProfit =
     document.getElementById("mining-live-profit");
 
-    await show_11148552();
+    const ok = await showRewardedAd();
+
+if (!ok) return;
 
 const response = await fetch(
     `${SUPABASE_URL}/functions/v1/user-actions`,

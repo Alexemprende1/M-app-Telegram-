@@ -5025,25 +5025,27 @@ try {
 // 2. Si AdGram falla usar Monetag
 try {
 
-console.log("🔄 Cambiando a Monetag...");
+console.log("🔄 Antes de show_11148552()", Date.now());
 
 const ok = await new Promise((resolve) => {
 
     show_11148552()
         .then(() => {
 
-            console.log("✅ Monetag completado");
+            console.log("✅ THEN ejecutado", Date.now());
             resolve(true);
 
         })
         .catch((err) => {
 
-            console.error("Monetag falló:", err);
+            console.error("❌ CATCH ejecutado", err, Date.now());
             resolve(false);
 
         });
 
 });
+
+console.log("🏁 Después del await", Date.now());
 
 if (ok) {
     return true;
@@ -5051,7 +5053,7 @@ if (ok) {
 
 } catch (err) {
 
-console.error("Monetag también falló:", err);
+console.error("❌ Excepción Monetag", err, Date.now());
 
 }
 

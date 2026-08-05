@@ -8189,9 +8189,12 @@ const response = await fetch(
             "Authorization": `Bearer ${SUPABASE_ANON_KEY}`
         },
         body: JSON.stringify({
-            initData: AppState.tgInitData,
-            action: "claim_mining"
-        })
+    initData: AppState.tgInitData,
+    action: "claim_mining",
+    params: {
+        p_reward_nonce: rewardNonce
+    }
+})
     }
 );
 

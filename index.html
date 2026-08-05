@@ -5025,23 +5025,39 @@ try {
 // 2. Si AdGram falla usar Monetag
 try {
 
-    console.log("🔄 Cambiando a Monetag...");
+console.log("🔄 Cambiando a Monetag...");
 
-    await show_11148552();
+const ok = await new Promise((resolve) => {
 
-    console.log("✅ Monetag completado");
+    show_11148552()
+        .then(() => {
 
+            console.log("✅ Monetag completado");
+            resolve(true);
+
+        })
+        .catch((err) => {
+
+            console.error("Monetag falló:", err);
+            resolve(false);
+
+        });
+
+});
+
+if (ok) {
     return true;
+}
 
 } catch (err) {
 
-    console.error("Monetag también falló:", err);
+console.error("Monetag también falló:", err);
 
 }
 
 // 3. Ninguna red disponible
 alert(
-    "⚠️ No hay anuncios disponibles en este momento.\n\nInténtalo nuevamente dentro de unos minutos."
+"⚠️ No hay anuncios disponibles en este momento.\n\nInténtalo nuevamente dentro de unos minutos."
 );
 
 return false;

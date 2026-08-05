@@ -5144,6 +5144,45 @@ if (ticketDailyCounter) {
 
 }
 
+async function invalidateRewardNonce() {
+
+try {
+
+    const response = await fetch(
+    `${SUPABASE_URL}/functions/v1/user-actions`,
+    {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            "apikey": SUPABASE_ANON_KEY,
+            "Authorization": `Bearer ${SUPABASE_ANON_KEY}`
+        },
+        body: JSON.stringify({
+            initData: AppState.tgInitData,
+            action: "invalidate_reward_nonce"
+        })
+    }
+);
+
+if (!response.ok) {
+
+    console.warn(
+        "No fue posible invalidar el reward nonce."
+    );
+
+}
+
+} catch (err) {
+
+    console.warn(
+        "No fue posible invalidar el reward nonce.",
+        err
+    );
+
+}
+
+}
+
                // TIEMPO DE ESPERA //
 
         function startBatteryCountdownTimer() {
@@ -8094,9 +8133,51 @@ try {
     const miningLiveProfit =
     document.getElementById("mining-live-profit");
 
+    // Solicitar reward nonce
+const nonceResponse = await fetch(
+    `${SUPABASE_URL}/functions/v1/user-actions`,
+    {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            "apikey": SUPABASE_ANON_KEY,
+            "Authorization": `Bearer ${SUPABASE_ANON_KEY}`
+        },
+        body: JSON.stringify({
+            initData: AppState.tgInitData,
+            action: "generate_reward_nonce",
+            params: {
+                p_action: "claim_mining"
+            }
+        })
+    }
+);
+
+const nonceData = await nonceResponse.json();
+
+if (!nonceResponse.ok || !nonceData.success) {
+
+    alert(
+        nonceData.message ||
+        "No fue posible preparar la recompensa."
+    );
+
+    return;
+
+}
+
+const rewardNonce =
+    nonceData.reward_nonce;
+
     const ok = await showRewardedAd();
 
-if (!ok) return;
+if (!ok) {
+
+    await invalidateRewardNonce();
+
+    return;
+
+}
 
 const response = await fetch(
     `${SUPABASE_URL}/functions/v1/user-actions`,

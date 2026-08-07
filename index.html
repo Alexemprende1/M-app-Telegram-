@@ -5037,6 +5037,17 @@ window.addEventListener(
 
 async function showRewardedAd() {
 
+    // Crear recompensa pendiente
+const pending = await supabaseClient.rpc("create_pending_ad_reward", {
+    p_telegram_id: AppState.user.telegram_id,
+    p_action: "mining"
+});
+
+if (pending.error) {
+    console.error("Error creando recompensa pendiente:", pending.error);
+    return false;
+}
+
 // 1. Intentar primero AdGram
 try {
 

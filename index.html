@@ -4206,6 +4206,39 @@ catch(err){
 
 }
 
+// =====================================================================
+// EXECUTION LOCK SYSTEM
+// Evita ejecuciones simultáneas de acciones críticas.
+// =====================================================================
+
+const ActionLocks = new Set();
+
+async function withActionLock(lockKey, action) {
+
+    if (ActionLocks.has(lockKey)) {
+
+        console.warn(
+            `[LOCK] Acción bloqueada: ${lockKey}`
+        );
+
+        return;
+
+    }
+
+    ActionLocks.add(lockKey);
+
+    try {
+
+        return await action();
+
+    } finally {
+
+        ActionLocks.delete(lockKey);
+
+    }
+
+}
+
 function updatePowerMiningUI(data){
 
 const card = document.getElementById("power-mining-card");
@@ -4406,6 +4439,10 @@ if(reward){
 
 async function handlePowerMiningAction(){
 
+return withActionLock(
+    "power-mining",
+    async () => {
+
 if(!AppState.user?.telegram_id)
     return;
 
@@ -4521,27 +4558,28 @@ if(button)
 }
 catch(err){
 
-    console.error(
-        "Power Mining:",
-        err
+console.error(
+    "Power Mining:",
+    err
+);
+
+alert(
+    "Ocurrió un error inesperado."
+);
+
+const button =
+    document.getElementById(
+        "btn-power-mining-action"
     );
 
-    alert(
-        "Ocurrió un error inesperado."
-    );
-
-    const button =
-        document.getElementById(
-            "btn-power-mining-action"
-        );
-
-    if(button)
-        button.disabled = false;
+if(button)
+    button.disabled = false;
 
 }
 
-}
-        // =================================================================
+});
+
+}    // =================================================================
         // FUNCIÓN DE SINCRONIZACIÓN CORREGIDA - APPSATE.USER REPARADO
         // =================================================================
         async function syncUserSession() {
@@ -6580,6 +6618,10 @@ onclick="reprocessWithdrawal(${w.id}, event)">
 
 async function approveWithdrawal(id) {
 
+return withActionLock(
+    `approve-withdrawal-${id}`,
+    async () => {
+
 const response = await fetch(
     "https://qszncidydwzyunbckjvm.supabase.co/functions/v1/approve-withdrawal-admin",
     {
@@ -6613,11 +6655,17 @@ alert("Retiro aprobado.");
 
 await loadWithdrawals();
 
+});
+
 }
 
 async function rejectWithdrawal(id) {
 
-    const response = await fetch(
+return withActionLock(
+    `reject-withdrawal-${id}`,
+    async () => {
+
+const response = await fetch(
     "https://qszncidydwzyunbckjvm.supabase.co/functions/v1/reject-withdrawal-admin",
     {
         method: "POST",
@@ -6650,10 +6698,17 @@ alert(
     "Retiro rechazado y saldo devuelto"
 );
 
-loadWithdrawals();
+await loadWithdrawals();
+
+});
+
 }
 
 async function reprocessWithdrawal(id, event) {
+
+return withActionLock(
+    `reprocess-withdrawal-${id}`,
+    async () => {
 
 if (!confirm("¿Deseas reintentar este pago automáticamente?")) {
     return;
@@ -6706,17 +6761,19 @@ await loadWithdrawals();
 
 } catch (err) {
 
-    console.error(err);
+console.error(err);
 
-    button.disabled = false;
+button.disabled = false;
 
 button.innerText = "🔄 Reintentar Pago";
 
-    alert(
-        "Error inesperado al reprocesar el retiro."
-    );
+alert(
+    "Error inesperado al reprocesar el retiro."
+);
 
 }
+
+});
 
 }
 

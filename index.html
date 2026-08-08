@@ -5031,7 +5031,7 @@ window.addEventListener(
 () => AudioManager.unlock()
 );
 
-     // ======================================================
+    // ======================================================
 // SISTEMA UNIFICADO DE ANUNCIOS RECOMPENSADOS
 // ======================================================
 async function showRewardedAd(action = "mining") {
@@ -5113,6 +5113,7 @@ if (
 const rewardId =
     pending.data.reward_id;
 
+
 if (!rewardId) {
 
     console.error(
@@ -5132,6 +5133,161 @@ console.log(
             AppState.user.telegram_id
     }
 );
+
+
+// ==========================================
+// FUNCIÓN INTERNA:
+// ESPERAR VERIFICACIÓN REAL DEL SERVIDOR
+// ==========================================
+
+async function waitForAdVerification() {
+
+    const maxAttempts = 20;
+    const delayMs = 500;
+
+    for (
+        let attempt = 1;
+        attempt <= maxAttempts;
+        attempt++
+    ) {
+
+        try {
+
+            const response =
+                await fetch(
+                    `${SUPABASE_URL}/functions/v1/user-actions`,
+                    {
+                        method: "POST",
+
+                        headers: {
+                            "Content-Type":
+                                "application/json",
+
+                            "apikey":
+                                SUPABASE_ANON_KEY,
+
+                            "Authorization":
+                                `Bearer ${SUPABASE_ANON_KEY}`
+                        },
+
+                        body: JSON.stringify({
+
+                            initData:
+                                AppState.tgInitData,
+
+                            action:
+                                "verify_ad_reward",
+
+                            params: {
+
+                                p_reward_id:
+                                    rewardId,
+
+                                p_action:
+                                    action
+
+                            }
+
+                        })
+
+                    }
+                );
+
+
+            const data =
+                await response.json();
+
+
+            console.log(
+                `🔎 Verificación anuncio ` +
+                `${attempt}/${maxAttempts}:`,
+                data
+            );
+
+
+            // ==========================================
+            // SERVIDOR CONFIRMA VERIFICACIÓN REAL
+            // ==========================================
+
+            if (
+                response.ok &&
+                data?.success === true &&
+                data?.verified === true
+            ) {
+
+                console.log(
+                    "✅ Anuncio verificado por servidor:",
+                    rewardId
+                );
+
+                return true;
+            }
+
+
+            // ==========================================
+            // ERROR REAL DEL SERVIDOR
+            // ==========================================
+
+            if (
+                !response.ok &&
+                response.status !== 404
+            ) {
+
+                console.error(
+                    "Error verificando anuncio:",
+                    data
+                );
+
+                return false;
+            }
+
+
+        } catch (err) {
+
+            console.warn(
+                "Error consultando verificación:",
+                err
+            );
+
+        }
+
+
+        // ==========================================
+        // ESPERAR ANTES DE VOLVER A CONSULTAR
+        // ==========================================
+
+        if (
+            attempt < maxAttempts
+        ) {
+
+            await new Promise(
+                resolve =>
+                    setTimeout(
+                        resolve,
+                        delayMs
+                    )
+            );
+
+        }
+
+    }
+
+
+    // ==========================================
+    // TIEMPO AGOTADO
+    // ==========================================
+
+    console.error(
+        "❌ AdsGram terminó, pero " +
+        "el servidor no confirmó la recompensa.",
+        {
+            rewardId,
+            action
+        }
+    );
+
+    return false;
+}
 
 
 // ==========================================
@@ -5158,14 +5314,48 @@ try {
         if (result?.done) {
 
             console.log(
-                "✅ AdsGram completado.",
+                "⏳ AdsGram terminó. " +
+                "Esperando verificación del servidor...",
                 {
                     rewardId,
                     action
                 }
             );
 
-            return true;
+
+            // ==========================================
+            // NO CONFIAR EN done:true
+            // ==========================================
+
+            const verified =
+                await waitForAdVerification();
+
+
+            if (verified) {
+
+                console.log(
+                    "🛡️ AdsGram autorizado " +
+                    "por backend.",
+                    {
+                        rewardId,
+                        action
+                    }
+                );
+
+                return true;
+            }
+
+
+            console.warn(
+                "❌ AdsGram no fue verificado " +
+                "por el backend.",
+                {
+                    rewardId,
+                    action
+                }
+            );
+
+            return false;
         }
 
 
@@ -5186,89 +5376,26 @@ try {
 
 
 // ==========================================
-// 6. SI ADSGRAM FALLA → MONETAG
+// 6. MONETAG
+// ==========================================
+//
+// IMPORTANTE:
+// Monetag todavía no tiene en esta arquitectura
+// una verificación backend equivalente a AdsGram.
+//
+// Por seguridad NO debemos devolver true
+// simplemente porque show_11148552() terminó.
 // ==========================================
 
-try {
-
-    console.log(
-        "🔄 Antes de show_11148552()",
-        Date.now()
-    );
-
-
-    const ok =
-        await new Promise(
-            (resolve) => {
-
-                show_11148552()
-                    .then(() => {
-
-                        console.log(
-                            "✅ Monetag THEN ejecutado",
-                            Date.now()
-                        );
-
-                        resolve(true);
-
-                    })
-                    .catch((err) => {
-
-                        console.error(
-                            "❌ Monetag CATCH ejecutado",
-                            err,
-                            Date.now()
-                        );
-
-                        resolve(false);
-
-                    });
-
-            }
-        );
-
-
-    console.log(
-        "🏁 Después del await Monetag",
-        Date.now()
-    );
-
-
-    if (ok) {
-
-        console.log(
-            "✅ Monetag completado.",
-            {
-                rewardId,
-                action
-            }
-        );
-
-        return true;
-    }
-
-
-} catch (err) {
-
-    console.error(
-        "❌ Excepción Monetag:",
-        err,
-        Date.now()
-    );
-
-}
-
 console.warn(
-    "⚠️ Ningún anuncio disponible.",
-    {
-        rewardId,
-        action
-    }
+    "⚠️ Monetag no puede autorizar " +
+    "esta recompensa todavía."
 );
 
 
 alert(
-    "⚠️ No hay anuncios disponibles en este momento.\n\n" +
+    "⚠️ No hay anuncios disponibles " +
+    "con verificación segura en este momento.\n\n" +
     "Inténtalo nuevamente dentro de unos minutos."
 );
 

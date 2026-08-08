@@ -5034,26 +5034,34 @@ window.addEventListener(
         // ======================================================
 // SISTEMA UNIFICADO DE ANUNCIOS RECOMPENSADOS
 // ======================================================
+async function showRewardedAd(action = "mining") {
 
-async function showRewardedAd() {
-
-    // Crear recompensa pendiente
-const pending = await supabaseClient.rpc("create_pending_ad_reward", {
-    p_telegram_id: AppState.user.telegram_id,
-    p_action: "mining"
-});
+// Crear recompensa pendiente
+const pending = await supabaseClient.rpc(
+    "create_pending_ad_reward",
+    {
+        p_telegram_id: AppState.user.telegram_id,
+        p_action: action
+    }
+);
 
 if (pending.error) {
-    console.error("Error creando recompensa pendiente:", pending.error);
+
+    console.error(
+        "Error creando recompensa pendiente:",
+        pending.error
+    );
+
     return false;
 }
 
-// 1. Intentar primero AdGram
+// 1. Intentar primero AdsGram
 try {
 
     if (typeof TreasureX5Ad !== "undefined") {
 
-        const result = await TreasureX5Ad.show();
+        const result =
+            await TreasureX5Ad.show();
 
         if (result?.done) {
 
@@ -5061,54 +5069,81 @@ try {
 
         }
 
-        console.warn("AdGram cancelado.");
+        console.warn(
+            "AdsGram cancelado."
+        );
 
     }
 
 } catch (err) {
 
-    console.warn("AdGram sin anuncios:", err);
+    console.warn(
+        "AdsGram sin anuncios:",
+        err
+    );
 
 }
 
-// 2. Si AdGram falla usar Monetag
+// 2. Si AdsGram falla usar Monetag
 try {
 
-console.log("🔄 Antes de show_11148552()", Date.now());
+    console.log(
+        "🔄 Antes de show_11148552()",
+        Date.now()
+    );
 
-const ok = await new Promise((resolve) => {
+    const ok = await new Promise((resolve) => {
 
-    show_11148552()
-        .then(() => {
+        show_11148552()
+            .then(() => {
 
-            console.log("✅ THEN ejecutado", Date.now());
-            resolve(true);
+                console.log(
+                    "✅ THEN ejecutado",
+                    Date.now()
+                );
 
-        })
-        .catch((err) => {
+                resolve(true);
 
-            console.error("❌ CATCH ejecutado", err, Date.now());
-            resolve(false);
+            })
+            .catch((err) => {
 
-        });
+                console.error(
+                    "❌ CATCH ejecutado",
+                    err,
+                    Date.now()
+                );
 
-});
+                resolve(false);
 
-console.log("🏁 Después del await", Date.now());
+            });
 
-if (ok) {
-    return true;
-}
+    });
+
+    console.log(
+        "🏁 Después del await",
+        Date.now()
+    );
+
+    if (ok) {
+
+        return true;
+
+    }
 
 } catch (err) {
 
-console.error("❌ Excepción Monetag", err, Date.now());
+    console.error(
+        "❌ Excepción Monetag",
+        err,
+        Date.now()
+    );
 
 }
 
 // 3. Ninguna red disponible
 alert(
-"⚠️ No hay anuncios disponibles en este momento.\n\nInténtalo nuevamente dentro de unos minutos."
+    "⚠️ No hay anuncios disponibles en este momento.\n\n" +
+    "Inténtalo nuevamente dentro de unos minutos."
 );
 
 return false;

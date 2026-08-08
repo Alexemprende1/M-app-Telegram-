@@ -5031,43 +5031,143 @@ window.addEventListener(
 () => AudioManager.unlock()
 );
 
-        // ======================================================
+     // ======================================================
 // SISTEMA UNIFICADO DE ANUNCIOS RECOMPENSADOS
 // ======================================================
 async function showRewardedAd(action = "mining") {
 
-// Crear recompensa pendiente
-const pending = await supabaseClient.rpc(
-    "create_pending_ad_reward",
-    {
-        p_telegram_id: AppState.user.telegram_id,
-        p_action: action
-    }
-);
+// ==========================================
+// 1. VALIDAR USUARIO
+// ==========================================
 
-if (pending.error) {
+if (!AppState.user?.telegram_id) {
 
     console.error(
-        "Error creando recompensa pendiente:",
-        pending.error
+        "No existe usuario autenticado."
     );
 
     return false;
 }
 
-// 1. Intentar primero AdsGram
+
+// ==========================================
+// 2. VALIDAR ACCIÓN
+// ==========================================
+
+const allowedActions = [
+    "mining",
+    "daily_chest",
+    "treasure",
+    "treasure_x5",
+    "ticket_ad",
+    "mining_booster",
+    "spin"
+];
+
+if (!allowedActions.includes(action)) {
+
+    console.error(
+        "Acción de anuncio inválida:",
+        action
+    );
+
+    return false;
+}
+
+
+// ==========================================
+// 3. CREAR INTENTO DE ANUNCIO
+// ==========================================
+
+const pending =
+    await supabaseClient.rpc(
+        "create_pending_ad_reward",
+        {
+            p_telegram_id:
+                AppState.user.telegram_id,
+
+            p_action:
+                action
+        }
+    );
+
+
+if (
+    pending.error ||
+    !pending.data?.success
+) {
+
+    console.error(
+        "Error creando recompensa pendiente:",
+        pending.error || pending.data
+    );
+
+    return false;
+}
+
+
+// ==========================================
+// 4. GUARDAR ID DEL INTENTO ACTUAL
+// ==========================================
+
+const rewardId =
+    pending.data.reward_id;
+
+if (!rewardId) {
+
+    console.error(
+        "La recompensa pendiente no devolvió reward_id."
+    );
+
+    return false;
+}
+
+
+console.log(
+    "🛡️ Intento de anuncio creado:",
+    {
+        rewardId,
+        action,
+        telegramId:
+            AppState.user.telegram_id
+    }
+);
+
+
+// ==========================================
+// 5. INTENTAR ADSGRAM
+// ==========================================
+
 try {
 
-    if (typeof TreasureX5Ad !== "undefined") {
+    if (
+        typeof TreasureX5Ad !==
+        "undefined"
+    ) {
 
         const result =
             await TreasureX5Ad.show();
 
+
+        console.log(
+            "AdsGram resultado:",
+            result
+        );
+
+
         if (result?.done) {
 
-            return true;
+            console.log(
+                "✅ AdsGram completado.",
+                {
+                    rewardId,
+                    action
+                }
+            );
 
+            return true;
         }
+
 
         console.warn(
             "AdsGram cancelado."
@@ -5084,7 +5184,11 @@ try {
 
 }
 
-// 2. Si AdsGram falla usar Monetag
+
+// ==========================================
+// 6. SI ADSGRAM FALLA → MONETAG
+// ==========================================
+
 try {
 
     console.log(
@@ -5092,59 +5196,82 @@ try {
         Date.now()
     );
 
-    const ok = await new Promise((resolve) => {
 
-        show_11148552()
-            .then(() => {
+    const ok =
+        await new Promise(
+            (resolve) => {
 
-                console.log(
-                    "✅ THEN ejecutado",
-                    Date.now()
-                );
+                show_11148552()
+                    .then(() => {
 
-                resolve(true);
+                        console.log(
+                            "✅ Monetag THEN ejecutado",
+                            Date.now()
+                        );
 
-            })
-            .catch((err) => {
+                        resolve(true);
 
-                console.error(
-                    "❌ CATCH ejecutado",
-                    err,
-                    Date.now()
-                );
+                    })
+                    .catch((err) => {
 
-                resolve(false);
+                        console.error(
+                            "❌ Monetag CATCH ejecutado",
+                            err,
+                            Date.now()
+                        );
 
-            });
+                        resolve(false);
 
-    });
+                    });
+
+            }
+        );
+
 
     console.log(
-        "🏁 Después del await",
+        "🏁 Después del await Monetag",
         Date.now()
     );
 
+
     if (ok) {
 
-        return true;
+        console.log(
+            "✅ Monetag completado.",
+            {
+                rewardId,
+                action
+            }
+        );
 
+        return true;
     }
+
 
 } catch (err) {
 
     console.error(
-        "❌ Excepción Monetag",
+        "❌ Excepción Monetag:",
         err,
         Date.now()
     );
 
 }
 
-// 3. Ninguna red disponible
+console.warn(
+    "⚠️ Ningún anuncio disponible.",
+    {
+        rewardId,
+        action
+    }
+);
+
+
 alert(
     "⚠️ No hay anuncios disponibles en este momento.\n\n" +
     "Inténtalo nuevamente dentro de unos minutos."
 );
+
 
 return false;
 }

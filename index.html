@@ -8245,137 +8245,247 @@ miningTimer.innerText = `${h}:${m}:${s}`;
 
 async function claimMiningReward() {
 
-    console.log(
-    "CLAIM EJECUTADO"
-);
+console.log("CLAIM MINING EJECUTADO");
 
 try {
 
     const miningLiveProfit =
-    document.getElementById("mining-live-profit");
+        document.getElementById("mining-live-profit");
 
-    // Solicitar reward nonce
-const nonceResponse = await fetch(
-    `${SUPABASE_URL}/functions/v1/user-actions`,
-    {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json",
-            "apikey": SUPABASE_ANON_KEY,
-            "Authorization": `Bearer ${SUPABASE_ANON_KEY}`
-        },
-        body: JSON.stringify({
-            initData: AppState.tgInitData,
-            action: "generate_reward_nonce",
-            params: {
-                p_action: "claim_mining"
-            }
-        })
-    }
-);
 
-const nonceData = await nonceResponse.json();
+    // ==========================================
+    // 1. MOSTRAR ANUNCIO Y ESPERAR VERIFICACIÓN
+    // ==========================================
 
-if (!nonceResponse.ok || !nonceData.success) {
+    const adOk =
+        await showRewardedAd("mining");
 
-    alert(
-        nonceData.message ||
-        "No fue posible preparar la recompensa."
-    );
+    if (!adOk) {
 
-    return;
-
-}
-
-const rewardNonce =
-    nonceData.reward_nonce;
-
-    const ok = await showRewardedAd();
-
-if (!ok) {
-
-    await invalidateRewardNonce();
-
-    return;
-
-}
-
-const response = await fetch(
-    `${SUPABASE_URL}/functions/v1/user-actions`,
-    {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json",
-            "apikey": SUPABASE_ANON_KEY,
-            "Authorization": `Bearer ${SUPABASE_ANON_KEY}`
-        },
-        body: JSON.stringify({
-    initData: AppState.tgInitData,
-    action: "claim_mining",
-    params: {
-        p_reward_nonce: rewardNonce
-    }
-})
-    }
-);
-
-const data = await response.json();
-
-const error =
-    !response.ok
-        ? data
-        : null;
-
-    if (error || !data?.success) {
-
-        alert(data?.message || "Error reclamando recompensa.");
+        console.warn(
+            "El anuncio no fue completado."
+        );
 
         return;
     }
-    miningGraphicBox.classList.remove("mining-active");
 
-btnMiningAction.disabled = false;
 
-btnMiningAction.innerText = "INICIAR MINERÍA";
+    // ==========================================
+    // 2. GENERAR NONCE
+    // ==========================================
 
-miningTimer.innerText = "00:30:00";
+    const nonceResponse =
+        await fetch(
+            `${SUPABASE_URL}/functions/v1/user-actions`,
+            {
+                method: "POST",
 
-if (miningLiveProfit) {
+                headers: {
+                    "Content-Type": "application/json",
+                    "apikey": SUPABASE_ANON_KEY,
+                    "Authorization":
+                        `Bearer ${SUPABASE_ANON_KEY}`
+                },
 
-miningLiveProfit.innerText =
-    "0.00000000 TRX";
+                body: JSON.stringify({
+                    initData:
+                        AppState.tgInitData,
 
-}
+                    action:
+                        "generate_reward_nonce",
 
-miningStatusText.innerText = "Listo para iniciar operaciones";
+                    params: {
+                        p_action:
+                            "claim_mining"
+                    }
+                })
+            }
+        );
 
-AppState.mining.active = false;
 
-    const reward = parseFloat(data.reward || 0);
+    const nonceData =
+        await nonceResponse.json();
+
+
+    if (
+        !nonceResponse.ok ||
+        !nonceData?.success
+    ) {
+
+        console.error(
+            "Error generando reward nonce:",
+            nonceData
+        );
+
+        alert(
+            nonceData?.message ||
+            "No fue posible validar la recompensa."
+        );
+
+        return;
+    }
+
+
+    const rewardNonce =
+        nonceData.reward_nonce;
+
+
+    console.log(
+        "Reward nonce generado:",
+        rewardNonce
+    );
+
+
+    // ==========================================
+    // 3. RECLAMAR MINERÍA
+    // ==========================================
+
+    const response =
+        await fetch(
+            `${SUPABASE_URL}/functions/v1/user-actions`,
+            {
+                method: "POST",
+
+                headers: {
+                    "Content-Type": "application/json",
+                    "apikey": SUPABASE_ANON_KEY,
+                    "Authorization":
+                        `Bearer ${SUPABASE_ANON_KEY}`
+                },
+
+                body: JSON.stringify({
+
+                    initData:
+                        AppState.tgInitData,
+
+                    action:
+                        "claim_mining",
+
+                    params: {
+
+                        p_reward_nonce:
+                            rewardNonce
+
+                    }
+
+                })
+            }
+        );
+
+
+    const data =
+        await response.json();
+
+
+    const error =
+        !response.ok
+            ? data
+            : null;
+
+
+    if (
+        error ||
+        !data?.success
+    ) {
+
+        console.error(
+            "Error reclamando minería:",
+            error || data
+        );
+
+        alert(
+            data?.message ||
+            "Error reclamando recompensa."
+        );
+
+        return;
+    }
+
+
+    // ==========================================
+    // 4. LIMPIAR ESTADO VISUAL
+    // ==========================================
+
+    miningGraphicBox.classList.remove(
+        "mining-active"
+    );
+
+    btnMiningAction.disabled = false;
+
+    btnMiningAction.innerText =
+        "INICIAR MINERÍA";
+
+    miningTimer.innerText =
+        "00:30:00";
+
+
+    if (miningLiveProfit) {
+
+        miningLiveProfit.innerText =
+            "0.00000000 TRX";
+
+    }
+
+
+    miningStatusText.innerText =
+        "Listo para iniciar operaciones";
+
+
+    AppState.mining.active = false;
+
+
+    // ==========================================
+    // 5. RECOMPENSA
+    // ==========================================
+
+    const reward =
+        parseFloat(
+            data.reward || 0
+        );
+
+
+    AudioManager.play(
+        "sound-win"
+    );
+
 
     alert(
-        `🎁 Ciclo completado. Se acreditaron ${reward.toFixed(4)} TRX.`
+        `🎁 Ciclo completado. Se acreditaron ` +
+        `${reward.toFixed(4)} TRX.`
     );
+
+
+    // ==========================================
+    // 6. ACTUALIZAR USUARIO
+    // ==========================================
 
     await syncUserSession();
 
     refreshProfileData();
 
+
 } catch (e) {
 
-    console.error("Error reclamando minería:", e);
+    console.error(
+        "Error reclamando minería:",
+        e
+    );
 
     AppState.mining.active = false;
 
-    miningGraphicBox.classList.remove("mining-active");
+    miningGraphicBox.classList.remove(
+        "mining-active"
+    );
 
     btnMiningAction.disabled = false;
 
-    alert("Error de conexión al reclamar la recompensa.");
+    alert(
+        "Error de conexión al reclamar la recompensa."
+    );
+
 }
 
 }
-        
 // =================================================================
 // RESTAURAR SESIÓN DE MINERÍA ACTIVA
 // =================================================================

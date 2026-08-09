@@ -5061,7 +5061,8 @@ const allowedActions = [
     "treasure_x5",
     "ticket_ad",
     "mining_booster",
-    "spin"
+    "spin",
+    "mines_x8"
 ];
 
 if (!allowedActions.includes(action)) {
@@ -8104,6 +8105,8 @@ resetMinesGameUI();
     "click",
     async () => {
 
+        console.log("🔥 BOTÓN MINES X8 PRESIONADO"); 
+        console.log("appstate mines game revealed count", appstate.minesGame.revealedcount); 
     if (
         AppState.minesGame.revealedCount === 0
     ) {

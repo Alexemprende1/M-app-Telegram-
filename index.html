@@ -8169,34 +8169,141 @@ resetMinesGameUI();
 
 try {
 
-    const ok = await showRewardedAd();
+    // ==========================================
+    // 1. MOSTRAR Y VERIFICAR ANUNCIO
+    // ==========================================
 
-if (!ok) return;
+    const ok = await showRewardedAd("mines_x8");
 
-const response = await fetch(
-    `${SUPABASE_URL}/functions/v1/user-actions`,
-    {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json",
-            "apikey": SUPABASE_ANON_KEY,
-            "Authorization": `Bearer ${SUPABASE_ANON_KEY}`
-        },
-        body: JSON.stringify({
-            initData: AppState.tgInitData,
-            action: "cashout_mines_x8"
-        })
+    if (!ok) return;
+
+
+    // ==========================================
+    // 2. GENERAR NONCE
+    // ==========================================
+
+    const nonceResponse =
+        await fetch(
+            `${SUPABASE_URL}/functions/v1/user-actions`,
+            {
+                method: "POST",
+
+                headers: {
+                    "Content-Type": "application/json",
+                    "apikey": SUPABASE_ANON_KEY,
+                    "Authorization":
+                        `Bearer ${SUPABASE_ANON_KEY}`
+                },
+
+                body: JSON.stringify({
+
+                    initData:
+                        AppState.tgInitData,
+
+                    action:
+                        "generate_reward_nonce",
+
+                    params: {
+
+                        p_action:
+                            "mines_x8"
+
+                    }
+
+                })
+            }
+        );
+
+
+    const nonceData =
+        await nonceResponse.json();
+
+
+    if (
+        !nonceResponse.ok ||
+        !nonceData?.success
+    ) {
+
+        console.error(
+            "Error generando reward nonce para Mines x8:",
+            nonceData
+        );
+
+        alert(
+            nonceData?.message ||
+            "No fue posible validar la recompensa x8."
+        );
+
+        return;
     }
-);
 
-const data = await response.json();
 
-const error =
-    !response.ok
-        ? data
-        : null;
+    const rewardNonce =
+        nonceData.reward_nonce;
 
-    if (error || !data.success) {
+
+    console.log(
+        "Reward nonce Mines x8 generado:",
+        rewardNonce
+    );
+
+
+    // ==========================================
+    // 3. RECLAMAR RECOMPENSA X8
+    // ==========================================
+
+    const response =
+        await fetch(
+            `${SUPABASE_URL}/functions/v1/user-actions`,
+            {
+                method: "POST",
+
+                headers: {
+                    "Content-Type": "application/json",
+                    "apikey": SUPABASE_ANON_KEY,
+                    "Authorization":
+                        `Bearer ${SUPABASE_ANON_KEY}`
+                },
+
+                body: JSON.stringify({
+
+                    initData:
+                        AppState.tgInitData,
+
+                    action:
+                        "cashout_mines_x8",
+
+                    params: {
+
+                        p_reward_nonce:
+                            rewardNonce
+
+                    }
+
+                })
+            }
+        );
+
+
+    const data =
+        await response.json();
+
+
+    const error =
+        !response.ok
+            ? data
+            : null;
+
+
+    if (
+        error ||
+        !data?.success
+    ) {
+
+        console.error(
+            "Error reclamando Mines x8:",
+            error || data
+        );
 
         alert(
             data?.message ||
@@ -8206,6 +8313,11 @@ const error =
         return;
     }
 
+
+    // ==========================================
+    // 4. RECOMPENSA EXITOSA
+    // ==========================================
+
     AudioManager.play("sound-win");
 
     alert(
@@ -8213,15 +8325,24 @@ const error =
         `${parseFloat(data.prize).toFixed(8)} TRX`
     );
 
-   await syncUserSession();
+
+    // ==========================================
+    // 5. ACTUALIZAR ESTADO
+    // ==========================================
+
+    await syncUserSession();
 
     refreshProfileData();
 
     resetMinesGameUI();
 
+
 } catch (e) {
 
-    console.error(e);
+    console.error(
+        "Error en claimMinesCashoutX8:",
+        e
+    );
 
 }
 

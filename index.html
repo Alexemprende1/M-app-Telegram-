@@ -7789,77 +7789,305 @@ if (!ok) return;
 }
 
 });
-btnDetector.addEventListener(
-    "click",
-    async () => {
+// ============================================================
+// MINES DETECTOR
+// ============================================================
 
-        if (!AppState.minesGame.active) {
+async function useMineDetector() {
 
-            alert(
-                "Inicia una partida primero."
-            );
+// --------------------------------------------------------
+// 1. VALIDAR PARTIDA
+// --------------------------------------------------------
 
-            return;
-        }
+if (!AppState.minesGame.active) {
 
-        if (detectorUsed) {
-
-            alert(
-                "🔍 Ya utilizaste el detector."
-            );
-
-            return;
-        }
-
-        const ok = await showRewardedAd();
-
-if (!ok) return;
-
-const unlock = await supabaseClient.rpc(
-    "unlock_mine_detector",
-    {
-        p_telegram_id: AppState.user.telegram_id
-    }
-);
-
-if (unlock.error || !unlock.data?.success) {
-    showToast(
-        unlock.data?.message || "No fue posible activar el detector",
-        "error"
+    alert(
+        "No hay una partida activa."
     );
+
     return;
 }
 
-detectorUsed = true;
+if (detectorUsed) {
 
-const hint = await supabaseClient.rpc(
-    "get_mine_hint",
-    {
-        p_telegram_id: AppState.user.telegram_id
-    }
-);
-console.log("HINT:", hint);
-if (
-    hint.data &&
-    hint.data.success
-) {
-
-    const bombCell =
-    document.querySelector(
-        `[data-index="${hint.data.bomb_cell}"]`
+    alert(
+        "🔍 El detector ya fue utilizado en esta partida."
     );
 
-    if (bombCell) {
-
-        bombCell.innerHTML = "💥";
-        bombCell.style.boxShadow =
-            "0 0 20px red";
-
-        bombCell.style.border =
-            "2px solid red";
-    }
+    return;
 }
+
+
+try {
+
+    const ok =
+        await showRewardedAd("mines_detector");
+
+    if (!ok) {
+
+        console.log(
+            "❌ Anuncio del detector no completado."
+        );
+
+        return;
     }
+
+    const nonceResponse =
+        await fetch(
+            `${SUPABASE_URL}/functions/v1/user-actions`,
+            {
+                method: "POST",
+
+                headers: {
+                    "Content-Type": "application/json",
+                    "apikey": SUPABASE_ANON_KEY,
+                    "Authorization":
+                        `Bearer ${SUPABASE_ANON_KEY}`
+                },
+
+                body: JSON.stringify({
+
+                    initData:
+                        AppState.tgInitData,
+
+                    action:
+                        "generate_reward_nonce",
+
+                    params: {
+
+                        p_action:
+                            "mines_detector"
+
+                    }
+
+                })
+            }
+        );
+
+
+    const nonceData =
+        await nonceResponse.json();
+
+
+    if (
+        !nonceResponse.ok ||
+        !nonceData?.success ||
+        !nonceData?.reward_nonce
+    ) {
+
+        console.error(
+            "❌ Error generando nonce del detector:",
+            nonceData
+        );
+
+        alert(
+            nonceData?.message ||
+            "No fue posible autorizar el detector."
+        );
+
+        return;
+    }
+
+
+    const rewardNonce =
+        nonceData.reward_nonce;
+
+
+    console.log(
+        "🛡️ Nonce del detector generado:",
+        rewardNonce
+    );
+
+
+    // ====================================================
+    // 5. AUTORIZAR DETECTOR
+    // ====================================================
+
+    const unlockResponse =
+        await fetch(
+            `${SUPABASE_URL}/functions/v1/user-actions`,
+            {
+                method: "POST",
+
+                headers: {
+                    "Content-Type": "application/json",
+                    "apikey": SUPABASE_ANON_KEY,
+                    "Authorization":
+                        `Bearer ${SUPABASE_ANON_KEY}`
+                },
+
+                body: JSON.stringify({
+
+                    initData:
+                        AppState.tgInitData,
+
+                    action:
+                        "unlock_mine_detector",
+
+                    params: {
+
+                        p_reward_nonce:
+                            rewardNonce
+
+                    }
+
+                })
+            }
+        );
+
+
+    const unlockData =
+        await unlockResponse.json();
+
+
+    if (
+        !unlockResponse.ok ||
+        !unlockData?.success
+    ) {
+
+        console.error(
+            "❌ Error autorizando detector:",
+            unlockData
+        );
+
+        alert(
+            unlockData?.message ||
+            "No fue posible activar el detector."
+        );
+
+        return;
+    }
+
+
+    console.log(
+        "✅ Detector autorizado:",
+        unlockData
+    );
+
+    const hintResponse =
+        await fetch(
+            `${SUPABASE_URL}/functions/v1/user-actions`,
+            {
+                method: "POST",
+
+                headers: {
+                    "Content-Type": "application/json",
+                    "apikey": SUPABASE_ANON_KEY,
+                    "Authorization":
+                        `Bearer ${SUPABASE_ANON_KEY}`
+                },
+
+                body: JSON.stringify({
+
+                    initData:
+                        AppState.tgInitData,
+
+                    action:
+                        "get_mine_hint",
+
+                    params: {}
+
+                })
+
+            }
+        );
+
+
+    const hintData =
+        await hintResponse.json();
+
+
+    if (
+        !hintResponse.ok ||
+        !hintData?.success
+    ) {
+
+        console.error(
+            "❌ Error obteniendo pista del detector:",
+            hintData
+        );
+
+        alert(
+            hintData?.message ||
+            "No fue posible obtener la pista."
+        );
+
+        return;
+    }
+
+    const bombCell =
+        Number(hintData.bomb_cell);
+
+
+    if (
+        !Number.isInteger(bombCell) ||
+        bombCell < 0
+    ) {
+
+        console.error(
+            "❌ bomb_cell inválido:",
+            hintData
+        );
+
+        alert(
+            "El servidor no devolvió una posición válida."
+        );
+
+        return;
+    }
+
+
+    console.log(
+        "💣 Detector encontró bomba en:",
+        bombCell
+    );
+
+    const bombElement =
+        minesGrid.querySelector(
+            `.mine-cell[data-index="${bombCell}"]`
+        );
+
+
+    if (bombElement) {
+
+        bombElement.classList.add(
+            "detector-hint"
+        );
+
+        bombElement.innerHTML =
+            "💣";
+    }
+
+    detectorUsed = true;
+
+
+    console.log(
+        "🔍 Detector utilizado correctamente."
+    );
+
+
+} catch (error) {
+
+    console.error(
+        "❌ Error en useMineDetector:",
+        error
+    );
+
+    alert(
+        "Ocurrió un error al utilizar el detector."
+    );
+
+}
+
+}
+
+btnDetector.addEventListener(
+"click",
+async () => {
+
+    await useMineDetector();
+
+}
 );
         btnStartMines.addEventListener("click", async () => {
             const difficulty = document.getElementById("mines-difficulty").value;
@@ -8016,36 +8244,55 @@ if (!reviveUsed) {
 if (!ok) return;
 
 
-// =====================================================
-//  VERIFICACIÓN DEL ANUNCIO
-// =====================================================
-
-const nonceResult =
-    await supabaseClient.rpc(
-        "generate_reward_nonce",
+const nonceResponse =
+    await fetch(
+        `${SUPABASE_URL}/functions/v1/user-actions`,
         {
-            p_telegram_id:
-                AppState.user.telegram_id,
+            method: "POST",
 
-            p_action:
-                "claim_mines_rescue"
+            headers: {
+                "Content-Type": "application/json",
+                "apikey": SUPABASE_ANON_KEY,
+                "Authorization":
+                    `Bearer ${SUPABASE_ANON_KEY}`
+            },
+
+            body: JSON.stringify({
+
+                initData:
+                    AppState.tgInitData,
+
+                action:
+                    "generate_reward_nonce",
+
+                params: {
+
+                    p_action:
+                        "claim_mines_rescue"
+
+                }
+
+            })
         }
     );
 
+const nonceData =
+    await nonceResponse.json();
 
-if (
-    nonceResult.error ||
-    !nonceResult.data?.success ||
-    !nonceResult.data?.reward_nonce
+
+    if (
+    !nonceResponse.ok ||
+    !nonceData?.success ||
+    !nonceData?.reward_nonce
 ) {
 
     console.error(
         "❌ Error generando nonce para rescate:",
-        nonceResult.error ||
-        nonceResult.data
+        nonceData
     );
 
     alert(
+        nonceData?.message ||
         "No fue posible autorizar el rescate. Inténtalo nuevamente."
     );
 
@@ -8054,7 +8301,7 @@ if (
 
 
 const rewardNonce =
-    nonceResult.data.reward_nonce;
+    nonceData.reward_nonce;
 
 
 console.log(
@@ -8067,32 +8314,54 @@ console.log(
 // APLICAR RESCATE 
 // =====================================================
 
-const rescueResult =
-    await supabaseClient.rpc(
-        "use_mines_rescue",
+const rescueResponse =
+    await fetch(
+        `${SUPABASE_URL}/functions/v1/user-actions`,
         {
-            p_telegram_id:
-                AppState.user.telegram_id,
+            method: "POST",
 
-            p_reward_nonce:
-                rewardNonce
+            headers: {
+                "Content-Type": "application/json",
+                "apikey": SUPABASE_ANON_KEY,
+                "Authorization":
+                    `Bearer ${SUPABASE_ANON_KEY}`
+            },
+
+            body: JSON.stringify({
+
+                initData:
+                    AppState.tgInitData,
+
+                action:
+                    "use_mines_rescue",
+
+                params: {
+
+                    p_reward_nonce:
+                        rewardNonce
+
+                }
+
+            })
         }
     );
 
+const rescueData =
+    await rescueResponse.json();
 
-if (
-    rescueResult.error ||
-    !rescueResult.data?.success
+
+    if (
+    !rescueResponse.ok ||
+    !rescueData?.success
 ) {
 
     console.error(
         "❌ Error aplicando rescate:",
-        rescueResult.error ||
-        rescueResult.data
+        rescueData
     );
 
     alert(
-        rescueResult.data?.message ||
+        rescueData?.message ||
         "No fue posible aplicar el rescate."
     );
 
@@ -8103,10 +8372,9 @@ if (
 // =====================================================
 // RESCATE CONFIRMADO
 // =====================================================
-
 console.log(
     "✅ RESCATE MINERO AUTORIZADO:",
-    rescueResult.data
+    rescueData
 );
 
 

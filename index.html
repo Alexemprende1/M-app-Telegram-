@@ -5063,7 +5063,8 @@ const allowedActions = [
     "mining_booster",
     "spin",
     "mines_x8",
-    "mines_rescue"
+    "mines_rescue",
+    "mines_detector"
 ];
 
 if (!allowedActions.includes(action)) {
@@ -8181,6 +8182,7 @@ resetMinesGameUI();
                 }
             } catch(e) { console.error(e); }
         }
+        
 
         btnCashoutMines.addEventListener("click", () => {
 

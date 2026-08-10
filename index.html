@@ -5062,7 +5062,8 @@ const allowedActions = [
     "ticket_ad",
     "mining_booster",
     "spin",
-    "mines_x8"
+    "mines_x8",
+    "mines_rescue"
 ];
 
 if (!allowedActions.includes(action)) {
@@ -8009,24 +8010,113 @@ if (!reviveUsed) {
 
     if (rescue) {
 
-        const ok = await showRewardedAd();
+        const ok = await showRewardedAd("mines_rescue");
 
 if (!ok) return;
 
-        await supabaseClient.rpc(
-    'use_mines_rescue',
-    {
-        p_telegram_id:
-            AppState.user.telegram_id
-    }
+
+// =====================================================
+//  VERIFICACIÓN DEL ANUNCIO
+// =====================================================
+
+const nonceResult =
+    await supabaseClient.rpc(
+        "generate_reward_nonce",
+        {
+            p_telegram_id:
+                AppState.user.telegram_id,
+
+            p_action:
+                "claim_mines_rescue"
+        }
+    );
+
+
+if (
+    nonceResult.error ||
+    !nonceResult.data?.success ||
+    !nonceResult.data?.reward_nonce
+) {
+
+    console.error(
+        "❌ Error generando nonce para rescate:",
+        nonceResult.error ||
+        nonceResult.data
+    );
+
+    alert(
+        "No fue posible autorizar el rescate. Inténtalo nuevamente."
+    );
+
+    return;
+}
+
+
+const rewardNonce =
+    nonceResult.data.reward_nonce;
+
+
+console.log(
+    "🛡️ Nonce de rescate generado:",
+    rewardNonce
 );
 
-        reviveUsed = true;
 
-        cellElement.classList.remove("bomb");
-        cellElement.innerHTML = "🛡️";
+// =====================================================
+// APLICAR RESCATE 
+// =====================================================
 
-        return;
+const rescueResult =
+    await supabaseClient.rpc(
+        "use_mines_rescue",
+        {
+            p_telegram_id:
+                AppState.user.telegram_id,
+
+            p_reward_nonce:
+                rewardNonce
+        }
+    );
+
+
+if (
+    rescueResult.error ||
+    !rescueResult.data?.success
+) {
+
+    console.error(
+        "❌ Error aplicando rescate:",
+        rescueResult.error ||
+        rescueResult.data
+    );
+
+    alert(
+        rescueResult.data?.message ||
+        "No fue posible aplicar el rescate."
+    );
+
+    return;
+}
+
+
+// =====================================================
+// RESCATE CONFIRMADO
+// =====================================================
+
+console.log(
+    "✅ RESCATE MINERO AUTORIZADO:",
+    rescueResult.data
+);
+
+
+reviveUsed = true;
+
+cellElement.classList.remove("bomb");
+cellElement.classList.remove("bomb-hit");
+
+cellElement.innerHTML = "🛡️";
+
+return;
     }
 }
 

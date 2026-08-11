@@ -7577,12 +7577,17 @@ try {
 
     // Mostrar anuncio recompensado
     let usingBonusSpin = false;
+let rewardNonce = null;
 
 if ((AppState.user.bonus_spins || 0) > 0) {
 
     usingBonusSpin = true;
 
 } else {
+
+    // =====================================================
+    // 1. MOSTRAR Y VERIFICAR ANUNCIO
+    // =====================================================
 
     const ok = await showRewardedAd("spin");
 
@@ -7594,6 +7599,80 @@ if ((AppState.user.bonus_spins || 0) > 0) {
         return;
 
     }
+
+
+    // =====================================================
+    // 2. GENERAR NONCE DEL SPIN
+    // =====================================================
+
+    const nonceResponse =
+        await fetch(
+            `${SUPABASE_URL}/functions/v1/user-actions`,
+            {
+                method: "POST",
+
+                headers: {
+                    "Content-Type": "application/json",
+                    "apikey": SUPABASE_ANON_KEY,
+                    "Authorization":
+                        `Bearer ${SUPABASE_ANON_KEY}`
+                },
+
+                body: JSON.stringify({
+
+                    initData:
+                        AppState.tgInitData,
+
+                    action:
+                        "generate_reward_nonce",
+
+                    params: {
+
+                        p_action:
+                            "spin_wheel"
+
+                    }
+
+                })
+            }
+        );
+
+
+    const nonceData =
+        await nonceResponse.json();
+
+
+    if (
+        !nonceResponse.ok ||
+        !nonceData?.success ||
+        !nonceData?.reward_nonce
+    ) {
+
+        console.error(
+            "❌ Error generando nonce del Spin:",
+            nonceData
+        );
+
+        alert(
+            nonceData?.message ||
+            "No fue posible autorizar el giro."
+        );
+
+        isSpinning = false;
+        btnSpin.disabled = false;
+
+        return;
+    }
+
+
+    rewardNonce =
+        nonceData.reward_nonce;
+
+
+    console.log(
+        "🎡 Nonce del Spin generado:",
+        rewardNonce
+    );
 
 }
 
@@ -7610,8 +7689,9 @@ const response = await fetch(
             initData: AppState.tgInitData,
             action: "spin_wheel",
             params: {
-                p_use_bonus_spin: usingBonusSpin
-            }
+    p_use_bonus_spin: usingBonusSpin,
+    p_reward_nonce: rewardNonce
+}
         })
     }
 );

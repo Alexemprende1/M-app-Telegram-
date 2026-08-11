@@ -7035,8 +7035,9 @@ try {
                 "Authorization": `Bearer ${SUPABASE_ANON_KEY}`
             },
             body: JSON.stringify({
-                withdrawal_id: id
-            })
+    initData: AppState.tgInitData,
+    withdrawal_id: id
+})
         }
     );
 

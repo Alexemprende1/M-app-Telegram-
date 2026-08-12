@@ -5503,45 +5503,90 @@ if (ticketDailyCounter) {
 
 }
 
-async function invalidateRewardNonce() {
+async function invalidateRewardNonce(action) {
+
+// ==========================================
+// VALIDAR ACCIÓN
+// ==========================================
+
+if (!action || typeof action !== "string") {
+
+    console.warn(
+        "No se puede invalidar el reward nonce: acción inválida."
+    );
+
+    return;
+}
+
 
 try {
 
     const response = await fetch(
-    `${SUPABASE_URL}/functions/v1/user-actions`,
-    {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json",
-            "apikey": SUPABASE_ANON_KEY,
-            "Authorization": `Bearer ${SUPABASE_ANON_KEY}`
-        },
-        body: JSON.stringify({
-            initData: AppState.tgInitData,
-            action: "invalidate_reward_nonce"
-        })
-    }
-);
+        `${SUPABASE_URL}/functions/v1/user-actions`,
+        {
+            method: "POST",
 
-if (!response.ok) {
+            headers: {
+                "Content-Type": "application/json",
+                "apikey": SUPABASE_ANON_KEY,
+                "Authorization":
+                    `Bearer ${SUPABASE_ANON_KEY}`
+            },
 
-    console.warn(
-        "No fue posible invalidar el reward nonce."
+            body: JSON.stringify({
+
+                initData:
+                    AppState.tgInitData,
+
+                action:
+                    "invalidate_reward_nonce",
+
+                params: {
+
+                    p_action:
+                        action
+
+                }
+
+            })
+        }
     );
 
-}
+
+    const data =
+        await response.json();
+
+
+    if (
+        !response.ok ||
+        !data?.success
+    ) {
+
+        console.warn(
+            "No fue posible invalidar el reward nonce.",
+            data
+        );
+
+        return;
+    }
+
+
+    console.log(
+        "Reward nonce invalidado correctamente:",
+        data
+    );
+
 
 } catch (err) {
 
     console.warn(
-        "No fue posible invalidar el reward nonce.",
+        "Error invalidando reward nonce:",
         err
     );
 
 }
 
 }
-
                // TIEMPO DE ESPERA //
 
         function startBatteryCountdownTimer() {

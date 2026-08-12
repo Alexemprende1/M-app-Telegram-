@@ -6376,141 +6376,217 @@ if (treasureCounter) {
 });
 
 document
-.getElementById("btn-claim-treasure")
+.getElementById("btn-claim-treasure-x5")
 ?.addEventListener("click", async () => {
+
+    const btnTreasureX5 =
+        document.getElementById(
+            "btn-claim-treasure-x5"
+        );
+
+    if (!btnTreasureX5) return;
 
     try {
 
-        const response = await fetch(
-    `${SUPABASE_URL}/functions/v1/user-actions`,
-    {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json",
-            "apikey": SUPABASE_ANON_KEY,
-            "Authorization": `Bearer ${SUPABASE_ANON_KEY}`
-        },
-        body: JSON.stringify({
-            initData: AppState.tgInitData,
-            action: "claim_treasure"
-        })
-    }
-);
+        btnTreasureX5.disabled = true;
 
-const data = await response.json();
+        // =====================================================
+        // 1. MOSTRAR Y VERIFICAR ANUNCIO RECOMPENSADO
+        // =====================================================
 
-const error =
-    !response.ok
-        ? data
-        : null;
+        const ok =
+            await showRewardedAd("treasure_x5");
 
-        if (error || !data?.success) {
+        if (!ok) {
 
-            alert(
-                data?.message ||
-                "Error cobrando tesoro"
-            );
+            btnTreasureX5.disabled = false;
 
             return;
         }
 
-        const reward =
-            parseFloat(
-                data.reward || 0
+
+        // =====================================================
+        // 2. GENERAR NONCE DEL TREASURE X5
+        // =====================================================
+
+        const nonceResponse =
+            await fetch(
+                `${SUPABASE_URL}/functions/v1/user-actions`,
+                {
+                    method: "POST",
+
+                    headers: {
+                        "Content-Type":
+                            "application/json",
+
+                        "apikey":
+                            SUPABASE_ANON_KEY,
+
+                        "Authorization":
+                            `Bearer ${SUPABASE_ANON_KEY}`
+                    },
+
+                    body: JSON.stringify({
+
+                        initData:
+                            AppState.tgInitData,
+
+                        action:
+                            "generate_reward_nonce",
+
+                        params: {
+
+                            p_action:
+                                "treasure_x5"
+
+                        }
+
+                    })
+                }
             );
 
-            await syncUserSession();
 
-        refreshProfileData();
+        const nonceData =
+            await nonceResponse.json();
 
-        alert(
-            "💰 Recompensa acreditada\n\n" +
-            reward.toFixed(8) +
-            " TRX"
+
+        // =====================================================
+        // 3. VALIDAR NONCE GENERADO
+        // =====================================================
+
+        if (
+            !nonceResponse.ok ||
+            !nonceData?.success ||
+            !nonceData?.reward_nonce
+        ) {
+
+            console.error(
+                "❌ Error generando nonce Treasure x5:",
+                nonceData
+            );
+
+            alert(
+                nonceData?.message ||
+                "No fue posible autorizar el premio x5."
+            );
+
+            btnTreasureX5.disabled = false;
+
+            return;
+        }
+
+
+        const rewardNonce =
+            nonceData.reward_nonce;
+
+
+        console.log(
+            "🎁 Nonce Treasure x5 generado:",
+            rewardNonce
         );
 
-        const winSound = document.getElementById("sound-win");
 
-if (winSound) {
-    winSound.currentTime = 0;
-    winSound.play().catch(() => {});
-}
+        // =====================================================
+        // 4. EJECUTAR CLAIM TREASURE X5
+        // =====================================================
 
-        treasureFound = 0;
+        const response =
+            await fetch(
+                `${SUPABASE_URL}/functions/v1/user-actions`,
+                {
+                    method: "POST",
 
-        document
-        .getElementById(
-            "btn-claim-treasure"
-        )
-        .disabled = true;
+                    headers: {
+                        "Content-Type":
+                            "application/json",
 
-        document
-        .getElementById(
-            "treasure-grid"
-        )
-        .innerHTML = "";
+                        "apikey":
+                            SUPABASE_ANON_KEY,
 
-    } catch(err) {
+                        "Authorization":
+                            `Bearer ${SUPABASE_ANON_KEY}`
+                    },
 
-        console.error(err);
+                    body: JSON.stringify({
 
-        alert(
-            "Error de conexión"
+                        initData:
+                            AppState.tgInitData,
+
+                        action:
+                            "claim_treasure_x5",
+
+                        params: {
+
+                            p_reward_nonce:
+                                rewardNonce
+
+                        }
+
+                    })
+                }
+            );
+
+
+        const data =
+            await response.json();
+
+
+        const error =
+            !response.ok
+                ? data
+                : null;
+
+
+        console.log(
+            "TREASURE X5 DATA:",
+            data
         );
 
-    }
+        console.log(
+            "TREASURE X5 ERROR:",
+            error
+        );
 
-});
 
-document
-.getElementById("btn-claim-treasure-x5")
-?.addEventListener("click", async () => {
+        // =====================================================
+        // 5. VALIDAR RESPUESTA
+        // =====================================================
 
-    try {
+        if (
+            error ||
+            !data?.success
+        ) {
 
-        const ok = await showRewardedAd();
-
-if (!ok) return;
-
-const response = await fetch(
-    `${SUPABASE_URL}/functions/v1/user-actions`,
-    {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json",
-            "apikey": SUPABASE_ANON_KEY,
-            "Authorization": `Bearer ${SUPABASE_ANON_KEY}`
-        },
-        body: JSON.stringify({
-            initData: AppState.tgInitData,
-            action: "claim_treasure_x5"
-        })
-    }
-);
-
-const data = await response.json();
-
-const error =
-    !response.ok
-        ? data
-        : null;
-
-        if (error || !data?.success) {
+            console.error(
+                "Treasure x5:",
+                error || data
+            );
 
             alert(
                 data?.message ||
                 "Error cobrando premio x5"
             );
 
+            btnTreasureX5.disabled = false;
+
             return;
         }
+
+
+        // =====================================================
+        // 6. RECOMPENSA ACREDITADA
+        // =====================================================
 
         const reward =
             parseFloat(
                 data.reward || 0
-            );   
+            );
 
-            AudioManager.play("sound-win");
+
+        AudioManager.play(
+            "sound-win"
+        );
+
 
         alert(
             "🚀 Premio x5 acreditado\n\n" +
@@ -6518,38 +6594,54 @@ const error =
             " TRX"
         );
 
-await syncUserSession();
+
+        // =====================================================
+        // 7. SINCRONIZAR SALDO / SESIÓN
+        // =====================================================
+
+        await syncUserSession();
 
         refreshProfileData();
 
+
+        // =====================================================
+        // 8. LIMPIAR PARTIDA
+        // =====================================================
+
         treasureFound = 0;
+
         treasureReward = 0;
 
-        document
-        .getElementById(
-            "btn-claim-treasure"
-        )
-        .disabled = true;
 
         document
-        .getElementById(
-            "btn-claim-treasure-x5"
-        )
-        .disabled = true;
+            .getElementById(
+                "btn-claim-treasure"
+            )
+            .disabled = true;
+
+
+        btnTreasureX5.disabled = true;
+
 
         document
-        .getElementById(
-            "treasure-grid"
-        )
-        .innerHTML = "";
+            .getElementById(
+                "treasure-grid"
+            )
+            .innerHTML = "";
+
 
     } catch (err) {
 
-        console.error(err);
+        console.error(
+            "Treasure x5:",
+            err
+        );
 
         alert(
-            "Error mostrando anuncio"
+            "Error procesando el premio x5."
         );
+
+        btnTreasureX5.disabled = false;
 
     }
 

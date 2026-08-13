@@ -9093,68 +9093,207 @@ alert(
 });
 
 btnMiningBooster.addEventListener(
-"click",
-async () => {
+    "click",
+    async () => {
 
-try {
+        try {
 
-    btnMiningBooster.disabled = true;
+            btnMiningBooster.disabled = true;
 
-    const ok =
-        await showRewardedAd();
 
-    if (!ok) {
+            // ==========================================
+            // 1. MOSTRAR Y VERIFICAR ANUNCIO
+            // ==========================================
 
-        btnMiningBooster.disabled = false;
-        return;
+            const ok =
+                await showRewardedAd("mining_booster");
 
-    }
+            if (!ok) {
 
-    const { data, error } =
-        await supabaseClient.rpc(
-            "claim_mining_booster",
-            {
-                p_telegram_id:
-                    AppState.user.telegram_id
+                btnMiningBooster.disabled = false;
+
+                return;
             }
-        );
 
-    if (error || !data?.success) {
 
-        alert(
-            data?.message ||
-            "No fue posible obtener el Booster."
-        );
+            // ==========================================
+            // 2. GENERAR NONCE DE RECOMPENSA
+            // ==========================================
 
-        btnMiningBooster.disabled = false;
+            const nonceResponse =
+                await fetch(
+                    `${SUPABASE_URL}/functions/v1/user-actions`,
+                    {
+                        method: "POST",
 
-        return;
+                        headers: {
+                            "Content-Type":
+                                "application/json",
 
-    }
+                            "apikey":
+                                SUPABASE_ANON_KEY,
 
-    AppState.user.mining_booster_x2 =
-        data.boosters;
+                            "Authorization":
+                                `Bearer ${SUPABASE_ANON_KEY}`
+                        },
 
-    refreshProfileData();
+                        body: JSON.stringify({
 
-    AudioManager.play("sound-win");
+                            initData:
+                                AppState.tgInitData,
 
-    alert(
-        `🚀 Booster x2 obtenido.\n\n` +
-        `Disponibles: ${data.boosters}`
+                            action:
+                                "generate_reward_nonce",
+
+                            params: {
+
+                                p_action:
+                                    "claim_mining_booster"
+
+                            }
+
+                        })
+                    }
+                );
+
+
+            const nonceData =
+                await nonceResponse.json();
+
+
+            if (
+                !nonceResponse.ok ||
+                !nonceData?.success ||
+                !nonceData?.reward_nonce
+            ) {
+
+                console.error(
+                    "❌ Error generando nonce del Booster:",
+                    nonceData
+                );
+
+                alert(
+                    nonceData?.message ||
+                    "No fue posible validar la recompensa del Booster."
+                );
+
+                return;
+            }
+
+
+            const rewardNonce =
+                nonceData.reward_nonce;
+
+
+            console.log(
+                "🛡️ Reward nonce Booster generado:",
+                rewardNonce
+            );
+
+
+            // ==========================================
+            // 3. RECLAMAR BOOSTER MEDIANTE USER-ACTIONS
+            // ==========================================
+
+            const response =
+                await fetch(
+                    `${SUPABASE_URL}/functions/v1/user-actions`,
+                    {
+                        method: "POST",
+
+                        headers: {
+                            "Content-Type":
+                                "application/json",
+
+                            "apikey":
+                                SUPABASE_ANON_KEY,
+
+                            "Authorization":
+                                `Bearer ${SUPABASE_ANON_KEY}`
+                        },
+
+                        body: JSON.stringify({
+
+                            initData:
+                                AppState.tgInitData,
+
+                            action:
+                                "claim_mining_booster",
+
+                            params: {
+
+                                p_reward_nonce:
+                                    rewardNonce
+
+                            }
+
+                        })
+                    }
+                );
+
+
+            const data =
+                await response.json();
+
+
+                if (
+    !response.ok ||
+    !data?.success
+) {
+
+    console.error(
+        "❌ Error reclamando Booster:",
+        data
     );
 
-} catch(err) {
+    // Invalidar el nonce que no pudo utilizarse correctamente.
+    await invalidateRewardNonce(
+        "claim_mining_booster"
+    );
 
-    console.error(err);
+    alert(
+        data?.message ||
+        "No fue posible obtener el Booster."
+    );
 
-} finally {
-
-    btnMiningBooster.disabled = false;
-
+    return;
 }
 
-}
+
+            // ==========================================
+            // 4. BOOSTER ACREDITADO
+            // ==========================================
+
+            AppState.user.mining_booster_x2 =
+                data.boosters;
+
+
+            refreshProfileData();
+
+
+            AudioManager.play("sound-win");
+
+
+            alert(
+                `🚀 Booster x2 obtenido.\n\n` +
+                `Disponibles: ${data.boosters}`
+            );
+
+
+        } catch (err) {
+
+            console.error(
+                "❌ Error en claimMiningBooster:",
+                err
+            );
+
+        } finally {
+
+            btnMiningBooster.disabled = false;
+
+        }
+
+    }
 );
   
 function startLocalMiningTimer(secondsLeft) {

@@ -6598,24 +6598,28 @@ document
         // =====================================================
 
         if (
-            error ||
-            !data?.success
-        ) {
+    error ||
+    !data?.success
+) {
+    console.error(
+        "Treasure x5:",
+        error || data
+    );
 
-            console.error(
-                "Treasure x5:",
-                error || data
-            );
+    // Invalidar el nonce que ya fue generado
+    // pero no pudo utilizarse correctamente.
+    await invalidateRewardNonce(
+        "claim_treasure_x5"
+    );
 
-            alert(
-                data?.message ||
-                "Error cobrando premio x5"
-            );
+    alert(
+        data?.message ||
+        "Error cobrando premio x5"
+    );
 
-            btnTreasureX5.disabled = false;
-
-            return;
-        }
+    btnTreasureX5.disabled = false;
+    return;
+}
 
 
         // =====================================================
@@ -8572,11 +8576,56 @@ const rescueData =
     !rescueResponse.ok ||
     !rescueData?.success
 ) {
-
     console.error(
         "❌ Error aplicando rescate:",
         rescueData
     );
+
+    // =====================================================
+    // INVALIDAR SOLAMENTE EL NONCE DE RESCATE
+    // =====================================================
+
+    try {
+
+        await fetch(
+            `${SUPABASE_URL}/functions/v1/user-actions`,
+            {
+                method: "POST",
+
+                headers: {
+                    "Content-Type": "application/json",
+                    "apikey": SUPABASE_ANON_KEY,
+                    "Authorization":
+                        `Bearer ${SUPABASE_ANON_KEY}`
+                },
+
+                body: JSON.stringify({
+                    initData:
+                        AppState.tgInitData,
+
+                    action:
+                        "invalidate_reward_nonce",
+
+                    params: {
+                        p_action:
+                            "claim_mines_rescue"
+                    }
+                })
+            }
+        );
+
+        console.log(
+            "🧹 Nonce de rescate invalidado después del error."
+        );
+
+    } catch (invalidateError) {
+
+        console.warn(
+            "⚠️ No se pudo invalidar inmediatamente el nonce de rescate:",
+            invalidateError
+        );
+
+    }
 
     alert(
         rescueData?.message ||
@@ -8874,23 +8923,28 @@ try {
             : null;
 
 
-    if (
-        error ||
-        !data?.success
-    ) {
+            if (
+    error ||
+    !data?.success
+) {
+    console.error(
+        "Error reclamando Mines x8:",
+        error || data
+    );
 
-        console.error(
-            "Error reclamando Mines x8:",
-            error || data
-        );
+    // Invalidar el nonce generado
+    // que no pudo utilizarse correctamente.
+    await invalidateRewardNonce(
+        "mines_x8"
+    );
 
-        alert(
-            data?.message ||
-            "Error procesando cobro x8."
-        );
+    alert(
+        data?.message ||
+        "Error procesando cobro x8."
+    );
 
-        return;
-    }
+    return;
+}
 
 
     // ==========================================
@@ -9212,17 +9266,22 @@ try {
     // ==========================================
 
     const adOk =
-        await showRewardedAd("mining");
+    await showRewardedAd("mining");
 
-    if (!adOk) {
+if (!adOk) {
 
-        console.warn(
-            "El anuncio no fue completado."
-        );
+    console.warn(
+        "El anuncio no fue completado."
+    );
 
-        return;
-    }
+    // Invalidar cualquier nonce pendiente
+    // correspondiente a esta acción.
+    await invalidateRewardNonce(
+        "claim_mining"
+    );
 
+    return;
+}
 
     // ==========================================
     // 2. GENERAR NONCE

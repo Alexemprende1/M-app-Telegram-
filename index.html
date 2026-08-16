@@ -7507,74 +7507,126 @@ refreshProfileData();
             }, 3000);
         }
 
-        const btnDailyChest =
-document.getElementById("btn-daily-chest");
+const btnDailyChest =
+    document.getElementById("btn-daily-chest");
 
 btnDailyChest?.addEventListener(
     "click",
     async () => {
 
+        // =====================================================
+        // 1. VALIDAR USUARIO
+        // =====================================================
+
         if (!AppState.user?.telegram_id) {
 
-alert("Usuario no autenticado.");
+            alert("Usuario no autenticado.");
 
-return;
+            return;
 
-}
+        }
 
-const chestOpenAudio =
-document.getElementById("audio-chest-open");
 
-if (chestOpenAudio) {
+        // =====================================================
+        // 2. AUDIO DE APERTURA
+        // =====================================================
 
-    chestOpenAudio.currentTime = 0;
+        const chestOpenAudio =
+            document.getElementById("audio-chest-open");
 
-    chestOpenAudio.play().catch(() => {});
+        if (chestOpenAudio) {
 
-}
+            chestOpenAudio.currentTime = 0;
+
+            chestOpenAudio.play().catch(() => {});
+
+        }
+
 
         try {
 
             btnDailyChest.disabled = true;
+
             btnDailyChest.innerHTML =
-"⏳ Abriendo...";
+                "⏳ Abriendo...";
 
-            const ok = await showRewardedAd();
 
-if (!ok) {
+            // =================================================
+            // 3. MOSTRAR Y VERIFICAR ANUNCIO
+            // =================================================
 
-    btnDailyChest.disabled = false;
+            const ok =
+                await showRewardedAd("daily_chest");
 
-    return;
 
-}
+            if (!ok) {
 
-const response = await fetch(
-    `${SUPABASE_URL}/functions/v1/user-actions`,
-    {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json",
-            "Authorization": `Bearer ${SUPABASE_ANON_KEY}`
-        },
-        body: JSON.stringify({
-            initData: AppState.tgInitData,
-            action: "claim_daily_chest",
-            params: {}
-        })
-    }
-);
+                btnDailyChest.disabled = false;
 
-const result = await response.json();
+                return;
 
-const data = result;
-const error = !response.ok ? result : null;
+            }
 
-            if (error || !data?.success) {
+
+            // =================================================
+            // 4. GENERAR REWARD NONCE
+            // =================================================
+
+            const nonceResponse =
+                await fetch(
+                    `${SUPABASE_URL}/functions/v1/user-actions`,
+                    {
+                        method: "POST",
+
+                        headers: {
+                            "Content-Type": "application/json",
+                            "apikey": SUPABASE_ANON_KEY,
+                            "Authorization":
+                                `Bearer ${SUPABASE_ANON_KEY}`
+                        },
+
+                        body: JSON.stringify({
+
+                            initData:
+                                AppState.tgInitData,
+
+                            action:
+                                "generate_reward_nonce",
+
+                            params: {
+
+                                p_action:
+                                    "claim_daily_chest"
+
+                            }
+
+                        })
+                    }
+                );
+
+
+            const nonceData =
+                await nonceResponse.json();
+
+
+            // =================================================
+            // 5. VALIDAR NONCE
+            // =================================================
+
+            if (
+                !nonceResponse.ok ||
+                !nonceData?.success ||
+                !nonceData?.reward_nonce
+            ) {
+
+                console.error(
+                    "❌ Error generando nonce del cofre:",
+                    nonceData
+                );
 
                 alert(
-                    data?.message ||
-                    "No fue posible abrir el cofre."
+                    nonceData?.message ||
+                    "No fue posible autorizar el cofre."
                 );
 
                 btnDailyChest.disabled = false;
@@ -7582,33 +7634,230 @@ const error = !response.ok ? result : null;
                 return;
             }
 
+
+            const rewardNonce =
+                nonceData.reward_nonce;
+
+
+            console.log(
+                "🎁 Nonce del cofre generado:",
+                rewardNonce
+            );
+
+
+            // =================================================
+            // 6. RECLAMAR COFRE
+            // =================================================
+
+            const chestResponse =
+                await fetch(
+                    `${SUPABASE_URL}/functions/v1/user-actions`,
+                    {
+                        method: "POST",
+
+                        headers: {
+                            "Content-Type": "application/json",
+                            "apikey": SUPABASE_ANON_KEY,
+                            "Authorization":
+                                `Bearer ${SUPABASE_ANON_KEY}`
+                        },
+
+                        body: JSON.stringify({
+
+                            initData:
+                                AppState.tgInitData,
+
+                            action:
+                                "claim_daily_chest",
+
+                            params: {
+
+                                p_reward_nonce:
+                                    rewardNonce
+
+                            }
+
+                        })
+                    }
+                );
+
+
+            const chestData =
+                await chestResponse.json();
+
+
+            // =================================================
+            // 7. ERROR AL RECLAMAR
+            //    → INVALIDAR NONCE
+            // =================================================
+
+            if (
+                !chestResponse.ok ||
+                !chestData?.success
+            ) {
+
+                console.error(
+                    "❌ Error reclamando cofre:",
+                    chestData
+                );
+
+
+                try {
+
+                    await fetch(
+                        `${SUPABASE_URL}/functions/v1/user-actions`,
+                        {
+                            method: "POST",
+
+                            headers: {
+                                "Content-Type": "application/json",
+                                "apikey": SUPABASE_ANON_KEY,
+                                "Authorization":
+                                    `Bearer ${SUPABASE_ANON_KEY}`
+                            },
+
+                            body: JSON.stringify({
+
+                                initData:
+                                    AppState.tgInitData,
+
+                                action:
+                                    "invalidate_reward_nonce",
+
+                                params: {
+
+                                    p_action:
+                                        "claim_daily_chest"
+
+                                }
+
+                            })
+                        }
+                    );
+
+
+                    console.log(
+                        "🧹 Nonce del cofre invalidado después del error."
+                    );
+
+                } catch (invalidateError) {
+
+                    console.warn(
+                        "⚠️ No se pudo invalidar inmediatamente el nonce del cofre:",
+                        invalidateError
+                    );
+
+                }
+
+
+                alert(
+                    chestData?.message ||
+                    "No fue posible abrir el cofre."
+                );
+
+                btnDailyChest.disabled = false;
+
+                return;
+
+            }
+
+
+            // =================================================
+            // 8. COFRE RECLAMADO CORRECTAMENTE
+            // =================================================
+
+            console.log(
+                "✅ Cofre reclamado correctamente:",
+                chestData
+            );
+
+
+            // =================================================
+            // 9. ACTUALIZAR DATOS DEL USUARIO
+            // =================================================
+
             await syncUserSession();
 
-refreshProfileData();
+            refreshProfileData();
+
+
+           // =================================================
+// 10. MOSTRAR MODAL DE RECOMPENSA
+// =================================================
 
 const modal =
-document.getElementById("daily-chest-modal");
+    document.getElementById(
+        "daily-chest-modal"
+    );
 
 const icon =
-document.getElementById("daily-chest-icon");
+    document.getElementById(
+        "daily-chest-icon"
+    );
 
 const message =
-document.getElementById("daily-chest-message");
+    document.getElementById(
+        "daily-chest-message"
+    );
+
+// -------------------------------------------------
+// Validar elementos visuales antes de utilizarlos
+// -------------------------------------------------
+
+if (!modal || !icon || !message) {
+
+    console.error(
+        "⚠️ Cofre reclamado correctamente, pero faltan elementos del modal.",
+        {
+            modal: !!modal,
+            icon: !!icon,
+            message: !!message
+        }
+    );
+
+    return;
+}
+
+
+// -------------------------------------------------
+// Mostrar modal
+// -------------------------------------------------
 
 modal.style.display = "flex";
 
-AudioManager.play("audio-reward");
 
-switch (data.reward_type) {
+AudioManager.play(
+    "audio-reward"
+);
+
+
+// =================================================
+// 11. MOSTRAR RECOMPENSA
+// =================================================
+
+switch (chestData.reward_type) {
+
+    // =============================================
+    // TRX
+    // =============================================
 
     case "trx":
 
         icon.innerHTML = "💰";
 
         message.innerHTML =
-            `Has ganado <b>${parseFloat(data.amount).toFixed(8)} TRX</b>`;
+            `Has ganado <b>${
+                parseFloat(
+                    chestData.amount
+                ).toFixed(8)
+            } TRX</b>`;
 
         break;
+
+
+    // =============================================
+    // TICKET
+    // =============================================
 
     case "ticket":
 
@@ -7619,32 +7868,52 @@ switch (data.reward_type) {
 
         break;
 
-        case "battery":
 
-icon.innerHTML = "🔋";
+    // =============================================
+    // BATERÍA
+    // =============================================
 
-message.innerHTML =
-    "¡Has ganado una Batería!";
+    case "battery":
 
-break;
+        icon.innerHTML = "🔋";
 
-case "miner_energy":
+        message.innerHTML =
+            "¡Has ganado una Batería!";
 
-icon.innerHTML = "⚡";
+        break;
 
-message.innerHTML =
-    "¡Has obtenido 1 Miner Energy!";
 
-break;
+    // =============================================
+    // MINER ENERGY
+    // =============================================
 
-case "spin":
+    case "miner_energy":
 
-icon.innerHTML = "🎡";
+        icon.innerHTML = "⚡";
 
-message.innerHTML =
-    "¡Has ganado un Giro Gratis!";
+        message.innerHTML =
+            "¡Has obtenido 1 Miner Energy!";
 
-break;
+        break;
+
+
+    // =============================================
+    // GIRO
+    // =============================================
+
+    case "spin":
+
+        icon.innerHTML = "🎡";
+
+        message.innerHTML =
+            "¡Has ganado un Giro Gratis!";
+
+        break;
+
+
+    // =============================================
+    // ENERGÍA COMPLETA
+    // =============================================
 
     case "full_energy":
 
@@ -7655,54 +7924,74 @@ break;
 
         break;
 
+
+    // =============================================
+    // JACKPOT
+    // =============================================
+
     case "jackpot":
 
         icon.innerHTML = "👑";
 
-        document.getElementById("sound-win")?.play();
+        document
+            .getElementById("sound-win")
+            ?.play();
 
         message.innerHTML =
             `<span style="color:#FFD700;font-size:22px;">
-            ¡¡¡ JACKPOT !!!
-            </span><br><br>
-            ${parseFloat(data.amount).toFixed(8)} TRX`;
+                ¡¡¡ JACKPOT !!!
+            </span>
+            <br><br>
+            ${parseFloat(
+                chestData.amount
+            ).toFixed(8)} TRX`;
 
         break;
 
-}
-        } catch (err) {
 
-            console.error(err);
+    // =============================================
+    // RECOMPENSA DESCONOCIDA
+    // =============================================
+
+    default:
+
+        console.error(
+            "⚠️ Tipo de recompensa desconocido:",
+            chestData.reward_type
+        );
+
+        icon.innerHTML = "🎁";
+
+        message.innerHTML =
+            "¡Recompensa obtenida correctamente!";
+
+        break;
+}
+
+}catch (err) {
+
+            console.error(
+                "❌ Error en claim_daily_chest:",
+                err
+            );
 
             alert(
                 "Ocurrió un error al abrir el cofre."
             );
 
+
         } finally {
 
-btnDailyChest.disabled = false;
+            btnDailyChest.disabled = false;
 
-btnDailyChest.innerHTML = `
-    <span class="chest-icon">📦</span>
-    <span class="chest-text">
-        Abrir Cofre Diario
-    </span>
-`;
+            btnDailyChest.innerHTML = `
+                <span class="chest-icon">📦</span>
+                <span class="chest-text">
+                    Abrir Cofre Diario
+                </span>
+            `;
 
-}
-
-    }
-);
-
-document
-.getElementById("btn-close-daily-chest")
-?.addEventListener(
-    "click",
-    () => {
-
-        document.getElementById(
-            "daily-chest-modal"
-        ).style.display = "none";
+        }
 
     }
 );

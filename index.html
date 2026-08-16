@@ -6746,17 +6746,169 @@ if (
 }
 
         // TABS NAVIGATION SYSTEM
-        document.querySelectorAll(".nav-item").forEach(button => {
-            button.addEventListener("click", () => {
-                document.querySelectorAll(".nav-item").forEach(b => b.classList.remove("active"));
-                document.querySelectorAll(".tab-content").forEach(t => t.classList.remove("active"));
+        // =====================================================
+// TABS NAVIGATION SYSTEM
+// =====================================================
+
+// -----------------------------------------------------
+// REFERENCIAS DEL MODAL DEL COFRE DIARIO
+// -----------------------------------------------------
+
+const dailyChestModal =
+    document.getElementById("daily-chest-modal");
+
+const closeDailyChest =
+    document.getElementById("btn-close-daily-chest");
+
+
+// -----------------------------------------------------
+// FUNCIÓN CENTRAL PARA CERRAR EL MODAL
+// -----------------------------------------------------
+
+function closeDailyChestModal() {
+
+    if (!dailyChestModal) {
+        return;
+    }
+
+    dailyChestModal.style.display = "none";
+
+}
+
+
+// -----------------------------------------------------
+// BOTÓN "CONTINUAR"
+// -----------------------------------------------------
+
+if (closeDailyChest) {
+
+    closeDailyChest.addEventListener(
+        "click",
+        (e) => {
+
+            e.preventDefault();
+            e.stopPropagation();
+
+            closeDailyChestModal();
+
+        }
+    );
+
+}
+
+
+// -----------------------------------------------------
+// CERRAR AL TOCAR FUERA DE LA TARJETA
+// -----------------------------------------------------
+
+if (dailyChestModal) {
+
+    dailyChestModal.addEventListener(
+        "click",
+        (e) => {
+
+            if (e.target === dailyChestModal) {
+
+                closeDailyChestModal();
+
+            }
+
+        }
+    );
+
+}
+
+
+// -----------------------------------------------------
+// NAVEGACIÓN ENTRE PESTAÑAS
+// -----------------------------------------------------
+
+document
+    .querySelectorAll(".nav-item")
+    .forEach(button => {
+
+        button.addEventListener(
+            "click",
+            () => {
+
+                // =========================================
+                // CERRAR MODAL DEL COFRE
+                // =========================================
+
+                closeDailyChestModal();
+
+
+                // =========================================
+                // LIMPIAR ESTADO VISUAL DE NAVEGACIÓN
+                // =========================================
+
+                document
+                    .querySelectorAll(".nav-item")
+                    .forEach(b =>
+                        b.classList.remove("active")
+                    );
+
+
+                document
+                    .querySelectorAll(".tab-content")
+                    .forEach(t =>
+                        t.classList.remove("active")
+                    );
+
+
+                // =========================================
+                // ACTIVAR BOTÓN SELECCIONADO
+                // =========================================
 
                 button.classList.add("active");
-                const target = button.getAttribute("data-target");
-                document.getElementById(target).classList.add("active");
-                AppState.activeTab = target;
-            });
-        });
+
+
+                // =========================================
+                // OBTENER PESTAÑA DESTINO
+                // =========================================
+
+                const target =
+                    button.getAttribute("data-target");
+
+
+                const targetElement =
+                    document.getElementById(target);
+
+
+                // =========================================
+                // VALIDAR PESTAÑA
+                // =========================================
+
+                if (!targetElement) {
+
+                    console.error(
+                        "❌ Pestaña no encontrada:",
+                        target
+                    );
+
+                    return;
+
+                }
+
+
+                // =========================================
+                // MOSTRAR PESTAÑA
+                // =========================================
+
+                targetElement.classList.add("active");
+
+
+                // =========================================
+                // ACTUALIZAR ESTADO GLOBAL
+                // =========================================
+
+                AppState.activeTab =
+                    target;
+
+            }
+        );
+
+    });
 
         document.getElementById("admin-panel-btn").addEventListener("click", async () => {
 

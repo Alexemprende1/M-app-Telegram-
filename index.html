@@ -7959,50 +7959,250 @@ try {
 
     btnTicketAd.disabled = true;
 
-    const ok = await showRewardedAd();
+    // =====================================================
+    // 1. MOSTRAR Y VERIFICAR ANUNCIO
+    // =====================================================
 
-if (!ok) return;
+    const ok = await showRewardedAd("ticket_ad");
 
-    const { data, error } =
-        await supabaseClient.rpc(
-            "claim_ticket_ad",
+    if (!ok) {
+
+        btnTicketAd.disabled = false;
+        return;
+
+    }
+
+
+    // =====================================================
+    // 2. GENERAR REWARD NONCE
+    // =====================================================
+
+    const nonceResponse =
+        await fetch(
+            `${SUPABASE_URL}/functions/v1/user-actions`,
             {
-                p_telegram_id:
-                    AppState.user.telegram_id
+                method: "POST",
+
+                headers: {
+                    "Content-Type": "application/json",
+                    "apikey": SUPABASE_ANON_KEY,
+                    "Authorization":
+                        `Bearer ${SUPABASE_ANON_KEY}`
+                },
+
+                body: JSON.stringify({
+
+                    initData:
+                        AppState.tgInitData,
+
+                    action:
+                        "generate_reward_nonce",
+
+                    params: {
+
+                        p_action:
+                            "claim_ticket_ad"
+
+                    }
+
+                })
             }
         );
 
-    if (error || !data?.success) {
+
+    const nonceData =
+        await nonceResponse.json();
+
+
+    if (
+        !nonceResponse.ok ||
+        !nonceData?.success ||
+        !nonceData?.reward_nonce
+    ) {
+
+        console.error(
+            "❌ Error generando nonce del ticket:",
+            nonceData
+        );
 
         alert(
-            data?.message ||
-            "No se pudo reclamar el ticket."
+            nonceData?.message ||
+            "No fue posible autorizar el ticket."
         );
 
         btnTicketAd.disabled = false;
         return;
     }
 
+
+    const rewardNonce =
+        nonceData.reward_nonce;
+
+
+    console.log(
+        "🎟️ Nonce del ticket generado:",
+        rewardNonce
+    );
+
+
+    // =====================================================
+    // 3. RECLAMAR TICKET
+    // =====================================================
+
+    const ticketResponse =
+        await fetch(
+            `${SUPABASE_URL}/functions/v1/user-actions`,
+            {
+                method: "POST",
+
+                headers: {
+                    "Content-Type": "application/json",
+                    "apikey": SUPABASE_ANON_KEY,
+                    "Authorization":
+                        `Bearer ${SUPABASE_ANON_KEY}`
+                },
+
+                body: JSON.stringify({
+
+                    initData:
+                        AppState.tgInitData,
+
+                    action:
+                        "claim_ticket_ad",
+
+                    params: {
+
+                        p_reward_nonce:
+                            rewardNonce
+
+                    }
+
+                })
+            }
+        );
+
+
+    const ticketData =
+        await ticketResponse.json();
+
+
+    // =====================================================
+    // 4. ERROR AL RECLAMAR → INVALIDAR NONCE
+    // =====================================================
+
+    if (
+        !ticketResponse.ok ||
+        !ticketData?.success
+    ) {
+
+        console.error(
+            "❌ Error reclamando ticket:",
+            ticketData
+        );
+
+
+        try {
+
+            await fetch(
+                `${SUPABASE_URL}/functions/v1/user-actions`,
+                {
+                    method: "POST",
+
+                    headers: {
+                        "Content-Type": "application/json",
+                        "apikey": SUPABASE_ANON_KEY,
+                        "Authorization":
+                            `Bearer ${SUPABASE_ANON_KEY}`
+                    },
+
+                    body: JSON.stringify({
+
+                        initData:
+                            AppState.tgInitData,
+
+                        action:
+                            "invalidate_reward_nonce",
+
+                        params: {
+
+                            p_action:
+                                "claim_ticket_ad"
+
+                        }
+
+                    })
+                }
+            );
+
+
+            console.log(
+                "🧹 Nonce de ticket invalidado después del error."
+            );
+
+        } catch (invalidateError) {
+
+            console.warn(
+                "⚠️ No se pudo invalidar inmediatamente el nonce del ticket:",
+                invalidateError
+            );
+
+        }
+
+
+        alert(
+            ticketData?.message ||
+            "No fue posible reclamar el ticket."
+        );
+
+        btnTicketAd.disabled = false;
+        return;
+    }
+
+
+    // =====================================================
+    // 5. TICKET RECLAMADO CORRECTAMENTE
+    // =====================================================
+
+    console.log(
+        "✅ Ticket reclamado correctamente:",
+        ticketData
+    );
+
+
     AppState.user.bonus_tickets =
-        data.bonus_tickets;
+        ticketData.bonus_tickets;
 
     AppState.user.tickets_today =
-        data.tickets_today;
+        ticketData.tickets_today;
 
     AppState.user.batteries =
-        data.batteries;
+        ticketData.batteries;
+
 
     updateTicketDisplay();
     updateBatteryDisplay();
 
+
+    // =====================================================
+    // 6. MENSAJE
+    // =====================================================
+
     alert(
         `🎟 Ticket obtenido.\n\n` +
-        `Tickets: ${data.bonus_tickets}/3`
+        `Tickets: ${ticketData.bonus_tickets}/3`
     );
+
 
 } catch (err) {
 
-    console.error(err);
+    console.error(
+        "❌ Error en claim_ticket_ad:",
+        err
+    );
+
+    alert(
+        "Ocurrió un error al reclamar el ticket."
+    );
 
 } finally {
 

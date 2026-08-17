@@ -14,34 +14,58 @@ async function initAdminConsole() {
 try {
 
     if (!AppState.tgInitData) {
-        console.warn("CHECK ADMIN: No existe tgInitData.");
+
+        console.warn(
+            "CHECK ADMIN: No existe tgInitData."
+        );
+
         AppState.features.is_admin = false;
-        return;
+
+        return false;
     }
 
     const response = await fetch(
         `${SUPABASE_URL}/functions/v1/user-actions`,
         {
             method: "POST",
+
             headers: {
                 "Content-Type": "application/json",
                 "apikey": SUPABASE_ANON_KEY,
-                "Authorization": `Bearer ${SUPABASE_ANON_KEY}`
+                "Authorization":
+                    `Bearer ${SUPABASE_ANON_KEY}`
             },
+
             body: JSON.stringify({
-                initData: AppState.tgInitData,
-                action: "check_admin",
+
+                initData:
+                    AppState.tgInitData,
+
+                action:
+                    "check_admin",
+
                 params: {}
             })
         }
     );
 
-    const data = await response.json();
+    const data =
+        await response.json();
 
-    console.log("HTTP STATUS CHECK ADMIN:", response.status);
-    console.log("CHECK ADMIN:", data);
+    console.log(
+        "HTTP STATUS CHECK ADMIN:",
+        response.status
+    );
 
-    if (!response.ok || !data?.success) {
+    console.log(
+        "CHECK ADMIN:",
+        data
+    );
+
+    if (
+        !response.ok ||
+        !data?.success
+    ) {
 
         AppState.features.is_admin = false;
 
@@ -50,7 +74,7 @@ try {
             data
         );
 
-        return;
+        return false;
     }
 
     AppState.features.is_admin =
@@ -69,8 +93,9 @@ try {
         console.log(
             "ℹ️ Usuario autenticado como usuario normal."
         );
-
     }
+
+    return AppState.features.is_admin;
 
 } catch (error) {
 
@@ -81,8 +106,8 @@ try {
         error
     );
 
+    return false;
 }
-
 }
 
 </script>
@@ -4187,7 +4212,13 @@ try {
 
     }
 
-    AppState.features = data;
+const currentIsAdmin =
+    AppState.features?.is_admin === true;
+
+AppState.features = {
+    ...data,
+    is_admin: currentIsAdmin
+};
 
 applyFeatureFlags();
 
@@ -4799,35 +4830,87 @@ if (!referralStatsError && referralStats?.success) {
                     };
                 }
 
-                initAdminConsole();
+                
+await initAdminConsole();
 
-                try {
+try {
 
-const { error } = await supabaseClient.rpc(
-    "close_all_active_games",
-    {
-        p_telegram_id: AppState.user.telegram_id
+    const { error } =
+        await supabaseClient.rpc(
+            "close_all_active_games",
+            {
+                p_telegram_id:
+                    AppState.user.telegram_id
+            }
+        );
+
+    if (error) {
+
+        console.error(
+            "Error cerrando partidas activas:",
+            error
+        );
     }
-);
-
-if (error) {
-    console.error(
-        "Error cerrando partidas activas:",
-        error
-    );
-}
 
 } catch (err) {
 
-console.error(
-    "Excepción cerrando partidas activas:",
-    err
-);
-
+    console.error(
+        "Excepción cerrando partidas activas:",
+        err
+    );
 }
 
-                await rechargeBatteries();
-                startBatteryCountdownTimer();
+await rechargeBatteries();
+
+startBatteryCountdownTimer();
+
+await loadFeatureFlags();
+
+refreshProfileData();
+
+await loadPowerMiningStatus();
+
+
+// =====================================================
+// 7. HISTORIA Y TAREAS
+// =====================================================
+
+loadWithdrawHistory();
+
+loadWheelHistory();
+
+await loadCompletedTasks();
+
+
+// =====================================================
+// 8. TEMPORIZADORES
+// =====================================================
+
+updateWheelTimer();
+
+updateDailyChestTimer();
+
+updateWithdrawTimer();
+
+setInterval(() => {
+
+    updateWheelTimer();
+
+    updateDailyChestTimer();
+
+    updateWithdrawTimer();
+
+}, 1000);
+
+await restoreMiningSession();
+
+document.getElementById(
+    "blocking-screen"
+).style.display = "none";
+
+document.getElementById(
+    "app-container"
+).style.display = "flex";
                 
                 // Actualizar elementos dinámicos en el DOM inmediatamente
                 refreshProfileData();

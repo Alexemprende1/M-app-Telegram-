@@ -9,18 +9,79 @@
 
 <script>
 
-const ADMIN_ID = 5002555137;
+async function initAdminConsole() {
 
-function initAdminConsole() {
+try {
 
-    if (
-        AppState.user &&
-        Number(AppState.user.telegram_id) === ADMIN_ID
-    ) {
+    if (!AppState.tgInitData) {
+        console.warn("CHECK ADMIN: No existe tgInitData.");
+        AppState.features.is_admin = false;
+        return;
+    }
+
+    const response = await fetch(
+        `${SUPABASE_URL}/functions/v1/user-actions`,
+        {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "apikey": SUPABASE_ANON_KEY,
+                "Authorization": `Bearer ${SUPABASE_ANON_KEY}`
+            },
+            body: JSON.stringify({
+                initData: AppState.tgInitData,
+                action: "check_admin",
+                params: {}
+            })
+        }
+    );
+
+    const data = await response.json();
+
+    console.log("HTTP STATUS CHECK ADMIN:", response.status);
+    console.log("CHECK ADMIN:", data);
+
+    if (!response.ok || !data?.success) {
+
+        AppState.features.is_admin = false;
+
+        console.warn(
+            "CHECK ADMIN rechazado:",
+            data
+        );
+
+        return;
+    }
+
+    AppState.features.is_admin =
+        data.is_admin === true;
+
+    if (AppState.features.is_admin) {
 
         eruda.init();
 
+        console.log(
+            "✅ Usuario autenticado como administrador."
+        );
+
+    } else {
+
+        console.log(
+            "ℹ️ Usuario autenticado como usuario normal."
+        );
+
     }
+
+} catch (error) {
+
+    AppState.features.is_admin = false;
+
+    console.error(
+        "❌ ERROR CHECK ADMIN:",
+        error
+    );
+
+}
 
 }
 
@@ -5618,10 +5679,18 @@ try {
             document.getElementById("prof-name").innerText = AppState.user.first_name;
             document.getElementById("prof-username").innerText = AppState.user.username ? "@" + AppState.user.username : "@sin_username";
             document.getElementById("prof-id").innerText = AppState.user.telegram_id;
-            const ADMIN_ID = 5002555137;
+            if (AppState.features?.is_admin === true) {
 
-if (AppState.user.telegram_id == ADMIN_ID) {
-    document.getElementById("admin-panel-btn").style.display = "block";
+document.getElementById(
+    "admin-panel-btn"
+).style.display = "block";
+
+} else {
+
+document.getElementById(
+    "admin-panel-btn"
+).style.display = "none";
+
 }
 
             document.getElementById("stat-withdrawable").innerText = AppState.user.balance_trx.toFixed(8) + " TRX";
@@ -6912,12 +6981,11 @@ document
 
         document.getElementById("admin-panel-btn").addEventListener("click", async () => {
 
-            if (AppState.user.telegram_id != 5002555137) {
+            if (AppState.features?.is_admin !== true) {
 
 alert("Acceso denegado");
 
 return;
-
 }
 
 document.querySelectorAll(".tab-content")

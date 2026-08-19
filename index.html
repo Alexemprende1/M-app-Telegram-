@@ -10533,102 +10533,96 @@ miningLiveProfit.innerText =
 }
 
 }
-
 async function claimCoupon(couponCode) {
 
-    if (!couponCode || !couponCode.trim()) {
+return withActionLock(
+    "claim-coupon",
+    async () => {
 
-alert("Introduce un código de cupón.");
-
-return;
-
-}
-
-try {
-
-    const response = await fetch(
-        `${SUPABASE_URL}/functions/v1/user-actions`,
-        {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                "apikey": SUPABASE_ANON_KEY,
-                "Authorization": `Bearer ${SUPABASE_ANON_KEY}`
-            },
-            body: JSON.stringify({
-                initData: AppState.tgInitData,
-                action: "claim_coupon",
-                params: {
-                    p_coupon_code: couponCode
-                }
-            })
+        if (!couponCode || !couponCode.trim()) {
+            alert("Introduce un código de cupón.");
+            return;
         }
-    );
 
-    const data = await response.json();
+        try {
+            const response = await fetch(
+                `${SUPABASE_URL}/functions/v1/user-actions`,
+                {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "apikey": SUPABASE_ANON_KEY,
+                        "Authorization": `Bearer ${SUPABASE_ANON_KEY}`
+                    },
+                    body: JSON.stringify({
+                        initData: AppState.tgInitData,
+                        action: "claim_coupon",
+                        params: {
+                            p_coupon_code: couponCode
+                        }
+                    })
+                }
+            );
 
-    const error =
-        !response.ok
-            ? data
-            : null;
+            const data = await response.json();
 
-    if (error || !data?.success) {
+            const error =
+                !response.ok
+                    ? data
+                    : null;
 
-        alert(
-            data?.message ||
-            "No fue posible canjear el cupón."
-        );
+            if (error || !data?.success) {
 
-        return;
+                alert(
+                    data?.message ||
+                    "No fue posible canjear el cupón."
+                );
+
+                return;
+            }
+
+            AudioManager.play("sound-win");
+
+            const couponModal =
+                document.getElementById(
+                    "coupon-modal"
+                );
+
+            if (couponModal) {
+                couponModal.style.display = "none";
+            }
+
+            const couponInput =
+                document.getElementById(
+                    "coupon-code"
+                );
+
+            if (couponInput) {
+                couponInput.value = "";
+            }
+
+            await syncUserSession();
+
+            refreshProfileData();
+
+            alert(
+                data.message ||
+                "✅ Cupón canjeado correctamente."
+            );
+
+        } catch (err) {
+
+            console.error(
+                "Claim Coupon:",
+                err
+            );
+
+            alert(
+                "Error de conexión."
+            );
+        }
     }
-
-    AudioManager.play("sound-win");
-
-    const couponModal =
-    document.getElementById(
-        "coupon-modal"
-    );
-
-if (couponModal){
-
-    couponModal.style.display = "none";
-
-}
-
-const couponInput =
-    document.getElementById(
-        "coupon-code"
-    );
-
-if (couponInput){
-
-    couponInput.value = "";
-
-}
-
-await syncUserSession();
-
-    refreshProfileData();
-
-    alert(
-        data.message ||
-        "✅ Cupón canjeado correctamente."
-    );
-
-
-} catch (err) {
-
-    console.error(
-        "Claim Coupon:",
-        err
-    );
-
-    alert(
-        "Error de conexión."
-    );
-
-}
-
+);
 }
 // WALLET WITHDRAWAL SYSTEM
         const copyBtn = document.getElementById("btn-copy-ref");

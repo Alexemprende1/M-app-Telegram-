@@ -5239,27 +5239,53 @@ if (!allowedActions.includes(action)) {
 // 3. CREAR INTENTO DE ANUNCIO
 // ==========================================
 
-const pending =
-    await supabaseClient.rpc(
-        "create_pending_ad_reward",
+const pendingResponse =
+    await fetch(
+        `${SUPABASE_URL}/functions/v1/user-actions`,
         {
-            p_telegram_id:
-                AppState.user.telegram_id,
+            method: "POST",
 
-            p_action:
-                action
+            headers: {
+                "Content-Type":
+                    "application/json",
+
+                "apikey":
+                    SUPABASE_ANON_KEY,
+
+                "Authorization":
+                    `Bearer ${SUPABASE_ANON_KEY}`
+            },
+
+            body: JSON.stringify({
+
+                initData:
+                    AppState.tgInitData,
+
+                action:
+                    "create_ad_attempt",
+
+                params: {
+                    p_action:
+                        action
+                }
+
+            })
         }
     );
 
 
+const pending =
+    await pendingResponse.json();
+
+
 if (
-    pending.error ||
-    !pending.data?.success
+    !pendingResponse.ok ||
+    !pending?.success
 ) {
 
     console.error(
-        "Error creando recompensa pendiente:",
-        pending.error || pending.data
+        "Error creando intento de anuncio:",
+        pending
     );
 
     return false;
@@ -5271,7 +5297,7 @@ if (
 // ==========================================
 
 const rewardId =
-    pending.data.reward_id;
+    pending.reward_id;
 
 
 if (!rewardId) {

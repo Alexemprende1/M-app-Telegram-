@@ -10803,38 +10803,84 @@ return;
 }
 
                 try {
-                    const { data, error } = await supabaseClient.rpc('create_withdrawal_secure', {
-                        p_telegram_id: AppState.user.telegram_id,
-                        p_method: method,
-                        p_address: address,
-                        p_amount: amount
-                    });
+                    const response = await fetch(
+    `${SUPABASE_URL}/functions/v1/user-actions`,
+    {
+        method: "POST",
 
-                    // PRUEBA RPC //
+        headers: {
+            "Content-Type": "application/json",
+            "apikey": SUPABASE_ANON_KEY,
+            "Authorization": `Bearer ${SUPABASE_ANON_KEY}`
+        },
 
-                    if (error) {
+        body: JSON.stringify({
+            initData: AppState.tgInitData,
 
-console.error("RPC ERROR:", error);
+            action: "create_withdrawal",
 
-alert(
-    "ERROR RPC:\n\n" +
-    JSON.stringify(error, null, 2)
+            params: {
+                p_method: method,
+                p_address: address,
+                p_amount: amount
+            }
+        })
+    }
 );
 
-return;
+const result = await response.json();
+
+
+// ==========================================
+// VALIDAR RESPUESTA DE USER-ACTIONS
+// ==========================================
+
+if (!response.ok) {
+
+    console.error(
+        "USER-ACTIONS ERROR:",
+        result
+    );
+
+    alert(
+        "ERROR AL CREAR RETIRO:\n\n" +
+        JSON.stringify(result, null, 2)
+    );
+
+    return;
 }
 
-if (!data.success) {
 
-alert(data.message);
+// ==========================================
+// VALIDAR RESULTADO DE LA RPC
+// ==========================================
 
-return;
+if (!result?.success) {
+
+    console.error(
+        "CREATE WITHDRAWAL ERROR:",
+        result
+    );
+
+    alert(
+        result?.message ||
+        "No se pudo crear la solicitud de retiro."
+    );
+
+    return;
 }
 
-console.log("RPC DATA:", data);
 
-// Si es FaucetPay, procesar automáticamente
-// Todos los retiros quedan pendientes de aprobación
+console.log(
+    "CREATE WITHDRAWAL DATA:",
+    result
+);
+
+
+// ==========================================
+// RETIRO CREADO CORRECTAMENTE
+// ==========================================
+
 alert(
     "✅ Solicitud de retiro enviada correctamente.\n\n" +
     "Tu retiro está pendiente de aprobación por el administrador."
@@ -10845,7 +10891,18 @@ newForm.reset();
 await refreshProfileData();
 
 await loadWithdrawHistory();
-                } catch(err){ console.error(err); }
+} catch (err) {
+
+console.error(
+    "ERROR EN CREATE WITHDRAWAL:",
+    err
+);
+
+alert(
+    "❌ No se pudo procesar la solicitud de retiro.\n\n" +
+    "Inténtalo nuevamente."
+);
+}
             });
         }
     </script>

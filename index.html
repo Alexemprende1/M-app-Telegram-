@@ -9,106 +9,7 @@
 
 <script>
 
-async function initAdminConsole() {
-
-try {
-
-    if (!AppState.tgInitData) {
-
-        console.warn(
-            "CHECK ADMIN: No existe tgInitData."
-        );
-
-        AppState.features.is_admin = false;
-
-        return false;
-    }
-
-    const response = await fetch(
-        `${SUPABASE_URL}/functions/v1/user-actions`,
-        {
-            method: "POST",
-
-            headers: {
-                "Content-Type": "application/json",
-                "apikey": SUPABASE_ANON_KEY,
-                "Authorization":
-                    `Bearer ${SUPABASE_ANON_KEY}`
-            },
-
-            body: JSON.stringify({
-
-                initData:
-                    AppState.tgInitData,
-
-                action:
-                    "check_admin",
-
-                params: {}
-            })
-        }
-    );
-
-    const data =
-        await response.json();
-
-    console.log(
-        "HTTP STATUS CHECK ADMIN:",
-        response.status
-    );
-
-    console.log(
-        "CHECK ADMIN:",
-        data
-    );
-
-    if (
-        !response.ok ||
-        !data?.success
-    ) {
-
-        AppState.features.is_admin = false;
-
-        console.warn(
-            "CHECK ADMIN rechazado:",
-            data
-        );
-
-        return false;
-    }
-
-    AppState.features.is_admin =
-        data.is_admin === true;
-
-    if (AppState.features.is_admin) {
-
-        eruda.init();
-
-        console.log(
-            "✅ Usuario autenticado como administrador."
-        );
-
-    } else {
-
-        console.log(
-            "ℹ️ Usuario autenticado como usuario normal."
-        );
-    }
-
-    return AppState.features.is_admin;
-
-} catch (error) {
-
-    AppState.features.is_admin = false;
-
-    console.error(
-        "❌ ERROR CHECK ADMIN:",
-        error
-    );
-
-    return false;
-}
-}
+eruda.init();
 
 </script>
 
@@ -4104,7 +4005,6 @@ user: null,
 features: {
 
     success: false,
-    is_admin: false,
     premium_mining: false
 
 },
@@ -4208,12 +4108,8 @@ try {
 
     }
 
-const currentIsAdmin =
-    AppState.features?.is_admin === true;
-
 AppState.features = {
     ...data,
-    is_admin: currentIsAdmin
 };
 
 applyFeatureFlags();
@@ -4827,7 +4723,7 @@ if (!referralStatsError && referralStats?.success) {
                 }
 
                 
-await initAdminConsole();
+
 
 try {
 

@@ -7,12 +7,6 @@
     
     <script src="https://cdn.jsdelivr.net/npm/eruda"></script>
 
-<script>
-
-eruda.init();
-
-</script>
-
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src='//libtl.com/sdk.js' data-zone='11148552' data-sdk='show_11148552'></script>
@@ -4977,6 +4971,92 @@ return;
 }
         }
 
+        // =====================================================
+// 🛠️ ERUDA — SOLO ADMINISTRADOR
+// =====================================================
+
+async function initAdminEruda() {
+
+try {
+
+    if (!AppState.tgInitData) {
+
+        console.warn(
+            "CHECK ADMIN: No existe tgInitData."
+        );
+
+        return false;
+    }
+
+    const response = await fetch(
+        `${SUPABASE_URL}/functions/v1/user-actions`,
+        {
+            method: "POST",
+
+            headers: {
+                "Content-Type": "application/json",
+                "apikey": SUPABASE_ANON_KEY,
+                "Authorization":
+                    `Bearer ${SUPABASE_ANON_KEY}`
+            },
+
+            body: JSON.stringify({
+
+                initData:
+                    AppState.tgInitData,
+
+                action:
+                    "check_admin",
+
+                params: {}
+            })
+        }
+    );
+
+    const data =
+        await response.json();
+
+    if (
+        !response.ok ||
+        !data?.success
+    ) {
+
+        console.warn(
+            "CHECK ADMIN rechazado:",
+            data
+        );
+
+        return false;
+    }
+
+    if (data.is_admin === true) {
+
+        eruda.init();
+
+        console.log(
+            "🛠️ Eruda habilitada para administrador."
+        );
+
+        return true;
+    }
+
+    console.log(
+        "ℹ️ Usuario normal: Eruda no habilitada."
+    );
+
+    return false;
+
+} catch (error) {
+
+    console.error(
+        "❌ Error comprobando administrador:",
+        error
+    );
+
+    return false;
+}
+}
+
         // Hook de inicialización unificado
         document.addEventListener("DOMContentLoaded", async () => {
             if (tg.ready) tg.ready();
@@ -5004,8 +5084,12 @@ if (auth.success) {
 
 AppState.authUser = auth.user;
 
-console.log("USUARIO AUTENTICADO:", auth.user);
-console.log("TELEGRAM ID:", auth.user.id);
+console.log(
+    "USUARIO AUTENTICADO:",
+    auth.user
+);
+
+await initAdminEruda();
 
 }
 

@@ -4582,19 +4582,151 @@ return;
 
 }
 
-                const referrerIdStr = tg.initDataUnsafe?.start_param || null;
-                let finalReferrerId = null;
-                if (referrerIdStr && !isNaN(parseInt(referrerIdStr))) {
-                    finalReferrerId = parseInt(referrerIdStr);
-                }
+const referrerIdStr =
+    tg.initDataUnsafe?.start_param || null;
 
-                // Invocación segura al RPC existente
-                const { data, error } = await supabaseClient.rpc('init_user_tma', {
-                    p_telegram_id: tgUser.id,
-                    p_username: tgUser.username || 'sin_username',
-                    p_first_name: tgUser.first_name || 'Usuario Telegram',
-                    p_referrer_id: finalReferrerId
-                });
+let finalReferrerId = null;
+
+if (
+    referrerIdStr &&
+    !isNaN(parseInt(referrerIdStr))
+) {
+    finalReferrerId =
+        parseInt(referrerIdStr);
+}
+
+
+// ============================================================
+// 🛡️ DEVICE CHECK — VALIDACIÓN ANTI-MULTICUENTAS
+// ============================================================
+
+const deviceCheckResponse =
+    await fetch(
+        `${SUPABASE_URL}/functions/v1/device-check`,
+        {
+            method: "POST",
+
+            headers: {
+                "Content-Type":
+                    "application/json"
+            },
+
+            body: JSON.stringify({
+                initData:
+                    AppState.tgInitData
+            })
+        }
+    );
+
+
+let deviceCheck;
+
+
+try {
+
+    deviceCheck =
+        await deviceCheckResponse.json();
+
+} catch {
+
+    throw new Error(
+        "No fue posible validar el dispositivo."
+    );
+
+}
+
+
+// ============================================================
+// LA EDGE FUNCTION ES LA AUTORIDAD
+// ============================================================
+
+if (
+    !deviceCheckResponse.ok ||
+    !deviceCheck?.success
+) {
+
+    console.error(
+        "❌ Device Check rechazado:",
+        deviceCheck
+    );
+
+    throw new Error(
+        deviceCheck?.message ||
+        "No fue posible validar el dispositivo."
+    );
+
+}
+
+
+// ============================================================
+// VEREDICTO DE check_device_access
+// ============================================================
+
+const deviceVerdict =
+    deviceCheck.verdict;
+
+
+console.log(
+    "🛡️ Device Check:",
+    {
+        verdict:
+            deviceVerdict,
+
+        risk_score:
+            deviceCheck.risk_score,
+
+        reason:
+            deviceCheck.reason
+    }
+);
+
+
+// ============================================================
+// SOLO ALLOW PUEDE CONTINUAR CON init_user_tma
+// ============================================================
+
+if (
+    deviceVerdict !== "allow"
+) {
+
+    console.warn(
+        "🚫 Acceso detenido por Device Check:",
+        deviceCheck
+    );
+
+    throw new Error(
+        deviceCheck.reason ||
+        "Acceso no autorizado."
+    );
+
+}
+
+
+// ============================================================
+// AHORA SÍ: init_user_tma
+// ============================================================
+
+const {
+    data,
+    error
+} = await supabaseClient.rpc(
+    "init_user_tma",
+    {
+        p_telegram_id:
+            tgUser.id,
+
+        p_username:
+            tgUser.username ||
+            "sin_username",
+
+        p_first_name:
+            tgUser.first_name ||
+            "Usuario Telegram",
+
+        p_referrer_id:
+            finalReferrerId
+    }
+);
 
                 if (error) {
                     // Forzar carga de respaldo para evitar puntero null en el AppState
@@ -4804,42 +4936,39 @@ document.getElementById(
     "app-container"
 ).style.display = "flex";
                 
-                // Actualizar elementos dinámicos en el DOM inmediatamente
-                refreshProfileData();
-
-await loadFeatureFlags();
-
-await loadPowerMiningStatus();
-
-loadWithdrawHistory();
-
-loadWheelHistory();
-
-await loadCompletedTasks();
-
-updateWheelTimer();
-updateDailyChestTimer();
-updateWithdrawTimer();
-
-setInterval(() => {
-
-updateWheelTimer();
-updateDailyChestTimer();
-updateWithdrawTimer();
-
-}, 1000);
-                
-                await restoreMiningSession();
-
-                // Quitar pantalla de bloqueo e incorporar contenedor de la aplicación
-                document.getElementById("blocking-screen").style.display = "none";
-                document.getElementById("app-container").style.display = "flex";
 
             } catch (err) {
-                console.error("Excepción controlada en syncUserSession:", err);
-                document.getElementById("blocking-screen").style.display = "none";
-                document.getElementById("app-container").style.display = "flex";
-            }
+
+console.error(
+    "❌ Excepción en syncUserSession:",
+    err
+);
+
+// ------------------------------------------------------------
+// NO abrir la aplicación si falla una validación de seguridad.
+// ------------------------------------------------------------
+
+document.getElementById(
+    "blocking-screen"
+).style.display = "flex";
+
+document.getElementById(
+    "app-container"
+).style.display = "none";
+
+const message =
+    err instanceof Error
+        ? err.message
+        : "No fue posible validar el acceso.";
+
+console.error(
+    "🚫 Acceso detenido:",
+    message
+);
+
+// No continuar.
+return;
+}
         }
 
         // Hook de inicialización unificado

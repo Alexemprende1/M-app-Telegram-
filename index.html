@@ -6138,43 +6138,45 @@ if (!status || !timer || !AppState.user) return;
 try {
 
     const response = await fetch(
-    `${SUPABASE_URL}/functions/v1/user-actions`,
-    {
-        method: "POST",
+        `${SUPABASE_URL}/functions/v1/user-actions`,
+        {
+            method: "POST",
 
-        headers: {
-            "Content-Type": "application/json",
-            "apikey": SUPABASE_ANON_KEY,
-            "Authorization":
-                `Bearer ${SUPABASE_ANON_KEY}`
-        },
+            headers: {
+                "Content-Type": "application/json",
+                "apikey": SUPABASE_ANON_KEY,
+                "Authorization":
+                    `Bearer ${SUPABASE_ANON_KEY}`
+            },
 
-        body: JSON.stringify({
-            initData:
-                AppState.tgInitData,
+            body: JSON.stringify({
+                initData:
+                    AppState.tgInitData,
 
-            action:
-                "get_withdraw_timer",
+                action:
+                    "get_withdraw_timer",
 
-            params: {}
-        })
-    }
-);
-
-const data = await response.json();
-
-if (!response.ok || !data?.success) {
-    console.error(
-        "Error get_withdraw_timer:",
-        data
+                params: {}
+            })
+        }
     );
 
-    return;
-}
+    const result = await response.json();
 
-    if (error) return;
+    if (!response.ok) {
 
-    if (data.available) {
+        console.error(
+            "Error get_withdraw_timer:",
+            result
+        );
+
+        return;
+    }
+
+    const data =
+        result?.data ?? result;
+
+    if (data?.available === true) {
 
         status.innerText =
             "🟢 Disponible";
@@ -6183,11 +6185,14 @@ if (!response.ok || !data?.success) {
             "Disponible";
 
         return;
-
     }
 
     let seconds =
-        parseInt(data.seconds);
+        parseInt(data?.seconds ?? 0, 10);
+
+    if (!Number.isFinite(seconds) || seconds < 0) {
+        seconds = 0;
+    }
 
     const hours =
         Math.floor(seconds / 3600);
@@ -6204,16 +6209,18 @@ if (!response.ok || !data?.success) {
         "🔴 En espera";
 
     timer.innerText =
-        `${hours.toString().padStart(2,"0")}:` +
-        `${minutes.toString().padStart(2,"0")}:` +
-        `${secs.toString().padStart(2,"0")}`;
+        `${hours.toString().padStart(2, "0")}:` +
+        `${minutes.toString().padStart(2, "0")}:` +
+        `${secs.toString().padStart(2, "0")}`;
 
 } catch (err) {
 
-    console.error(err);
+    console.error(
+        "Error get_withdraw_timer:",
+        err
+    );
 
 }
-
 }
 
 function updateAdsProgress() {

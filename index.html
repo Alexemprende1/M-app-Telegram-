@@ -6137,14 +6137,40 @@ if (!status || !timer || !AppState.user) return;
 
 try {
 
-const { data, error } =
-await supabaseClient.rpc(
-    "get_withdraw_timer",
+    const response = await fetch(
+    `${SUPABASE_URL}/functions/v1/user-actions`,
     {
-        p_telegram_id:
-            AppState.user.telegram_id
+        method: "POST",
+
+        headers: {
+            "Content-Type": "application/json",
+            "apikey": SUPABASE_ANON_KEY,
+            "Authorization":
+                `Bearer ${SUPABASE_ANON_KEY}`
+        },
+
+        body: JSON.stringify({
+            initData:
+                AppState.tgInitData,
+
+            action:
+                "get_withdraw_timer",
+
+            params: {}
+        })
     }
 );
+
+const data = await response.json();
+
+if (!response.ok || !data?.success) {
+    console.error(
+        "Error get_withdraw_timer:",
+        data
+    );
+
+    return;
+}
 
     if (error) return;
 
@@ -7300,14 +7326,44 @@ const container =
 
 if (!container || !AppState.user) return;
 
-const { data, error } =
-await supabaseClient.rpc(
-    "get_user_withdrawals",
+const response = await fetch(
+    `${SUPABASE_URL}/functions/v1/user-actions`,
     {
-        p_telegram_id:
-            AppState.user.telegram_id
+        method: "POST",
+
+        headers: {
+            "Content-Type": "application/json",
+            "apikey": SUPABASE_ANON_KEY,
+            "Authorization":
+                `Bearer ${SUPABASE_ANON_KEY}`
+        },
+
+        body: JSON.stringify({
+            initData:
+                AppState.tgInitData,
+
+            action:
+                "get_user_withdrawals",
+
+            params: {}
+        })
     }
 );
+
+const data = await response.json();
+
+if (!response.ok || !data?.success) {
+
+    console.error(
+        "Error get_user_withdrawals:",
+        data
+    );
+
+    container.innerHTML =
+        "Error cargando historial.";
+
+    return;
+}
 
 if (error || !data?.success) {
 

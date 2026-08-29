@@ -7372,14 +7372,6 @@ if (!response.ok || !data?.success) {
     return;
 }
 
-if (error || !data?.success) {
-
-container.innerHTML =
-    "Error cargando historial.";
-
-return;
-}
-
 const withdrawals =
 data.data || [];
 

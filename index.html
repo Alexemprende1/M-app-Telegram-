@@ -4709,22 +4709,25 @@ if (
 const {
     data,
     error
-} = await supabaseClient.rpc(
-    "init_user_tma",
+} = await supabaseClient.functions.invoke(
+    "user-actions",
     {
-        p_telegram_id:
-            tgUser.id,
+        body: {
+            initData: tgWebApp.initData,
+            action: "init_user_tma",
+            params: {
+                p_username:
+                    tgUser.username ||
+                    "sin_username",
 
-        p_username:
-            tgUser.username ||
-            "sin_username",
+                p_first_name:
+                    tgUser.first_name ||
+                    "Usuario Telegram",
 
-        p_first_name:
-            tgUser.first_name ||
-            "Usuario Telegram",
-
-        p_referrer_id:
-            finalReferrerId
+                p_referrer_id:
+                    finalReferrerId
+            }
+        }
     }
 );
 
@@ -4859,22 +4862,39 @@ if (!referralStatsError && referralStats?.success) {
 
 try {
 
-    const { error } =
-        await supabaseClient.rpc(
-            "close_all_active_games",
-            {
-                p_telegram_id:
-                    AppState.user.telegram_id
-            }
-        );
+    const response = await fetch(
+    `${SUPABASE_URL}/functions/v1/user-actions`,
+    {
+        method: "POST",
 
-    if (error) {
+        headers: {
+            "Content-Type": "application/json",
+            "apikey": SUPABASE_ANON_KEY,
+            "Authorization":
+                `Bearer ${SUPABASE_ANON_KEY}`
+        },
 
-        console.error(
-            "Error cerrando partidas activas:",
-            error
-        );
+        body: JSON.stringify({
+            initData:
+                AppState.tgInitData,
+
+            action:
+                "close_all_active_games",
+
+            params: {}
+        })
     }
+);
+
+const data = await response.json();
+
+if (!response.ok || data?.success === false) {
+
+    console.error(
+        "Error cerrando partidas activas:",
+        data
+    );
+}
 
 } catch (err) {
 
@@ -5159,17 +5179,41 @@ try {
             if (!AppState.user?.telegram_id) return;
             try {
 
-const { data, error } = await supabaseClient.rpc(
-    "recharge_batteries",
+                const response = await fetch(
+    `${SUPABASE_URL}/functions/v1/user-actions`,
     {
-        p_telegram_id: AppState.user.telegram_id
+        method: "POST",
+
+        headers: {
+            "Content-Type": "application/json",
+            "apikey": SUPABASE_ANON_KEY,
+            "Authorization":
+                `Bearer ${SUPABASE_ANON_KEY}`
+        },
+
+        body: JSON.stringify({
+            initData:
+                AppState.tgInitData,
+
+            action:
+                "recharge_batteries",
+
+            params: {}
+        })
     }
 );
 
-                if (error) {
-                    console.error("Error en recharge_batteries:", error);
-                    return;
-                }
+const data = await response.json();
+
+if (!response.ok || data?.success === false) {
+
+    console.error(
+        "Error en recharge_batteries:",
+        data
+    );
+
+    return;
+}
 
                 const batteries = parseBatteriesFromRpc(data);
                 if (batteries !== null && !isNaN(batteries)) {
@@ -9638,16 +9682,41 @@ if ((AppState.user.mining_booster_x2 || 0) > 0) {
 
 }
 
-const { data, error } = await supabaseClient.rpc(
-    'start_mining_tma',
+const response = await fetch(
+    `${SUPABASE_URL}/functions/v1/user-actions`,
     {
-        p_telegram_id: AppState.user.telegram_id,
-        p_use_booster: useBooster
+        method: "POST",
+
+        headers: {
+            "Content-Type": "application/json",
+            "apikey": SUPABASE_ANON_KEY,
+            "Authorization":
+                `Bearer ${SUPABASE_ANON_KEY}`
+        },
+
+        body: JSON.stringify({
+            initData:
+                AppState.tgInitData,
+
+            action:
+                "start_mining_tma",
+
+            params: {
+                p_use_booster:
+                    useBooster
+            }
+        })
     }
 );
 
-        if (error || !data?.success) {
-    alert(data?.message || "No puedes minar ahora mismo.");
+const data = await response.json();
+
+if (!response.ok || !data?.success) {
+    alert(
+        data?.message ||
+        "No puedes minar ahora mismo."
+    );
+
     btnMiningAction.disabled = false;
     return;
 }

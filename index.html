@@ -6047,173 +6047,141 @@ if (boosterCounter) {
         `${seconds.toString().padStart(2,'0')}`;
 }
 
-function updateDailyChestTimer() {
+async function loadUserWithdrawals() {
 
-const status =
-    document.getElementById("daily-chest-status");
+const container =
+    document.getElementById("withdrawals-container");
 
-const timer =
-    document.getElementById("daily-chest-timer");
-
-const button =
-    document.getElementById("btn-daily-chest");
-
-if (
-    !AppState.user?.last_daily_chest_at
-) {
-
-    status.innerText = "🟢 Disponible";
-    timer.innerText = "Disponible";
-    button.disabled = false;
-button.innerText = "📦 Abrir Cofre";
-
-    return;
-
-}
-
-const last =
-    new Date(
-        AppState.user.last_daily_chest_at
-    ).getTime();
-
-const next =
-    last + (24 * 60 * 60 * 1000);
-
-const remaining =
-    next - Date.now();
-
-if (remaining <= 0) {
-
-    status.innerText = "🟢 Disponible";
-    timer.innerText = "Disponible";
-    button.disabled = false;
-
-    return;
-
-}
-
-const hours =
-    Math.floor(remaining / 3600000);
-
-const minutes =
-    Math.floor(
-        (remaining % 3600000) / 60000
-    );
-
-const seconds =
-    Math.floor(
-        (remaining % 60000) / 1000
-    );
-
-    status.innerText = "🔴 En espera";
-
-timer.innerText =
-    `${hours.toString().padStart(2,'0')}:` +
-    `${minutes.toString().padStart(2,'0')}:` +
-    `${seconds.toString().padStart(2,'0')}`;
-
-button.disabled = true;
-
-document
-.querySelector(".daily-chest-card")
-?.classList.remove("available");
-
-button.innerText =
-    `⏳ ${hours.toString().padStart(2,'0')}:` +
-    `${minutes.toString().padStart(2,'0')}:` +
-    `${seconds.toString().padStart(2,'0')}`;
-
-}
-
-async function updateWithdrawTimer() {
-
-const status =
-    document.getElementById("withdraw-status");
-
-const timer =
-    document.getElementById("withdraw-timer");
-
-if (!status || !timer || !AppState.user) return;
+if (!container) return;
 
 try {
 
     const response = await fetch(
-    `${SUPABASE_URL}/functions/v1/user-actions`,
-    {
-        method: "POST",
+        `${SUPABASE_URL}/functions/v1/user-actions`,
+        {
+            method: "POST",
 
-        headers: {
-            "Content-Type": "application/json",
-            "apikey": SUPABASE_ANON_KEY,
-            "Authorization":
-                `Bearer ${SUPABASE_ANON_KEY}`
-        },
+            headers: {
+                "Content-Type": "application/json",
+                "apikey": SUPABASE_ANON_KEY,
+                "Authorization":
+                    `Bearer ${SUPABASE_ANON_KEY}`
+            },
 
-        body: JSON.stringify({
-            initData:
-                AppState.tgInitData,
+            body: JSON.stringify({
+                initData:
+                    AppState.tgInitData,
 
-            action:
-                "get_withdraw_timer",
+                action:
+                    "get_user_withdrawals",
 
-            params: {}
-        })
-    }
-);
-
-const data = await response.json();
-
-if (!response.ok || !data?.success) {
-    console.error(
-        "Error get_withdraw_timer:",
-        data
+                params: {}
+            })
+        }
     );
 
-    return;
-}
+    const result = await response.json();
 
-    if (error) return;
+    if (!response.ok) {
 
-    if (data.available) {
+        console.error(
+            "Error get_user_withdrawals:",
+            result
+        );
 
-        status.innerText =
-            "🟢 Disponible";
-
-        timer.innerText =
-            "Disponible";
+        container.innerHTML =
+            "Error cargando historial.";
 
         return;
-
     }
 
-    let seconds =
-        parseInt(data.seconds);
+    const payload =
+        result?.data ?? result;
 
-    const hours =
-        Math.floor(seconds / 3600);
+    const withdrawals =
+        Array.isArray(payload)
+            ? payload
+            : (payload?.data || []);
 
-    seconds %= 3600;
+    if (
+        !withdrawals ||
+        withdrawals.length === 0
+    ) {
 
-    const minutes =
-        Math.floor(seconds / 60);
+        container.innerHTML =
+            "Aún no tienes retiros.";
 
-    const secs =
-        seconds % 60;
+        return;
+    }
 
-    status.innerText =
-        "🔴 En espera";
+    container.innerHTML =
+        withdrawals.map(w => `
 
-    timer.innerText =
-        `${hours.toString().padStart(2,"0")}:` +
-        `${minutes.toString().padStart(2,"0")}:` +
-        `${secs.toString().padStart(2,"0")}`;
+<div class="card">
+
+<b>📅 Fecha:</b>
+${new Date(w.created_at)
+.toLocaleString("es-ES")}
+
+<br>
+
+<b>🏦 Método:</b>
+${w.method === "faucetpay"
+? "🟢 FaucetPay"
+: "🔵 TRC20"}
+
+<br>
+
+<b>📍 Destino:</b>
+${w.address}
+
+<br>
+
+<b>💸 Monto:</b>
+${w.amount} TRX
+
+<br>
+
+<b>Estado:</b>
+
+<span style="
+font-weight:bold;
+color:
+${w.status === "pending"
+? "#f6a609"
+: w.status === "completed"
+? "#00d084"
+: "#ff4d4f"};
+">
+
+${w.status === "pending"
+? "🟡 Pending"
+: ""}
+
+${w.status === "completed"
+? "🟢 Completed"
+: ""}
+
+${w.status === "rejected"
+? "🔴 Rejected"
+: ""}
+
+</span>
+
+</div>
+
+`).join("");
 
 } catch (err) {
 
-    console.error(err);
+    console.error(
+        "Error get_user_withdrawals:",
+        err
+    );
 
+    container.innerHTML =
+        "Error cargando historial.";
 }
-
 }
 
 function updateAdsProgress() {

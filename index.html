@@ -4002,6 +4002,9 @@ Crea tu cuenta gratuita en FaucetPay y comienza a cobrar tus recompensas en minu
 
 user: null,
 
+timersIntervalId: null,
+withdrawTimerLoading: false,
+
 features: {
 
     success: false,
@@ -4946,15 +4949,19 @@ updateDailyChestTimer();
 
 updateWithdrawTimer();
 
-setInterval(() => {
+if (!AppState.timersIntervalId) {
 
-    updateWheelTimer();
+    AppState.timersIntervalId = setInterval(() => {
 
-    updateDailyChestTimer();
+        updateWheelTimer();
 
-    updateWithdrawTimer();
+        updateDailyChestTimer();
 
-}, 1000);
+        updateWithdrawTimer();
+
+    }, 1000);
+
+}
 
 await restoreMiningSession();
 
@@ -6127,13 +6134,19 @@ button.innerText =
 
 async function updateWithdrawTimer() {
 
+if (AppState.withdrawTimerLoading) return;
+AppState.withdrawTimerLoading = true;
+
 const status =
     document.getElementById("withdraw-status");
 
 const timer =
     document.getElementById("withdraw-timer");
 
-if (!status || !timer || !AppState.user) return;
+if (!status || !timer || !AppState.user) {
+    AppState.withdrawTimerLoading = false;
+    return;
+}
 
 try {
 
@@ -6213,14 +6226,19 @@ try {
         `${minutes.toString().padStart(2, "0")}:` +
         `${secs.toString().padStart(2, "0")}`;
 
-} catch (err) {
+    } catch (err) {
 
-    console.error(
-        "Error get_withdraw_timer:",
-        err
-    );
+console.error(
+    "Error get_withdraw_timer:",
+    err
+);
+
+} finally {
+
+AppState.withdrawTimerLoading = false;
 
 }
+
 }
 
 function updateAdsProgress() {

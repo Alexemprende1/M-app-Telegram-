@@ -4684,11 +4684,31 @@ if (
         deviceCheck
     );
 
-    throw new Error(
-        deviceCheck?.message ||
-        "No fue posible validar el dispositivo."
-    );
+    const deviceCheckError =
+        new Error(
+            deviceCheck?.message ||
+            "No fue posible validar el dispositivo."
+        );
 
+    // --------------------------------------------------------
+    // 401 = Init Data inválido, ausente o expirado.
+    // NO es una prueba de multicuentas.
+    // --------------------------------------------------------
+
+    if (
+        deviceCheckResponse.status === 401
+    ) {
+
+        deviceCheckError.code =
+            "TELEGRAM_SESSION_ERROR";
+
+    } else {
+
+        deviceCheckError.code =
+            "DEVICE_CHECK_ERROR";
+    }
+
+    throw deviceCheckError;
 }
 
 

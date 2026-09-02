@@ -5641,81 +5641,84 @@ async function waitForAdVerification() {
 
 try {
 
-    if (
-        typeof TreasureX5Ad !==
-        "undefined"
-    ) {
+const adController =
+    AdsControllers[action];
 
-        const result =
-            await TreasureX5Ad.show();
+if (
+    !adController ||
+    typeof adController.show !== "function"
+) {
 
+    console.error(
+        "No existe controlador AdsGram para la acción:",
+        action
+    );
+
+    return false;
+}
+
+const result =
+    await adController.show();
+
+console.log(
+    "AdsGram resultado:",
+    result
+);
+
+if (result?.done) {
+
+    console.log(
+        "⏳ AdsGram terminó. " +
+        "Esperando verificación del servidor...",
+        {
+            rewardId,
+            action
+        }
+    );
+
+    // ==========================================
+    // NO CONFIAR EN done:true
+    // ==========================================
+
+    const verified =
+        await waitForAdVerification();
+
+    if (verified) {
 
         console.log(
-            "AdsGram resultado:",
-            result
-        );
-
-
-        if (result?.done) {
-
-            console.log(
-                "⏳ AdsGram terminó. " +
-                "Esperando verificación del servidor...",
-                {
-                    rewardId,
-                    action
-                }
-            );
-
-
-            // ==========================================
-            // NO CONFIAR EN done:true
-            // ==========================================
-
-            const verified =
-                await waitForAdVerification();
-
-
-            if (verified) {
-
-                console.log(
-                    "🛡️ AdsGram autorizado " +
-                    "por backend.",
-                    {
-                        rewardId,
-                        action
-                    }
-                );
-
-                return true;
+            "🛡️ AdsGram autorizado " +
+            "por backend.",
+            {
+                rewardId,
+                action
             }
-
-
-            console.warn(
-                "❌ AdsGram no fue verificado " +
-                "por el backend.",
-                {
-                    rewardId,
-                    action
-                }
-            );
-
-            return false;
-        }
-
-
-        console.warn(
-            "AdsGram cancelado."
         );
 
+        return true;
     }
+
+    console.warn(
+        "❌ AdsGram no fue verificado " +
+        "por el backend.",
+        {
+            rewardId,
+            action
+        }
+    );
+
+    return false;
+}
+
+console.warn(
+    "AdsGram cancelado."
+);
 
 } catch (err) {
 
-    console.warn(
-        "AdsGram sin anuncios:",
-        err
-    );
+console.warn(
+    "AdsGram sin anuncios:",
+    err
+);
 
 }
 
@@ -6348,14 +6351,53 @@ if (lastGoal) {
 let treasureFound = 0;
 let treasureReward = 0;
 
-const TreasureX5Ad =
-    window.Adsgram.init({
-        blockId: "45674"
-    });
+// ======================================================
+// CONTROLADORES ADSGRAM POR ACCIÓN
+// ======================================================
 
-    console.log(
-    "AdsGram cargado",
-    TreasureX5Ad
+const AdsControllers = {
+
+mining: window.Adsgram.init({
+    blockId: "35750"
+}),
+
+daily_chest: window.Adsgram.init({
+    blockId: "45674"
+}),
+
+treasure_x5: window.Adsgram.init({
+    blockId: "45675"
+}),
+
+ticket_ad: window.Adsgram.init({
+    blockId: "45676"
+}),
+
+mining_booster: window.Adsgram.init({
+    blockId: "45677"
+}),
+
+spin: window.Adsgram.init({
+    blockId: "45679"
+}),
+
+mines_x8: window.Adsgram.init({
+    blockId: "45680"
+}),
+
+mines_rescue: window.Adsgram.init({
+    blockId: "45681"
+}),
+
+mines_detector: window.Adsgram.init({
+    blockId: "45682"
+})
+
+};
+
+console.log(
+"AdsGram controladores cargados:",
+AdsControllers
 );
 
 function showGame(game) {

@@ -2490,14 +2490,19 @@ cursor:pointer;
     </div>
 
     <div id="blocking-screen" style="display:none;">
-        <h2 style="color:var(--danger-color); margin-bottom:10px;">
+
+        <h2
+            id="blocking-screen-title"
+            style="color:var(--danger-color); margin-bottom:10px;"
+        >
             🔒 Acceso restringido
         </h2>
     
-        <p>
+        <p id="blocking-screen-message">
             El sistema detectó la creación de múltiples cuentas.
             Por seguridad, solo se permite una cuenta por persona.
         </p>
+    
     </div>
 
     <div id="app-container">
@@ -4058,6 +4063,31 @@ activeTab: "tab-profile",
             batteryTimer: { intervalId: null, batteryUpdatedAt: null }
         };
 
+        // ============================================================
+// GESTOR CENTRAL DE TELEGRAM INIT DATA
+// ============================================================
+
+function getTelegramInitData() {
+
+const currentInitData =
+    typeof tg?.initData === "string"
+        ? tg.initData.trim()
+        : "";
+
+if (!currentInitData) {
+
+    throw new Error(
+        "No fue posible obtener los datos de sesión de Telegram."
+    );
+
+}
+
+AppState.tgInitData =
+    currentInitData;
+
+return currentInitData;
+}
+
         const BATTERY_RECHARGE_SECONDS = 30 * 60;
         const BATTERY_MAX = 6;
 
@@ -4473,9 +4503,12 @@ const response = await fetch(
             "Authorization": `Bearer ${SUPABASE_ANON_KEY}`
         },
         body: JSON.stringify({
-            initData: AppState.tgInitData,
-            action: rpcName
-        })
+    initData:
+        getTelegramInitData(),
+
+    action:
+        rpcName
+})
     }
 );
 
@@ -4603,23 +4636,21 @@ if (
 // 🛡️ DEVICE CHECK — VALIDACIÓN ANTI-MULTICUENTAS
 // ============================================================
 
-const deviceCheckResponse =
-    await fetch(
-        `${SUPABASE_URL}/functions/v1/device-check`,
-        {
-            method: "POST",
+const telegramInitData =
+    getTelegramInitData();
 
-            headers: {
-                "Content-Type":
-                    "application/json"
-            },
-
-            body: JSON.stringify({
-                initData:
-                    AppState.tgInitData
-            })
-        }
-    );
+const deviceCheckResponse = await fetch(
+    `${SUPABASE_URL}/functions/v1/device-check`,
+    {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+            initData: telegramInitData
+        })
+    }
+);
 
 
 let deviceCheck;
@@ -4697,11 +4728,38 @@ if (
         deviceCheck
     );
 
-    throw new Error(
-        deviceCheck.reason ||
-        "Acceso no autorizado."
-    );
+    const accessError =
+        new Error(
+            deviceCheck.reason ||
+            "Acceso no autorizado."
+        );
 
+    // --------------------------------------------------------
+    // El servidor ya determinó el motivo.
+    // No alteramos el verdict ni la lógica de seguridad.
+    // --------------------------------------------------------
+
+    if (
+        deviceVerdict === "deny"
+    ) {
+
+        accessError.code =
+            "MULTI_ACCOUNT_RESTRICTION";
+
+    } else if (
+        deviceVerdict === "review"
+    ) {
+
+        accessError.code =
+            "SECURITY_REVIEW";
+
+    } else {
+
+        accessError.code =
+            "DEVICE_ACCESS_DENIED";
+    }
+
+    throw accessError;
 }
 
 
@@ -4716,8 +4774,12 @@ const {
     "user-actions",
     {
         body: {
-            initData: AppState.tgInitData,
-            action: "init_user_tma",
+            initData:
+                telegramInitData,
+
+            action:
+                "init_user_tma",
+
             params: {
                 p_username:
                     tgUser.username ||
@@ -4888,14 +4950,14 @@ try {
         },
 
         body: JSON.stringify({
-            initData:
-                AppState.tgInitData,
+    initData:
+        telegramInitData,
 
-            action:
-                "close_all_active_games",
+    action:
+        "close_all_active_games",
 
-            params: {}
-        })
+    params: {}
+})
     }
 );
 
@@ -4974,7 +5036,7 @@ document.getElementById(
 ).style.display = "flex";
                 
 
-            } catch (err) {
+} catch (err) {
 
 console.error(
     "❌ Excepción en syncUserSession:",
@@ -4993,14 +5055,127 @@ document.getElementById(
     "app-container"
 ).style.display = "none";
 
-const message =
+const blockingTitle =
+    document.getElementById(
+        "blocking-screen-title"
+    );
+
+const blockingMessage =
+    document.getElementById(
+        "blocking-screen-message"
+    );
+
+const errorCode =
+    err?.code || "UNKNOWN_ERROR";
+
+const errorMessage =
     err instanceof Error
         ? err.message
         : "No fue posible validar el acceso.";
 
+// ------------------------------------------------------------
+// 1. RESTRICCIÓN REAL POR DEVICE CHECK
+// ------------------------------------------------------------
+
+if (
+    errorCode ===
+    "MULTI_ACCOUNT_RESTRICTION"
+) {
+
+    if (blockingTitle) {
+        blockingTitle.textContent =
+            "🔒 Acceso restringido";
+    }
+
+    if (blockingMessage) {
+        blockingMessage.textContent =
+            "El sistema detectó una restricción de seguridad asociada a este dispositivo o entorno. Por seguridad, el acceso ha sido bloqueado.";
+    }
+}
+
+// ------------------------------------------------------------
+// 2. REVISIÓN DE SEGURIDAD
+// ------------------------------------------------------------
+
+else if (
+    errorCode ===
+    "SECURITY_REVIEW"
+) {
+
+    if (blockingTitle) {
+        blockingTitle.textContent =
+            "🛡️ Acceso en revisión";
+    }
+
+    if (blockingMessage) {
+        blockingMessage.textContent =
+            "Tu acceso requiere una revisión de seguridad. Por favor, intenta nuevamente más tarde.";
+    }
+}
+
+// ------------------------------------------------------------
+// 3. INIT DATA DE TELEGRAM INVÁLIDO O EXPIRADO
+// ------------------------------------------------------------
+
+else if (
+    errorCode ===
+    "TELEGRAM_SESSION_ERROR"
+) {
+
+    if (blockingTitle) {
+        blockingTitle.textContent =
+            "🔄 Sesión de Telegram";
+    }
+
+    if (blockingMessage) {
+        blockingMessage.textContent =
+            "La sesión de Telegram ya no es válida o ha expirado. Cierra y vuelve a abrir la Mini App desde Telegram.";
+    }
+}
+
+// ------------------------------------------------------------
+// 4. OTRO ERROR DEL DEVICE CHECK
+// ------------------------------------------------------------
+
+else if (
+    errorCode ===
+    "DEVICE_CHECK_ERROR"
+) {
+
+    if (blockingTitle) {
+        blockingTitle.textContent =
+            "⚠️ Validación temporal";
+    }
+
+    if (blockingMessage) {
+        blockingMessage.textContent =
+            "No fue posible completar la validación de seguridad en este momento. Intenta nuevamente más tarde.";
+    }
+}
+
+// ------------------------------------------------------------
+// 5. OTRO TIPO DE ERROR
+// ------------------------------------------------------------
+
+else {
+
+    if (blockingTitle) {
+        blockingTitle.textContent =
+            "⚠️ No fue posible continuar";
+    }
+
+    if (blockingMessage) {
+        blockingMessage.textContent =
+            "Ocurrió un problema al validar tu sesión. Cierra y vuelve a abrir la Mini App desde Telegram.";
+    }
+}
+
 console.error(
     "🚫 Acceso detenido:",
-    message
+    {
+        code: errorCode,
+        message: errorMessage
+    }
 );
 
 // No continuar.
@@ -5016,14 +5191,22 @@ async function initAdminEruda() {
 
 try {
 
-    if (!AppState.tgInitData) {
+    let telegramInitData;
 
-        console.warn(
-            "CHECK ADMIN: No existe tgInitData."
-        );
+try {
 
-        return false;
-    }
+    telegramInitData =
+        getTelegramInitData();
+
+} catch (error) {
+
+    console.warn(
+        "CHECK ADMIN: No existe Telegram Init Data.",
+        error
+    );
+
+    return false;
+}
 
     const response = await fetch(
         `${SUPABASE_URL}/functions/v1/user-actions`,
@@ -5040,7 +5223,7 @@ try {
             body: JSON.stringify({
 
                 initData:
-                    AppState.tgInitData,
+    telegramInitData,
 
                 action:
                     "check_admin",
@@ -5102,7 +5285,10 @@ try {
             try {
                 // Validación RPC obligatoria existente
 
-                const response = await fetch(
+                const telegramInitData =
+    getTelegramInitData();
+
+const response = await fetch(
   "https://qszncidydwzyunbckjvm.supabase.co/functions/v1/telegram-auth",
   {
     method: "POST",
@@ -5110,7 +5296,8 @@ try {
       "Content-Type": "application/json"
     },
     body: JSON.stringify({
-      initData: AppState.tgInitData
+      initData:
+          telegramInitData
     })
   }
 );
@@ -5209,14 +5396,14 @@ try {
         },
 
         body: JSON.stringify({
-            initData:
-                AppState.tgInitData,
+    initData:
+        getTelegramInitData(),
 
-            action:
-                "recharge_batteries",
+    action:
+        "recharge_batteries",
 
-            params: {}
-        })
+    params: {}
+})
     }
 );
 
@@ -5416,19 +5603,17 @@ const pendingResponse =
             },
 
             body: JSON.stringify({
+    initData:
+        getTelegramInitData(),
 
-                initData:
-                    AppState.tgInitData,
+    action:
+        "create_ad_attempt",
 
-                action:
-                    "create_ad_attempt",
-
-                params: {
-                    p_action:
-                        action
-                }
-
-            })
+    params: {
+        p_action:
+            action
+    }
+})
         }
     );
 
@@ -5518,7 +5703,7 @@ async function waitForAdVerification() {
                         body: JSON.stringify({
 
                             initData:
-                                AppState.tgInitData,
+                            getTelegramInitData(),
 
                             action:
                                 "verify_ad_reward",
@@ -5881,7 +6066,7 @@ try {
             body: JSON.stringify({
 
                 initData:
-                    AppState.tgInitData,
+    getTelegramInitData(),
 
                 action:
                     "invalidate_reward_nonce",
@@ -6167,7 +6352,7 @@ try {
 
             body: JSON.stringify({
                 initData:
-                    AppState.tgInitData,
+                getTelegramInitData(),
 
                 action:
                     "get_withdraw_timer",
@@ -6508,7 +6693,8 @@ async function handleTreasureCellClick(
             "Authorization": `Bearer ${SUPABASE_ANON_KEY}`
         },
         body: JSON.stringify({
-            initData: AppState.tgInitData,
+            initData:
+    getTelegramInitData(),
             action: "open_treasure_cell",
             params: {
                 p_cell_id: parseInt(index)
@@ -6773,7 +6959,8 @@ document
             "Authorization": `Bearer ${SUPABASE_ANON_KEY}`
         },
         body: JSON.stringify({
-            initData: AppState.tgInitData,
+            initData:
+    getTelegramInitData(),
             action: "start_treasure_game",
             params: {
                 p_difficulty: difficulty
@@ -6896,7 +7083,7 @@ document
                     body: JSON.stringify({
 
                         initData:
-                            AppState.tgInitData,
+    getTelegramInitData(),
 
                         action:
                             "generate_reward_nonce",
@@ -6977,7 +7164,7 @@ document
                     body: JSON.stringify({
 
                         initData:
-                            AppState.tgInitData,
+                        getTelegramInitData(),
 
                         action:
                             "claim_treasure_x5",
@@ -7407,7 +7594,7 @@ const response = await fetch(
 
         body: JSON.stringify({
             initData:
-                AppState.tgInitData,
+    getTelegramInitData(),
 
             action:
                 "get_user_withdrawals",
@@ -7747,7 +7934,8 @@ error = !response.ok ? result : null;
             "Authorization": `Bearer ${SUPABASE_ANON_KEY}`
         },
         body: JSON.stringify({
-            initData: AppState.tgInitData,
+            initData:
+    getTelegramInitData(),
             action: "claim_social_task",
             params: {
                 p_task_id: id
@@ -7869,7 +8057,7 @@ btnDailyChest?.addEventListener(
                         body: JSON.stringify({
 
                             initData:
-                                AppState.tgInitData,
+                            getTelegramInitData(),
 
                             action:
                                 "generate_reward_nonce",
@@ -7946,7 +8134,7 @@ btnDailyChest?.addEventListener(
                         body: JSON.stringify({
 
                             initData:
-                                AppState.tgInitData,
+    getTelegramInitData(),
 
                             action:
                                 "claim_daily_chest",
@@ -8000,7 +8188,7 @@ btnDailyChest?.addEventListener(
                             body: JSON.stringify({
 
                                 initData:
-                                    AppState.tgInitData,
+    getTelegramInitData(),
 
                                 action:
                                     "invalidate_reward_nonce",
@@ -8332,7 +8520,7 @@ if ((AppState.user.bonus_spins || 0) > 0) {
                 body: JSON.stringify({
 
                     initData:
-                        AppState.tgInitData,
+    getTelegramInitData(),
 
                     action:
                         "generate_reward_nonce",
@@ -8397,7 +8585,8 @@ const response = await fetch(
             "Authorization": `Bearer ${SUPABASE_ANON_KEY}`
         },
         body: JSON.stringify({
-            initData: AppState.tgInitData,
+            initData:
+    getTelegramInitData(),
             action: "spin_wheel",
             params: {
     p_use_bonus_spin: usingBonusSpin,
@@ -8563,7 +8752,7 @@ try {
                 body: JSON.stringify({
 
                     initData:
-                        AppState.tgInitData,
+    getTelegramInitData(),
 
                     action:
                         "generate_reward_nonce",
@@ -8635,7 +8824,7 @@ try {
                 body: JSON.stringify({
 
                     initData:
-                        AppState.tgInitData,
+    getTelegramInitData(),
 
                     action:
                         "claim_ticket_ad",
@@ -8688,7 +8877,7 @@ try {
                     body: JSON.stringify({
 
                         initData:
-                            AppState.tgInitData,
+    getTelegramInitData(),
 
                         action:
                             "invalidate_reward_nonce",
@@ -8840,7 +9029,7 @@ try {
                 body: JSON.stringify({
 
                     initData:
-                        AppState.tgInitData,
+    getTelegramInitData(),
 
                     action:
                         "generate_reward_nonce",
@@ -8911,7 +9100,7 @@ try {
                 body: JSON.stringify({
 
                     initData:
-                        AppState.tgInitData,
+    getTelegramInitData(),
 
                     action:
                         "unlock_mine_detector",
@@ -8972,7 +9161,7 @@ try {
                 body: JSON.stringify({
 
                     initData:
-                        AppState.tgInitData,
+    getTelegramInitData(),
 
                     action:
                         "get_mine_hint",
@@ -9096,7 +9285,8 @@ async () => {
             "Authorization": `Bearer ${SUPABASE_ANON_KEY}`
         },
         body: JSON.stringify({
-            initData: AppState.tgInitData,
+            initData:
+            getTelegramInitData(),
             action: "start_mines_game",
             params: {
                 p_difficulty: difficulty
@@ -9172,7 +9362,8 @@ try {
                 "Authorization": `Bearer ${SUPABASE_ANON_KEY}`
             },
             body: JSON.stringify({
-                initData: AppState.tgInitData,
+                initData:
+    getTelegramInitData(),
                 action: "reveal_mine_cell",
                 params: {
                     p_cell_id: index
@@ -9252,7 +9443,7 @@ const nonceResponse =
             body: JSON.stringify({
 
                 initData:
-                    AppState.tgInitData,
+    getTelegramInitData(),
 
                 action:
                     "generate_reward_nonce",
@@ -9322,7 +9513,7 @@ const rescueResponse =
             body: JSON.stringify({
 
                 initData:
-                    AppState.tgInitData,
+                getTelegramInitData(),
 
                 action:
                     "use_mines_rescue",
@@ -9371,7 +9562,7 @@ const rescueData =
 
                 body: JSON.stringify({
                     initData:
-                        AppState.tgInitData,
+    getTelegramInitData(),
 
                     action:
                         "invalidate_reward_nonce",
@@ -9438,7 +9629,8 @@ const response = await fetch(
             "Authorization": `Bearer ${SUPABASE_ANON_KEY}`
         },
         body: JSON.stringify({
-            initData: AppState.tgInitData,
+            initData:
+    getTelegramInitData(),
             action: "close_mines"
         })
     }
@@ -9530,7 +9722,8 @@ resetMinesGameUI();
             "Authorization": `Bearer ${SUPABASE_ANON_KEY}`
         },
         body: JSON.stringify({
-            initData: AppState.tgInitData,
+            initData:
+    getTelegramInitData(),
             action: "cashout_mines"
         })
     }
@@ -9596,7 +9789,7 @@ try {
                 body: JSON.stringify({
 
                     initData:
-                        AppState.tgInitData,
+    getTelegramInitData(),
 
                     action:
                         "generate_reward_nonce",
@@ -9666,7 +9859,7 @@ try {
                 body: JSON.stringify({
 
                     initData:
-                        AppState.tgInitData,
+                    getTelegramInitData(),
 
                     action:
                         "cashout_mines_x8",
@@ -9821,8 +10014,7 @@ const response = await fetch(
 
         body: JSON.stringify({
             initData:
-                AppState.tgInitData,
-
+    getTelegramInitData(),
             action:
                 "start_mining_tma",
 
@@ -9935,7 +10127,7 @@ btnMiningBooster.addEventListener(
                         body: JSON.stringify({
 
                             initData:
-                                AppState.tgInitData,
+                            getTelegramInitData(),
 
                             action:
                                 "generate_reward_nonce",
@@ -10010,7 +10202,7 @@ btnMiningBooster.addEventListener(
                         body: JSON.stringify({
 
                             initData:
-                                AppState.tgInitData,
+    getTelegramInitData(),
 
                             action:
                                 "claim_mining_booster",
@@ -10236,7 +10428,7 @@ if (!adOk) {
 
                 body: JSON.stringify({
                     initData:
-                        AppState.tgInitData,
+    getTelegramInitData(),
 
                     action:
                         "generate_reward_nonce",
@@ -10303,7 +10495,7 @@ if (!adOk) {
                 body: JSON.stringify({
 
                     initData:
-                        AppState.tgInitData,
+    getTelegramInitData(),
 
                     action:
                         "claim_mining",
@@ -10545,7 +10737,8 @@ return withActionLock(
                         "Authorization": `Bearer ${SUPABASE_ANON_KEY}`
                     },
                     body: JSON.stringify({
-                        initData: AppState.tgInitData,
+                        initData:
+    getTelegramInitData(),
                         action: "claim_coupon",
                         params: {
                             p_coupon_code: couponCode
@@ -10779,7 +10972,8 @@ return;
         },
 
         body: JSON.stringify({
-            initData: AppState.tgInitData,
+            initData:
+    getTelegramInitData(),
 
             action: "create_withdrawal",
 

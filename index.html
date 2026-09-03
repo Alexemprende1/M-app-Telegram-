@@ -5572,7 +5572,7 @@ if (!AppState.user?.telegram_id) {
     return false;
 }
 
-
+}
 // ==========================================
 // 2. VALIDAR ACCIÓN
 // ==========================================
@@ -5663,11 +5663,26 @@ if (
 const rewardId =
     pending.reward_id;
 
+const monetagYmid =
+    pending.monetag_ymid;
 
 if (!rewardId) {
 
     console.error(
         "La recompensa pendiente no devolvió reward_id."
+    );
+
+    return false;
+}
+
+if (
+    !monetagYmid ||
+    typeof monetagYmid !== "string" ||
+    monetagYmid.trim() === ""
+) {
+
+    console.error(
+        "La recompensa pendiente no devolvió monetag_ymid."
     );
 
     return false;
@@ -5903,15 +5918,13 @@ if (result?.done) {
     }
 
     console.warn(
-        "❌ AdsGram no fue verificado " +
-        "por el backend.",
-        {
-            rewardId,
-            action
-        }
-    );
-
-    return false;
+    "❌ AdsGram no fue verificado " +
+    "por el backend. Continuando con Monetag...",
+    {
+        rewardId,
+        action
+    }
+);
 }
 
 console.warn(
@@ -5931,29 +5944,80 @@ console.warn(
 // ==========================================
 // 6. MONETAG
 // ==========================================
-//
-// IMPORTANTE:
-// Monetag todavía no tiene en esta arquitectura
-// una verificación backend equivalente a AdsGram.
-//
-// Por seguridad NO debemos devolver true
-// simplemente porque show_11148552() terminó.
-// ==========================================
 
-console.warn(
-    "⚠️ Monetag no puede autorizar " +
-    "esta recompensa todavía."
-);
+try {
 
+    if (
+        typeof window.show_11148552 !== "function"
+    ) {
+        console.warn(
+            "⚠️ Monetag SDK no está disponible."
+        );
 
-alert(
-    "⚠️ No hay anuncios disponibles " +
-    "con verificación segura en este momento.\n\n" +
-    "Inténtalo nuevamente dentro de unos minutos."
-);
+        return false;
+    }
 
+    console.log(
+        "📺 Mostrando anuncio Monetag...",
+        {
+            rewardId,
+            action,
+            monetagYmid
+        }
+    );
 
-return false;
+    await window.show_11148552({
+        ymid: monetagYmid,
+        requestVar: action
+    });
+
+    console.log(
+        "⏳ Monetag terminó. " +
+        "Esperando verificación del servidor...",
+        {
+            rewardId,
+            action,
+            monetagYmid
+        }
+    );
+
+    const verified =
+        await waitForAdVerification();
+
+    if (verified) {
+
+        console.log(
+            "🛡️ Monetag autorizado por backend.",
+            {
+                rewardId,
+                action,
+                monetagYmid
+            }
+        );
+
+        return true;
+    }
+
+    console.warn(
+        "❌ Monetag terminó, pero el backend " +
+        "no confirmó la recompensa.",
+        {
+            rewardId,
+            action,
+            monetagYmid
+        }
+    );
+
+    return false;
+
+} catch (err) {
+
+    console.warn(
+        "⚠️ Monetag sin anuncio o cancelado.",
+        err
+    );
+
+    return false;
 }
 
         function updateBatteryDisplay() {

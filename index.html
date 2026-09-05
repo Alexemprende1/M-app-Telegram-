@@ -8945,11 +8945,13 @@ try {
 
     btnTicketAd.disabled = true;
 
+
     // =====================================================
-    // 1. MOSTRAR Y VERIFICAR ANUNCIO
+    // 1. MOSTRAR INTERSTITIAL
     // =====================================================
 
-    const ok = await showRewardedAd("ticket_ad");
+    const ok =
+        await showInterstitialAd();
 
     if (!ok) {
 
@@ -8960,79 +8962,7 @@ try {
 
 
     // =====================================================
-    // 2. GENERAR REWARD NONCE
-    // =====================================================
-
-    const nonceResponse =
-        await fetch(
-            `${SUPABASE_URL}/functions/v1/user-actions`,
-            {
-                method: "POST",
-
-                headers: {
-                    "Content-Type": "application/json",
-                    "apikey": SUPABASE_ANON_KEY,
-                    "Authorization":
-                        `Bearer ${SUPABASE_ANON_KEY}`
-                },
-
-                body: JSON.stringify({
-
-                    initData:
-    getTelegramInitData(),
-
-                    action:
-                        "generate_reward_nonce",
-
-                    params: {
-
-                        p_action:
-                            "claim_ticket_ad"
-
-                    }
-
-                })
-            }
-        );
-
-
-    const nonceData =
-        await nonceResponse.json();
-
-
-    if (
-        !nonceResponse.ok ||
-        !nonceData?.success ||
-        !nonceData?.reward_nonce
-    ) {
-
-        console.error(
-            "❌ Error generando nonce del ticket:",
-            nonceData
-        );
-
-        alert(
-            nonceData?.message ||
-            "No fue posible autorizar el ticket."
-        );
-
-        btnTicketAd.disabled = false;
-        return;
-    }
-
-
-    const rewardNonce =
-        nonceData.reward_nonce;
-
-
-    console.log(
-        "🎟️ Nonce del ticket generado:",
-        rewardNonce
-    );
-
-
-    // =====================================================
-    // 3. RECLAMAR TICKET
+    // 2. RECLAMAR TICKET
     // =====================================================
 
     const ticketResponse =
@@ -9051,17 +8981,12 @@ try {
                 body: JSON.stringify({
 
                     initData:
-    getTelegramInitData(),
+                        getTelegramInitData(),
 
                     action:
                         "claim_ticket_ad",
 
-                    params: {
-
-                        p_reward_nonce:
-                            rewardNonce
-
-                    }
+                    params: {}
 
                 })
             }
@@ -9073,7 +8998,7 @@ try {
 
 
     // =====================================================
-    // 4. ERROR AL RECLAMAR → INVALIDAR NONCE
+    // 3. VALIDAR RESPUESTA DEL SERVIDOR
     // =====================================================
 
     if (
@@ -9086,55 +9011,6 @@ try {
             ticketData
         );
 
-
-        try {
-
-            await fetch(
-                `${SUPABASE_URL}/functions/v1/user-actions`,
-                {
-                    method: "POST",
-
-                    headers: {
-                        "Content-Type": "application/json",
-                        "apikey": SUPABASE_ANON_KEY,
-                        "Authorization":
-                            `Bearer ${SUPABASE_ANON_KEY}`
-                    },
-
-                    body: JSON.stringify({
-
-                        initData:
-    getTelegramInitData(),
-
-                        action:
-                            "invalidate_reward_nonce",
-
-                        params: {
-
-                            p_action:
-                                "claim_ticket_ad"
-
-                        }
-
-                    })
-                }
-            );
-
-
-            console.log(
-                "🧹 Nonce de ticket invalidado después del error."
-            );
-
-        } catch (invalidateError) {
-
-            console.warn(
-                "⚠️ No se pudo invalidar inmediatamente el nonce del ticket:",
-                invalidateError
-            );
-
-        }
-
-
         alert(
             ticketData?.message ||
             "No fue posible reclamar el ticket."
@@ -9146,7 +9022,7 @@ try {
 
 
     // =====================================================
-    // 5. TICKET RECLAMADO CORRECTAMENTE
+    // 4. TICKET RECLAMADO CORRECTAMENTE
     // =====================================================
 
     console.log(
@@ -9170,7 +9046,7 @@ try {
 
 
     // =====================================================
-    // 6. MENSAJE
+    // 5. MENSAJE
     // =====================================================
 
     alert(

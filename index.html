@@ -6020,6 +6020,66 @@ try {
 
 }
 
+// ======================================================
+// SISTEMA DE ANUNCIOS INTERSTITIALES
+// ======================================================
+
+async function showInterstitialAd() {
+
+console.log(
+    "📺 Iniciando anuncio Interstitial..."
+);
+
+// ==================================================
+// 1. OBTENER CONTROLADOR ADSGRAM
+// ==================================================
+
+const adController =
+    AdsInterstitialControllers.mines;
+
+if (
+    !adController ||
+    typeof adController.show !== "function"
+) {
+
+    console.warn(
+        "⚠️ Controlador AdsGram Interstitial no disponible."
+    );
+
+    return false;
+}
+
+// ==================================================
+// 2. MOSTRAR ADSGRAM INTERSTITIAL
+// ==================================================
+
+try {
+
+    console.log(
+        "📺 Mostrando AdsGram Interstitial..."
+    );
+
+    const result =
+        await adController.show();
+
+    console.log(
+        "✅ AdsGram Interstitial finalizado:",
+        result
+    );
+
+    return true;
+
+} catch (error) {
+
+    console.warn(
+        "⚠️ AdsGram Interstitial no disponible:",
+        error
+    );
+
+    return false;
+}
+}
+
         function updateBatteryDisplay() {
             const batteriesEl =
     document.getElementById("mines-batteries");
@@ -6667,6 +6727,23 @@ mines_detector: window.Adsgram.init({
 console.log(
 "AdsGram controladores cargados:",
 AdsControllers
+);
+
+// ======================================================
+// CONTROLADOR ADSGRAM INTERSTITIAL
+// ======================================================
+
+const AdsInterstitialControllers = {
+
+mines: window.Adsgram.init({
+    blockId: "int-46113"
+})
+
+};
+
+console.log(
+"AdsGram Interstitial cargado:",
+AdsInterstitialControllers
 );
 
 function showGame(game) {

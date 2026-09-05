@@ -9197,15 +9197,12 @@ try {
 }
 
 });
+
 // ============================================================
 // MINES DETECTOR
 // ============================================================
 
 async function useMineDetector() {
-
-// --------------------------------------------------------
-// 1. VALIDAR PARTIDA
-// --------------------------------------------------------
 
 if (!AppState.minesGame.active) {
 
@@ -9228,250 +9225,194 @@ if (detectorUsed) {
 
 try {
 
-    const ok =
-        await showRewardedAd("mines_detector");
+// --------------------------------------------------------
+// 2. MOSTRAR INTERSTITIAL
+// --------------------------------------------------------
 
-    if (!ok) {
+const ok =
+    await showInterstitialAd();
 
-        console.log(
-            "❌ Anuncio del detector no completado."
-        );
-
-        return;
-    }
-
-    const nonceResponse =
-        await fetch(
-            `${SUPABASE_URL}/functions/v1/user-actions`,
-            {
-                method: "POST",
-
-                headers: {
-                    "Content-Type": "application/json",
-                    "apikey": SUPABASE_ANON_KEY,
-                    "Authorization":
-                        `Bearer ${SUPABASE_ANON_KEY}`
-                },
-
-                body: JSON.stringify({
-
-                    initData:
-    getTelegramInitData(),
-
-                    action:
-                        "generate_reward_nonce",
-
-                    params: {
-
-                        p_action:
-                            "claim_mines_detector"
-
-                    }
-
-                })
-            }
-        );
-
-
-    const nonceData =
-        await nonceResponse.json();
-
-
-    if (
-        !nonceResponse.ok ||
-        !nonceData?.success ||
-        !nonceData?.reward_nonce
-    ) {
-
-        console.error(
-            "❌ Error generando nonce del detector:",
-            nonceData
-        );
-
-        alert(
-            nonceData?.message ||
-            "No fue posible autorizar el detector."
-        );
-
-        return;
-    }
-
-
-    const rewardNonce =
-        nonceData.reward_nonce;
-
+if (!ok) {
 
     console.log(
-        "🛡️ Nonce del detector generado:",
-        rewardNonce
+        "❌ Anuncio Interstitial del detector no disponible."
+    );
+
+    return;
+}
+
+
+// --------------------------------------------------------
+// 3. AUTORIZAR DETECTOR
+// --------------------------------------------------------
+
+const unlockResponse =
+    await fetch(
+        `${SUPABASE_URL}/functions/v1/user-actions`,
+        {
+            method: "POST",
+
+            headers: {
+                "Content-Type": "application/json",
+                "apikey": SUPABASE_ANON_KEY,
+                "Authorization":
+                    `Bearer ${SUPABASE_ANON_KEY}`
+            },
+
+            body: JSON.stringify({
+
+                initData:
+                    getTelegramInitData(),
+
+                action:
+                    "unlock_mine_detector",
+
+                params: {}
+
+            })
+        }
     );
 
 
-    // ====================================================
-    // 5. AUTORIZAR DETECTOR
-    // ====================================================
-
-    const unlockResponse =
-        await fetch(
-            `${SUPABASE_URL}/functions/v1/user-actions`,
-            {
-                method: "POST",
-
-                headers: {
-                    "Content-Type": "application/json",
-                    "apikey": SUPABASE_ANON_KEY,
-                    "Authorization":
-                        `Bearer ${SUPABASE_ANON_KEY}`
-                },
-
-                body: JSON.stringify({
-
-                    initData:
-    getTelegramInitData(),
-
-                    action:
-                        "unlock_mine_detector",
-
-                    params: {
-
-                        p_reward_nonce:
-                            rewardNonce
-
-                    }
-
-                })
-            }
-        );
+const unlockData =
+    await unlockResponse.json();
 
 
-    const unlockData =
-        await unlockResponse.json();
+// --------------------------------------------------------
+// 4. VALIDAR AUTORIZACIÓN
+// --------------------------------------------------------
 
+if (
+    !unlockResponse.ok ||
+    !unlockData?.success
+) {
 
-    if (
-        !unlockResponse.ok ||
-        !unlockData?.success
-    ) {
-
-        console.error(
-            "❌ Error autorizando detector:",
-            unlockData
-        );
-
-        alert(
-            unlockData?.message ||
-            "No fue posible activar el detector."
-        );
-
-        return;
-    }
-
-
-    console.log(
-        "✅ Detector autorizado:",
+    console.error(
+        "❌ Error autorizando detector:",
         unlockData
     );
 
-    const hintResponse =
-        await fetch(
-            `${SUPABASE_URL}/functions/v1/user-actions`,
-            {
-                method: "POST",
-
-                headers: {
-                    "Content-Type": "application/json",
-                    "apikey": SUPABASE_ANON_KEY,
-                    "Authorization":
-                        `Bearer ${SUPABASE_ANON_KEY}`
-                },
-
-                body: JSON.stringify({
-
-                    initData:
-    getTelegramInitData(),
-
-                    action:
-                        "get_mine_hint",
-
-                    params: {}
-
-                })
-
-            }
-        );
-
-
-    const hintData =
-        await hintResponse.json();
-
-
-    if (
-        !hintResponse.ok ||
-        !hintData?.success
-    ) {
-
-        console.error(
-            "❌ Error obteniendo pista del detector:",
-            hintData
-        );
-
-        alert(
-            hintData?.message ||
-            "No fue posible obtener la pista."
-        );
-
-        return;
-    }
-
-    const bombCell =
-        Number(hintData.bomb_cell);
-
-
-    if (
-        !Number.isInteger(bombCell) ||
-        bombCell < 0
-    ) {
-
-        console.error(
-            "❌ bomb_cell inválido:",
-            hintData
-        );
-
-        alert(
-            "El servidor no devolvió una posición válida."
-        );
-
-        return;
-    }
-
-
-    console.log(
-        "💣 Detector encontró bomba en:",
-        bombCell
+    alert(
+        unlockData?.message ||
+        "No fue posible activar el detector."
     );
 
-    const bombElement =
-        minesGrid.querySelector(
-            `.mine-cell[data-index="${bombCell}"]`
-        );
+    return;
+}
 
 
-    if (bombElement) {
-
-        bombElement.classList.add(
-            "detector-hint"
-        );
-
-        bombElement.innerHTML =
-            "💣";
-    }
-
-    detectorUsed = true;
+console.log(
+    "✅ Detector autorizado:",
+    unlockData
+);
 
 
-    console.log(
-        "🔍 Detector utilizado correctamente."
+// --------------------------------------------------------
+// 5. OBTENER PISTA
+// --------------------------------------------------------
+
+const hintResponse =
+    await fetch(
+        `${SUPABASE_URL}/functions/v1/user-actions`,
+        {
+            method: "POST",
+
+            headers: {
+                "Content-Type": "application/json",
+                "apikey": SUPABASE_ANON_KEY,
+                "Authorization":
+                    `Bearer ${SUPABASE_ANON_KEY}`
+            },
+
+            body: JSON.stringify({
+
+                initData:
+                    getTelegramInitData(),
+
+                action:
+                    "get_mine_hint",
+
+                params: {}
+
+            })
+        }
     );
+
+
+const hintData =
+    await hintResponse.json();
+
+
+if (
+    !hintResponse.ok ||
+    !hintData?.success
+) {
+
+    console.error(
+        "❌ Error obteniendo pista del detector:",
+        hintData
+    );
+
+    alert(
+        hintData?.message ||
+        "No fue posible obtener la pista."
+    );
+
+    return;
+}
+
+
+const bombCell =
+    Number(hintData.bomb_cell);
+
+
+if (
+    !Number.isInteger(bombCell) ||
+    bombCell < 0
+) {
+
+    console.error(
+        "❌ bomb_cell inválido:",
+        hintData
+    );
+
+    alert(
+        "El servidor no devolvió una posición válida."
+    );
+
+    return;
+}
+
+
+console.log(
+    "💣 Detector encontró bomba en:",
+    bombCell
+);
+
+
+const bombElement =
+    minesGrid.querySelector(
+        `.mine-cell[data-index="${bombCell}"]`
+    );
+
+
+if (bombElement) {
+
+    bombElement.classList.add(
+        "detector-hint"
+    );
+
+    bombElement.innerHTML =
+        "💣";
+}
+
+
+detectorUsed = true;
+
+
+console.log(
+    "🔍 Detector utilizado correctamente."
+);
 
 
 } catch (error) {

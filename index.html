@@ -9642,100 +9642,101 @@ document
 
 if (!reviveUsed) {
 
-    const rescue = confirm(
-        "🚑 RESCATE MINERO\n\n" +
-        "Mira un anuncio para continuar jugando."
-    );
+const rescue = confirm(
+    "🚑 RESCATE MINERO\n\n" +
+    "Mira un anuncio para continuar jugando."
+);
 
-    if (rescue) {
+if (rescue) {
 
-// =====================================================
-// MOSTRAR INTERSTITIAL PARA RESCATE
-// =====================================================
+    // =====================================================
+    // MOSTRAR INTERSTITIAL PARA RESCATE
+    // =====================================================
 
-const ok =
-    await showInterstitialAd();
+    const ok =
+        await showInterstitialAd();
 
-if (!ok) return;
-
-
-// =====================================================
-// APLICAR RESCATE MEDIANTE USER-ACTIONS
-// =====================================================
-
-const rescueResponse =
-    await fetch(
-        `${SUPABASE_URL}/functions/v1/user-actions`,
-        {
-            method: "POST",
-
-            headers: {
-                "Content-Type": "application/json",
-                "apikey": SUPABASE_ANON_KEY,
-                "Authorization":
-                    `Bearer ${SUPABASE_ANON_KEY}`
-            },
-
-            body: JSON.stringify({
-
-                initData:
-                    getTelegramInitData(),
-
-                action:
-                    "use_mines_rescue",
-
-                params: {}
-
-            })
-        }
-    );
+    if (!ok) return;
 
 
-const rescueData =
-    await rescueResponse.json();
+    // =====================================================
+    // APLICAR RESCATE MEDIANTE USER-ACTIONS
+    // =====================================================
+
+    const rescueResponse =
+        await fetch(
+            `${SUPABASE_URL}/functions/v1/user-actions`,
+            {
+                method: "POST",
+
+                headers: {
+                    "Content-Type": "application/json",
+                    "apikey": SUPABASE_ANON_KEY,
+                    "Authorization":
+                        `Bearer ${SUPABASE_ANON_KEY}`
+                },
+
+                body: JSON.stringify({
+
+                    initData:
+                        getTelegramInitData(),
+
+                    action:
+                        "use_mines_rescue",
+
+                    params: {}
+
+                })
+            }
+        );
 
 
-// =====================================================
-// VALIDAR RESPUESTA DEL SERVIDOR
-// =====================================================
+    const rescueData =
+        await rescueResponse.json();
 
-if (
-    !rescueResponse.ok ||
-    !rescueData?.success
-) {
 
-    console.error(
-        "❌ Error aplicando rescate:",
+    // =====================================================
+    // VALIDAR RESPUESTA DEL SERVIDOR
+    // =====================================================
+
+    if (
+        !rescueResponse.ok ||
+        !rescueData?.success
+    ) {
+
+        console.error(
+            "❌ Error aplicando rescate:",
+            rescueData
+        );
+
+        alert(
+            rescueData?.message ||
+            "No fue posible aplicar el rescate."
+        );
+
+        return;
+    }
+
+
+    // =====================================================
+    // RESCATE CONFIRMADO
+    // =====================================================
+
+    console.log(
+        "✅ RESCATE MINERO AUTORIZADO:",
         rescueData
     );
 
-    alert(
-        rescueData?.message ||
-        "No fue posible aplicar el rescate."
-    );
+
+    reviveUsed = true;
+
+    cellElement.classList.remove("bomb");
+    cellElement.classList.remove("bomb-hit");
+
+    cellElement.innerHTML = "🛡️";
 
     return;
-  }
-
 }
-// =====================================================
-// RESCATE CONFIRMADO
-// =====================================================
-
-console.log(
-    "✅ RESCATE MINERO AUTORIZADO:",
-    rescueData
-);
-
-
-reviveUsed = true;
-
-cellElement.classList.remove("bomb");
-cellElement.classList.remove("bomb-hit");
-
-cellElement.innerHTML = "🛡️";
-
-return;
 }
 
 alert("💣 ¡BOMBA! Has perdido tu partida.");

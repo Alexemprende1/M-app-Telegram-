@@ -6105,14 +6105,28 @@ try {
     );
 
     const result =
-        await window.show_11148552({
+    await window.show_11148552({
 
-            type: "inApp",
+        type: "inApp",
 
-            requestVar:
-                "mines_interstitial"
+        requestVar:
+            "mines_interstitial",
 
-        });
+        inAppSettings: {
+
+            frequency: 1,
+
+            capping: 0.1,
+
+            interval: 30,
+
+            timeout: 0,
+
+            everyPage: false
+
+        }
+
+    });
 
     console.log(
         "✅ Monetag In-App Interstitial finalizado:",

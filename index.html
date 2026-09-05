@@ -6022,6 +6022,7 @@ try {
 
 // ======================================================
 // SISTEMA DE ANUNCIOS INTERSTITIALES
+// ADSGRAM → MONETAG FALLBACK
 // ======================================================
 
 async function showInterstitialAd() {
@@ -6038,32 +6039,83 @@ const adController =
     AdsInterstitialControllers.mines;
 
 if (
-    !adController ||
-    typeof adController.show !== "function"
+    adController &&
+    typeof adController.show === "function"
 ) {
+
+    try {
+
+        console.log(
+            "📺 Intentando AdsGram Interstitial..."
+        );
+
+        const result =
+            await adController.show();
+
+        console.log(
+            "✅ AdsGram Interstitial finalizado:",
+            result
+        );
+
+        return true;
+
+    } catch (error) {
+
+        console.warn(
+            "⚠️ AdsGram Interstitial falló.",
+            error
+        );
+
+        console.log(
+            "🔄 Continuando con fallback Monetag..."
+        );
+    }
+
+} else {
 
     console.warn(
         "⚠️ Controlador AdsGram Interstitial no disponible."
     );
 
-    return false;
+    console.log(
+        "🔄 Continuando con fallback Monetag..."
+    );
 }
 
+
 // ==================================================
-// 2. MOSTRAR ADSGRAM INTERSTITIAL
+// 2. FALLBACK MONETAG
 // ==================================================
 
 try {
 
+    if (
+        typeof window.show_11148552 !== "function"
+    ) {
+
+        console.warn(
+            "⚠️ Monetag SDK no está disponible."
+        );
+
+        return false;
+    }
+
     console.log(
-        "📺 Mostrando AdsGram Interstitial..."
+        "📺 Mostrando Monetag In-App Interstitial..."
     );
 
     const result =
-        await adController.show();
+        await window.show_11148552({
+
+            type: "inApp",
+
+            requestVar:
+                "mines_interstitial"
+
+        });
 
     console.log(
-        "✅ AdsGram Interstitial finalizado:",
+        "✅ Monetag In-App Interstitial finalizado:",
         result
     );
 
@@ -6072,7 +6124,7 @@ try {
 } catch (error) {
 
     console.warn(
-        "⚠️ AdsGram Interstitial no disponible:",
+        "⚠️ Monetag In-App Interstitial no disponible:",
         error
     );
 

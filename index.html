@@ -9649,79 +9649,18 @@ if (!reviveUsed) {
 
     if (rescue) {
 
-        const ok = await showRewardedAd("mines_rescue");
+// =====================================================
+// MOSTRAR INTERSTITIAL PARA RESCATE
+// =====================================================
+
+const ok =
+    await showInterstitialAd();
 
 if (!ok) return;
 
 
-const nonceResponse =
-    await fetch(
-        `${SUPABASE_URL}/functions/v1/user-actions`,
-        {
-            method: "POST",
-
-            headers: {
-                "Content-Type": "application/json",
-                "apikey": SUPABASE_ANON_KEY,
-                "Authorization":
-                    `Bearer ${SUPABASE_ANON_KEY}`
-            },
-
-            body: JSON.stringify({
-
-                initData:
-    getTelegramInitData(),
-
-                action:
-                    "generate_reward_nonce",
-
-                params: {
-
-                    p_action:
-                        "claim_mines_rescue"
-
-                }
-
-            })
-        }
-    );
-
-const nonceData =
-    await nonceResponse.json();
-
-
-    if (
-    !nonceResponse.ok ||
-    !nonceData?.success ||
-    !nonceData?.reward_nonce
-) {
-
-    console.error(
-        "❌ Error generando nonce para rescate:",
-        nonceData
-    );
-
-    alert(
-        nonceData?.message ||
-        "No fue posible autorizar el rescate. Inténtalo nuevamente."
-    );
-
-    return;
-}
-
-
-const rewardNonce =
-    nonceData.reward_nonce;
-
-
-console.log(
-    "🛡️ Nonce de rescate generado:",
-    rewardNonce
-);
-
-
 // =====================================================
-// APLICAR RESCATE 
+// APLICAR RESCATE MEDIANTE USER-ACTIONS
 // =====================================================
 
 const rescueResponse =
@@ -9740,80 +9679,35 @@ const rescueResponse =
             body: JSON.stringify({
 
                 initData:
-                getTelegramInitData(),
+                    getTelegramInitData(),
 
                 action:
                     "use_mines_rescue",
 
-                params: {
-
-                    p_reward_nonce:
-                        rewardNonce
-
-                }
+                params: {}
 
             })
         }
     );
 
+
 const rescueData =
     await rescueResponse.json();
 
 
-    if (
+// =====================================================
+// VALIDAR RESPUESTA DEL SERVIDOR
+// =====================================================
+
+if (
     !rescueResponse.ok ||
     !rescueData?.success
 ) {
+
     console.error(
         "❌ Error aplicando rescate:",
         rescueData
     );
-
-    // =====================================================
-    // INVALIDAR SOLAMENTE EL NONCE DE RESCATE
-    // =====================================================
-
-    try {
-
-        await fetch(
-            `${SUPABASE_URL}/functions/v1/user-actions`,
-            {
-                method: "POST",
-
-                headers: {
-                    "Content-Type": "application/json",
-                    "apikey": SUPABASE_ANON_KEY,
-                    "Authorization":
-                        `Bearer ${SUPABASE_ANON_KEY}`
-                },
-
-                body: JSON.stringify({
-                    initData:
-    getTelegramInitData(),
-
-                    action:
-                        "invalidate_reward_nonce",
-
-                    params: {
-                        p_action:
-                            "claim_mines_rescue"
-                    }
-                })
-            }
-        );
-
-        console.log(
-            "🧹 Nonce de rescate invalidado después del error."
-        );
-
-    } catch (invalidateError) {
-
-        console.warn(
-            "⚠️ No se pudo invalidar inmediatamente el nonce de rescate:",
-            invalidateError
-        );
-
-    }
 
     alert(
         rescueData?.message ||
@@ -9821,12 +9715,13 @@ const rescueData =
     );
 
     return;
+  }
+
 }
-
-
 // =====================================================
 // RESCATE CONFIRMADO
 // =====================================================
+
 console.log(
     "✅ RESCATE MINERO AUTORIZADO:",
     rescueData
@@ -9841,7 +9736,6 @@ cellElement.classList.remove("bomb-hit");
 cellElement.innerHTML = "🛡️";
 
 return;
-    }
 }
 
 alert("💣 ¡BOMBA! Has perdido tu partida.");

@@ -2422,6 +2422,140 @@ cursor:pointer;
 
 }
 
+/* =====================================================
+   MODAL DE RECOMPENSA DEL CUPÓN
+   ===================================================== */
+
+   .coupon-reward-modal{
+    position:fixed;
+    inset:0;
+    display:none;
+    align-items:center;
+    justify-content:center;
+    padding:20px;
+    background:rgba(8,10,18,.78);
+    backdrop-filter:blur(10px);
+    z-index:10000;
+}
+
+.coupon-reward-content{
+    position:relative;
+    width:100%;
+    max-width:420px;
+    padding:30px 24px 24px;
+    border-radius:26px;
+    text-align:center;
+    background:linear-gradient(
+        180deg,
+        #321653 0%,
+        #24103f 100%
+    );
+    border:1px solid rgba(255,255,255,.12);
+    box-shadow:
+        0 20px 50px rgba(0,0,0,.55),
+        0 0 30px rgba(168,85,247,.15);
+    animation:couponRewardAppear .25s ease-out;
+}
+
+.coupon-reward-icon{
+    width:78px;
+    height:78px;
+    margin:0 auto 16px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    border-radius:50%;
+    font-size:40px;
+    background:rgba(168,85,247,.14);
+    border:1px solid rgba(216,180,254,.25);
+    box-shadow:0 0 25px rgba(168,85,247,.18);
+}
+
+.coupon-reward-content h2{
+    margin:0 0 8px;
+    color:#fff;
+    font-size:24px;
+    font-weight:800;
+}
+
+.coupon-reward-message{
+    margin:0 0 20px;
+    color:rgba(255,255,255,.72);
+    font-size:14px;
+    line-height:1.5;
+}
+
+.coupon-reward-list{
+    display:flex;
+    flex-direction:column;
+    gap:10px;
+    margin-bottom:22px;
+}
+
+.coupon-reward-item{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:12px;
+    padding:13px 15px;
+    border-radius:15px;
+    background:rgba(255,255,255,.07);
+    border:1px solid rgba(255,255,255,.08);
+}
+
+.coupon-reward-item-label{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    color:rgba(255,255,255,.82);
+    font-size:14px;
+    font-weight:600;
+    text-align:left;
+}
+
+.coupon-reward-item-value{
+    color:#fff;
+    font-size:15px;
+    font-weight:800;
+    white-space:nowrap;
+}
+
+.coupon-reward-button{
+    width:100%;
+    min-height:48px;
+    border:none;
+    border-radius:14px;
+    cursor:pointer;
+    color:#fff;
+    font-size:15px;
+    font-weight:800;
+    background:linear-gradient(
+        135deg,
+        #8b5cf6,
+        #a855f7
+    );
+    box-shadow:0 8px 20px rgba(139,92,246,.25);
+    transition:
+        transform .15s ease,
+        opacity .15s ease;
+}
+
+.coupon-reward-button:active{
+    transform:scale(.98);
+}
+
+@keyframes couponRewardAppear{
+    from{
+        opacity:0;
+        transform:translateY(12px) scale(.97);
+    }
+
+    to{
+        opacity:1;
+        transform:translateY(0) scale(1);
+    }
+}
+
     </style>
 </head>
 <body>
@@ -3931,6 +4065,54 @@ Crea tu cuenta gratuita en FaucetPay y comienza a cobrar tus recompensas en minu
     </div>
 
 </div>
+
+<!-- =====================================================
+     MODAL DE RECOMPENSA DEL CUPÓN
+     ===================================================== -->
+
+     <div
+     id="coupon-reward-modal"
+     class="coupon-reward-modal">
+ 
+     <div
+         class="coupon-reward-content">
+ 
+         <div
+             id="coupon-reward-icon"
+             class="coupon-reward-icon">
+ 
+             🎁
+ 
+         </div>
+ 
+         <h2>
+             ¡Cupón reclamado!
+         </h2>
+ 
+         <p
+             id="coupon-reward-message"
+             class="coupon-reward-message">
+ 
+             Has recibido una recompensa.
+ 
+         </p>
+ 
+         <div
+             id="coupon-reward-list"
+             class="coupon-reward-list">
+         </div>
+ 
+         <button
+             id="btn-close-coupon-reward"
+             class="coupon-reward-button">
+ 
+             Continuar
+ 
+         </button>
+ 
+     </div>
+ 
+ </div>
         <nav class="bottom-nav">
 
             <button class="nav-item active" data-target="tab-profile">
@@ -8115,6 +8297,35 @@ if (couponCloseButton && couponModal){
 
 }
 
+/* =====================================================
+   CIERRE DEL MODAL DE RECOMPENSA DEL CUPÓN
+   ===================================================== */
+
+   const couponRewardModal =
+    document.getElementById("coupon-reward-modal");
+
+const couponRewardCloseButton =
+    document.getElementById("btn-close-coupon-reward");
+
+if (couponRewardCloseButton && couponRewardModal) {
+
+    couponRewardCloseButton.addEventListener("click", () => {
+
+        couponRewardModal.style.display = "none";
+
+    });
+
+    couponRewardModal.addEventListener("click", (event) => {
+
+        if (event.target === couponRewardModal) {
+
+            couponRewardModal.style.display = "none";
+
+        }
+
+    });
+}
+
         async function verifyTask(id) {
             const btn = document.getElementById(`btn-verify-${id}`);
             btn.innerText = "Verificando...";
@@ -10705,32 +10916,97 @@ return withActionLock(
 
             AudioManager.play("sound-win");
 
-            const couponModal =
-                document.getElementById(
-                    "coupon-modal"
-                );
+const couponModal = document.getElementById("coupon-modal");
+if (couponModal) {
+    couponModal.style.display = "none";
+}
 
-            if (couponModal) {
-                couponModal.style.display = "none";
-            }
+const couponInput = document.getElementById("coupon-code");
+if (couponInput) {
+    couponInput.value = "";
+}
 
-            const couponInput =
-                document.getElementById(
-                    "coupon-code"
-                );
+await syncUserSession();
+refreshProfileData();
 
-            if (couponInput) {
-                couponInput.value = "";
-            }
+/* =====================================================
+   MOSTRAR RECOMPENSA DEL CUPÓN
+   ===================================================== */
 
-            await syncUserSession();
+const rewardModal = document.getElementById("coupon-reward-modal");
+const rewardIcon = document.getElementById("coupon-reward-icon");
+const rewardMessage = document.getElementById("coupon-reward-message");
+const rewardList = document.getElementById("coupon-reward-list");
 
-            refreshProfileData();
+if (rewardModal && rewardList) {
 
-            alert(
-                data.message ||
-                "✅ Cupón canjeado correctamente."
-            );
+    rewardList.innerHTML = "";
+
+    const rewards = data.rewards || {};
+
+    let rewardCount = 0;
+
+    const addReward = (icon, label, value) => {
+
+        if (
+            value === undefined ||
+            value === null ||
+            Number(value) <= 0
+        ) {
+            return;
+        }
+
+        const item = document.createElement("div");
+        item.className = "coupon-reward-item";
+
+        item.innerHTML = `
+            <div class="coupon-reward-item-label">
+                <span>${icon}</span>
+                <span>${label}</span>
+            </div>
+
+            <div class="coupon-reward-item-value">
+                ${value}
+            </div>
+        `;
+
+        rewardList.appendChild(item);
+        rewardCount++;
+    };
+
+    addReward("💎", "TRX", rewards.trx);
+    addReward("🔋", "Baterías", rewards.batteries);
+    addReward("🎟️", "Tickets", rewards.tickets);
+    addReward("🎰", "Giros bonus", rewards.bonus_spins);
+    addReward("⚡", "Booster x2", rewards.booster_x2);
+    addReward("⛏️", "Energía minera", rewards.miner_energy);
+
+    if (rewardCount === 0) {
+        rewardList.innerHTML = `
+            <div class="coupon-reward-item">
+                <div class="coupon-reward-item-label">
+                    <span>🎁</span>
+                    <span>Recompensa</span>
+                </div>
+
+                <div class="coupon-reward-item-value">
+                    Recibida
+                </div>
+            </div>
+        `;
+    }
+
+    if (rewardIcon) {
+        rewardIcon.textContent = "🎉";
+    }
+
+    if (rewardMessage) {
+        rewardMessage.textContent =
+            data.message || "Has recibido las siguientes recompensas.";
+    }
+
+    rewardModal.style.display = "flex";
+}
 
         } catch (err) {
 

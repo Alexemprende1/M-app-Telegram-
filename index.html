@@ -2586,6 +2586,8 @@ cursor:pointer;
         inset 0 1px 0 rgba(255,255,255,.05);
 
     overflow:hidden;
+
+    transform-origin:top center;
 }
 
 .notification-bar{
@@ -2753,6 +2755,42 @@ cursor:pointer;
 .notification-bar-close:hover{
     background:rgba(255,255,255,.10);
     color:#ffffff;
+}
+
+/* =====================================================
+   ANIMACIÓN DE ENTRADA DE NOTIFICACIÓN
+   ===================================================== */
+
+   .notification-bar.notification-enter{
+    animation:
+        notificationSlideDown
+        .65s
+        cubic-bezier(.22,1,.36,1);
+}
+
+@keyframes notificationSlideDown{
+
+    0%{
+        opacity:0;
+        transform:
+            translateY(-28px)
+            scale(.985);
+    }
+
+    60%{
+        opacity:1;
+        transform:
+            translateY(4px)
+            scale(1);
+    }
+
+    100%{
+        opacity:1;
+        transform:
+            translateY(0)
+            scale(1);
+    }
+
 }
 
     </style>
@@ -5862,6 +5900,76 @@ try {
 
    let userNotificationsChannel = null;
 
+   /* =====================================================
+   SONIDO DE NOTIFICACIONES
+   ===================================================== */
+
+const notificationSound = new Audio(
+    "https://qszncidydwzyunbckjvm.supabase.co/storage/v1/object/public/audio/sonido%20de%20notificion.mp3"
+);
+
+notificationSound.preload = "auto";
+
+function playNotificationSound() {
+
+    try {
+
+        notificationSound.currentTime = 0;
+
+        const playPromise =
+            notificationSound.play();
+
+        if (playPromise !== undefined) {
+
+            playPromise.catch((error) => {
+
+                console.warn(
+                    "⚠️ No fue posible reproducir el sonido de notificación:",
+                    error
+                );
+
+            });
+
+        }
+
+    } catch (error) {
+
+        console.warn(
+            "⚠️ Error reproduciendo sonido de notificación:",
+            error
+        );
+
+    }
+
+}
+
+/* =====================================================
+   ANIMACIÓN DE NUEVA NOTIFICACIÓN
+   ===================================================== */
+
+   function animateNotificationBar() {
+
+const notificationBar =
+    document.getElementById("notification-bar");
+
+if (!notificationBar) {
+    return;
+}
+
+notificationBar.classList.remove(
+    "notification-enter"
+);
+
+/* Forzar reinicio de la animación */
+
+void notificationBar.offsetWidth;
+
+notificationBar.classList.add(
+    "notification-enter"
+);
+
+}
+
 function subscribeToUserNotifications() {
 
     if (!AppState.user?.telegram_id) {
@@ -5902,18 +6010,26 @@ function subscribeToUserNotifications() {
             },
             async (payload) => {
 
-                console.log(
-                    "🔔 Nueva señal de notificación recibida:",
-                    payload
-                );
+console.log(
+    "🔔 Nueva señal de notificación recibida:",
+    payload
+);
 
-                /* =================================================
-                   VOLVER A CONSULTAR AL SERVIDOR
-                   ================================================= */
+/* =================================================
+   VOLVER A CONSULTAR AL SERVIDOR
+   ================================================= */
 
-                await loadUserNotifications();
+await loadUserNotifications();
 
-            }
+/* =================================================
+   EFECTOS DE NUEVA NOTIFICACIÓN
+   ================================================= */
+
+animateNotificationBar();
+
+playNotificationSound();
+
+}
         )
         .subscribe((status) => {
 

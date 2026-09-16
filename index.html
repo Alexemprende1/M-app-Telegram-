@@ -5796,6 +5796,9 @@ try {
     const latestNotification =
         unreadNotifications[0];
 
+        notificationBar.dataset.notificationId =
+    String(latestNotification.id);
+
     notificationTitle.textContent =
         latestNotification.title ||
         "Notificación";
@@ -8689,11 +8692,90 @@ const notificationBarClose =
 
 if (notificationBar && notificationBarClose) {
 
-    notificationBarClose.addEventListener("click", () => {
+    notificationBarClose.addEventListener("click", async () => {
 
-        notificationBar.style.display = "none";
+        try {
 
-        console.log("✅ Barra de notificación cerrada.");
+            const notificationId =
+                parseInt(
+                    notificationBar.dataset.notificationId,
+                    10
+                );
+
+            if (
+                !notificationId ||
+                notificationId <= 0
+            ) {
+
+                console.error(
+                    "❌ ID de notificación inválido."
+                );
+
+                notificationBar.style.display = "none";
+
+                return;
+            }
+
+            notificationBarClose.disabled = true;
+
+            const { data, error } =
+                await supabaseClient.functions.invoke(
+                    "user-actions",
+                    {
+                        body: {
+                            initData:
+                                getTelegramInitData(),
+
+                            action:
+                                "mark_user_notification_read",
+
+                            params: {
+                                p_notification_id:
+                                    notificationId
+                            }
+                        }
+                    }
+                );
+
+            if (error) {
+
+                console.error(
+                    "❌ Error marcando notificación como leída:",
+                    error
+                );
+
+                return;
+            }
+
+            if (!data?.success) {
+
+                console.error(
+                    "❌ El servidor no pudo marcar la notificación:",
+                    data
+                );
+
+                return;
+            }
+
+            console.log(
+                "✅ Notificación marcada como leída:",
+                notificationId
+            );
+
+            notificationBar.style.display = "none";
+
+        } catch (err) {
+
+            console.error(
+                "❌ Excepción cerrando notificación:",
+                err
+            );
+
+        } finally {
+
+            notificationBarClose.disabled = false;
+
+        }
 
     });
 

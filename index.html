@@ -8558,6 +8558,28 @@ if (couponRewardCloseButton && couponRewardModal) {
     });
 }
 
+/* =====================================================
+   CIERRE DE LA BARRA DE NOTIFICACIONES
+   ===================================================== */
+
+   const notificationBar =
+    document.getElementById("notification-bar");
+
+const notificationBarClose =
+    document.getElementById("notification-bar-close");
+
+if (notificationBar && notificationBarClose) {
+
+    notificationBarClose.addEventListener("click", () => {
+
+        notificationBar.style.display = "none";
+
+        console.log("✅ Barra de notificación cerrada.");
+
+    });
+
+}
+
         async function verifyTask(id) {
             const btn = document.getElementById(`btn-verify-${id}`);
             btn.innerText = "Verificando...";

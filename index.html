@@ -5366,6 +5366,12 @@ if (!referralStatsError && referralStats?.success) {
                     };
                 }
 
+                /* =====================================================
+   CARGAR NOTIFICACIONES DEL USUARIO
+   ===================================================== */
+
+await loadUserNotifications();
+
                 
 
 
@@ -5708,6 +5714,119 @@ try {
     );
 
     return false;
+}
+}
+
+/* =====================================================
+   CARGAR NOTIFICACIONES DEL USUARIO
+   ===================================================== */
+
+   async function loadUserNotifications() {
+
+const notificationBar =
+    document.getElementById("notification-bar");
+
+const notificationTitle =
+    document.getElementById("notification-bar-title");
+
+const notificationMessage =
+    document.getElementById("notification-bar-message");
+
+const notificationCount =
+    document.getElementById("notification-bar-count");
+
+if (
+    !notificationBar ||
+    !notificationTitle ||
+    !notificationMessage ||
+    !notificationCount
+) {
+    return;
+}
+
+try {
+
+    const { data, error } =
+        await supabaseClient.functions.invoke(
+            "user-actions",
+            {
+                body: {
+                    initData:
+                        getTelegramInitData(),
+
+                    action:
+                        "get_user_notifications",
+
+                    params: {}
+                }
+            }
+        );
+
+    if (error) {
+
+        console.error(
+            "❌ Error cargando notificaciones:",
+            error
+        );
+
+        notificationBar.style.display = "none";
+
+        return;
+    }
+
+    const notifications =
+        Array.isArray(data)
+            ? data
+            : [];
+
+    const unreadNotifications =
+        notifications.filter(
+            notification =>
+                notification &&
+                notification.is_read === false
+        );
+
+    if (unreadNotifications.length === 0) {
+
+        notificationBar.style.display = "none";
+
+        return;
+    }
+
+    const latestNotification =
+        unreadNotifications[0];
+
+    notificationTitle.textContent =
+        latestNotification.title ||
+        "Notificación";
+
+    notificationMessage.textContent =
+        latestNotification.message ||
+        "Tienes una nueva notificación.";
+
+    notificationCount.textContent =
+        String(unreadNotifications.length);
+
+    notificationCount.style.display =
+        unreadNotifications.length > 1
+            ? "flex"
+            : "flex";
+
+    notificationBar.style.display = "flex";
+
+    console.log(
+        "✅ Notificaciones cargadas:",
+        unreadNotifications.length
+    );
+
+} catch (err) {
+
+    console.error(
+        "❌ Excepción cargando notificaciones:",
+        err
+    );
+
+    notificationBar.style.display = "none";
 }
 }
 

@@ -3282,56 +3282,6 @@ style="display:none;">
  
  </div>
 
- /* =====================================================
-   CERRAR DETALLE DE NOTIFICACIÓN
-   ===================================================== */
-
-const notificationDetailModal =
-    document.getElementById(
-        "notification-detail-modal"
-    );
-
-const notificationDetailClose =
-    document.getElementById(
-        "notification-detail-close"
-    );
-
-
-if (
-    notificationDetailModal &&
-    notificationDetailClose
-) {
-
-    notificationDetailClose.addEventListener(
-        "click",
-        () => {
-
-            notificationDetailModal.style.display =
-                "none";
-
-        }
-    );
-
-
-    notificationDetailModal.addEventListener(
-        "click",
-        (event) => {
-
-            if (
-                event.target ===
-                notificationDetailModal
-            ) {
-
-                notificationDetailModal.style.display =
-                    "none";
-
-            }
-
-        }
-    );
-
-}
-      
         <header class="premium-header">
 
             <div class="user-card">

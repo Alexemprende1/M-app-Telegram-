@@ -5900,7 +5900,7 @@ try {
 
    let userNotificationsChannel = null;
 
-   /* =====================================================
+  /* =====================================================
    SONIDO DE NOTIFICACIONES
    ===================================================== */
 
@@ -5910,11 +5910,103 @@ const notificationSound = new Audio(
 
 notificationSound.preload = "auto";
 
+let notificationSoundUnlocked = false;
+
+
+/* =====================================================
+   DESBLOQUEAR AUDIO MEDIANTE INTERACCIÓN DEL USUARIO
+   ===================================================== */
+
+function unlockNotificationSound() {
+
+    if (notificationSoundUnlocked) {
+        return;
+    }
+
+    try {
+
+        notificationSound.volume = 0;
+
+        const playPromise =
+            notificationSound.play();
+
+        if (playPromise !== undefined) {
+
+            playPromise
+                .then(() => {
+
+                    notificationSound.pause();
+                    notificationSound.currentTime = 0;
+                    notificationSound.volume = 1;
+
+                    notificationSoundUnlocked = true;
+
+                    console.log(
+                        "🔊 Sonido de notificaciones desbloqueado."
+                    );
+
+                })
+                .catch((error) => {
+
+                    notificationSound.volume = 1;
+
+                    console.warn(
+                        "⚠️ No se pudo desbloquear el sonido:",
+                        error
+                    );
+
+                });
+
+        }
+
+    } catch (error) {
+
+        notificationSound.volume = 1;
+
+        console.warn(
+            "⚠️ Error desbloqueando sonido:",
+            error
+        );
+
+    }
+
+}
+
+
+/* =====================================================
+   ESCUCHAR LA PRIMERA INTERACCIÓN DEL USUARIO
+   ===================================================== */
+
+document.addEventListener(
+    "pointerdown",
+    unlockNotificationSound,
+    {
+        once: true,
+        passive: true
+    }
+);
+
+
+/* =====================================================
+   REPRODUCIR SONIDO DE NUEVA NOTIFICACIÓN
+   ===================================================== */
+
 function playNotificationSound() {
+
+    if (!notificationSoundUnlocked) {
+
+        console.warn(
+            "🔇 Sonido aún no desbloqueado por interacción del usuario."
+        );
+
+        return;
+
+    }
 
     try {
 
         notificationSound.currentTime = 0;
+        notificationSound.volume = 1;
 
         const playPromise =
             notificationSound.play();

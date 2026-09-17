@@ -2691,6 +2691,173 @@ cursor:pointer;
 }
 
 /* =====================================================
+   MODAL DE DETALLE DE NOTIFICACIÓN
+   ===================================================== */
+
+   .notification-detail-modal{
+    position:fixed;
+    inset:0;
+
+    display:none;
+
+    align-items:center;
+    justify-content:center;
+
+    padding:20px;
+
+    box-sizing:border-box;
+
+    background:rgba(5,8,15,.78);
+
+    backdrop-filter:blur(10px);
+    -webkit-backdrop-filter:blur(10px);
+
+    z-index:10001;
+}
+
+.notification-detail-content{
+    position:relative;
+
+    width:100%;
+    max-width:420px;
+
+    max-height:80vh;
+
+    padding:28px 22px 22px;
+
+    box-sizing:border-box;
+
+    border-radius:24px;
+
+    background:
+        linear-gradient(
+            180deg,
+            #1b2230 0%,
+            #111722 100%
+        );
+
+    border:1px solid rgba(246,166,9,.24);
+
+    box-shadow:
+        0 24px 60px rgba(0,0,0,.55),
+        0 0 30px rgba(246,166,9,.08);
+
+    overflow-y:auto;
+
+    text-align:center;
+
+    animation:
+        notificationDetailAppear
+        .25s
+        ease-out;
+}
+
+.notification-detail-icon{
+    width:70px;
+    height:70px;
+
+    margin:0 auto 16px;
+
+    display:flex;
+    align-items:center;
+    justify-content:center;
+
+    border-radius:50%;
+
+    background:rgba(246,166,9,.10);
+
+    border:1px solid rgba(246,166,9,.20);
+
+    font-size:34px;
+
+    box-shadow:
+        0 0 24px rgba(246,166,9,.12);
+}
+
+.notification-detail-title{
+    margin:0 0 14px;
+
+    color:#ffffff;
+
+    font-size:22px;
+    font-weight:800;
+
+    line-height:1.25;
+}
+
+.notification-detail-message{
+    margin:0 0 24px;
+
+    color:#c4ccda;
+
+    font-size:15px;
+
+    line-height:1.6;
+
+    text-align:left;
+
+    white-space:pre-wrap;
+
+    overflow-wrap:anywhere;
+}
+
+.notification-detail-close{
+    width:100%;
+
+    min-height:48px;
+
+    padding:0 16px;
+
+    border:none;
+    border-radius:14px;
+
+    cursor:pointer;
+
+    color:#ffffff;
+
+    font-size:15px;
+    font-weight:800;
+
+    background:
+        linear-gradient(
+            135deg,
+            #f6a609,
+            #ffcc55
+        );
+
+    box-shadow:
+        0 8px 20px rgba(246,166,9,.20);
+
+    transition:
+        transform .15s ease,
+        opacity .15s ease;
+}
+
+.notification-detail-close:active{
+    transform:scale(.98);
+}
+
+@keyframes notificationDetailAppear{
+
+    from{
+        opacity:0;
+
+        transform:
+            translateY(12px)
+            scale(.97);
+    }
+
+    to{
+        opacity:1;
+
+        transform:
+            translateY(0)
+            scale(1);
+    }
+
+}
+
+/* =====================================================
    BARRA DE NOTIFICACIONES
    ===================================================== */
 
@@ -3065,6 +3232,105 @@ style="display:none;">
 </button>
 
 </div>
+
+<!-- =====================================================
+     MODAL DE DETALLE DE NOTIFICACIÓN
+     ===================================================== -->
+
+     <div
+     id="notification-detail-modal"
+     class="notification-detail-modal"
+     style="display:none;">
+ 
+     <div
+         class="notification-detail-content">
+ 
+         <div
+             id="notification-detail-icon"
+             class="notification-detail-icon">
+ 
+             🔔
+ 
+         </div>
+ 
+         <h2
+             id="notification-detail-title"
+             class="notification-detail-title">
+ 
+             Notificación
+ 
+         </h2>
+ 
+         <div
+             id="notification-detail-message"
+             class="notification-detail-message">
+ 
+             Tienes una nueva notificación.
+ 
+         </div>
+ 
+         <button
+             id="notification-detail-close"
+             class="notification-detail-close"
+             type="button">
+ 
+             Entendido
+ 
+         </button>
+ 
+     </div>
+ 
+ </div>
+
+ /* =====================================================
+   CERRAR DETALLE DE NOTIFICACIÓN
+   ===================================================== */
+
+const notificationDetailModal =
+    document.getElementById(
+        "notification-detail-modal"
+    );
+
+const notificationDetailClose =
+    document.getElementById(
+        "notification-detail-close"
+    );
+
+
+if (
+    notificationDetailModal &&
+    notificationDetailClose
+) {
+
+    notificationDetailClose.addEventListener(
+        "click",
+        () => {
+
+            notificationDetailModal.style.display =
+                "none";
+
+        }
+    );
+
+
+    notificationDetailModal.addEventListener(
+        "click",
+        (event) => {
+
+            if (
+                event.target ===
+                notificationDetailModal
+            ) {
+
+                notificationDetailModal.style.display =
+                    "none";
+
+            }
+
+        }
+    );
+
+}
       
         <header class="premium-header">
 
@@ -6037,6 +6303,12 @@ try {
 
         notificationBar.dataset.notificationId =
     String(latestNotification.id);
+
+    notificationBar.dataset.notificationTitle =
+    latestNotification.title || "Notificación";
+
+notificationBar.dataset.notificationMessage =
+    latestNotification.message || "";
 
     notificationTitle.textContent =
         latestNotification.title ||
@@ -9365,6 +9637,106 @@ if (notificationBar && notificationBarClose) {
         }
 
     });
+
+}
+
+/* =====================================================
+   ABRIR DETALLE DE LA NOTIFICACIÓN
+   ===================================================== */
+
+   if (notificationBar) {
+
+notificationBar.addEventListener(
+    "click",
+    (event) => {
+
+        /*
+         * Si el usuario pulsó la X,
+         * dejamos que funcione únicamente
+         * el cierre de la notificación.
+         */
+
+        if (
+            event.target.closest(
+                "#notification-bar-close"
+            )
+        ) {
+            return;
+        }
+
+
+        const title =
+            notificationBar.dataset
+                .notificationTitle ||
+            "Notificación";
+
+        const message =
+            notificationBar.dataset
+                .notificationMessage ||
+            "Tienes una nueva notificación.";
+
+
+        const detailModal =
+            document.getElementById(
+                "notification-detail-modal"
+            );
+
+        const detailIcon =
+            document.getElementById(
+                "notification-detail-icon"
+            );
+
+        const detailTitle =
+            document.getElementById(
+                "notification-detail-title"
+            );
+
+        const detailMessage =
+            document.getElementById(
+                "notification-detail-message"
+            );
+
+
+        if (
+            !detailModal ||
+            !detailTitle ||
+            !detailMessage
+        ) {
+
+            console.error(
+                "❌ No se encontró el modal de detalle de notificación."
+            );
+
+            return;
+
+        }
+
+
+        detailTitle.textContent =
+            title;
+
+        detailMessage.textContent =
+            message;
+
+
+        if (detailIcon) {
+
+            detailIcon.textContent =
+                "🔔";
+
+        }
+
+
+        detailModal.style.display =
+            "flex";
+
+
+        console.log(
+            "🔔 Detalle de notificación abierto."
+        );
+
+    }
+);
 
 }
 

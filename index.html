@@ -2557,6 +2557,140 @@ cursor:pointer;
 }
 
 /* =====================================================
+   CONFIGURACIÓN DE SONIDO DE NOTIFICACIONES
+   ===================================================== */
+
+   .notification-sound-card{
+    width:100%;
+    margin:16px 0 0;
+    padding:15px;
+
+    display:flex;
+    align-items:center;
+    gap:12px;
+
+    box-sizing:border-box;
+
+    border-radius:18px;
+
+    background:
+        linear-gradient(
+            135deg,
+            rgba(25,31,45,.98),
+            rgba(16,21,32,.98)
+        );
+
+    border:1px solid rgba(246,166,9,.18);
+
+    box-shadow:
+        0 8px 24px rgba(0,0,0,.20),
+        inset 0 1px 0 rgba(255,255,255,.04);
+}
+
+.notification-sound-icon{
+    flex:0 0 42px;
+
+    width:42px;
+    height:42px;
+
+    display:flex;
+    align-items:center;
+    justify-content:center;
+
+    border-radius:13px;
+
+    background:rgba(246,166,9,.10);
+
+    border:1px solid rgba(246,166,9,.18);
+
+    font-size:20px;
+}
+
+.notification-sound-info{
+    min-width:0;
+    flex:1;
+}
+
+.notification-sound-title{
+    color:#ffffff;
+
+    font-size:14px;
+    font-weight:800;
+
+    line-height:1.25;
+
+    margin-bottom:4px;
+}
+
+.notification-sound-description{
+    color:#9aa4b8;
+
+    font-size:11px;
+
+    line-height:1.4;
+}
+
+.notification-sound-button{
+    flex:0 0 auto;
+
+    min-width:86px;
+    height:38px;
+
+    padding:0 12px;
+
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:5px;
+
+    border:none;
+    border-radius:11px;
+
+    cursor:pointer;
+
+    color:#ffffff;
+
+    background:
+        linear-gradient(
+            135deg,
+            #f6a609,
+            #ffcc55
+        );
+
+    font-size:12px;
+    font-weight:800;
+
+    box-shadow:
+        0 5px 14px rgba(246,166,9,.20);
+
+    transition:
+        transform .15s ease,
+        opacity .15s ease,
+        background .15s ease;
+}
+
+.notification-sound-button:active{
+    transform:scale(.96);
+}
+
+.notification-sound-button.enabled{
+    background:
+        linear-gradient(
+            135deg,
+            #16a34a,
+            #22c55e
+        );
+
+    box-shadow:
+        0 5px 14px rgba(34,197,94,.18);
+}
+
+.notification-sound-button:disabled{
+    opacity:.65;
+    cursor:default;
+}
+
+/* =====================================================
    BARRA DE NOTIFICACIONES
    ===================================================== */
 
@@ -3011,6 +3145,50 @@ style="display:none;">
                     <div class="stat-box"><h5>Referidos Válidos</h5><p id="stat-referrals">0</p></div>
                     <div class="stat-box"><h5>Miembro Desde</h5><p id="stat-date">-</p></div>
                 </div>
+
+                <!-- =====================================================
+     CONFIGURACIÓN DE SONIDO DE NOTIFICACIONES
+     ===================================================== -->
+
+<div
+id="notification-sound-card"
+class="notification-sound-card">
+
+<div class="notification-sound-icon">
+    🔔
+</div>
+
+<div class="notification-sound-info">
+
+    <div class="notification-sound-title">
+        Sonido de notificaciones
+    </div>
+
+    <div class="notification-sound-description">
+        Activa un sonido cuando llegue una nueva notificación.
+    </div>
+
+</div>
+
+<button
+    id="btn-notification-sound"
+    class="notification-sound-button"
+    type="button"
+    aria-label="Activar sonido de notificaciones">
+
+    <span
+        id="notification-sound-button-icon">
+        🔕
+    </span>
+
+    <span
+        id="notification-sound-button-label">
+        Activar
+    </span>
+
+</button>
+
+</div>
                
 <div
     id="coupon-card"
@@ -5912,61 +6090,58 @@ notificationSound.preload = "auto";
 
 let notificationSoundUnlocked = false;
 
-
 /* =====================================================
-   DESBLOQUEAR AUDIO MEDIANTE INTERACCIÓN DEL USUARIO
+   ACTUALIZAR BOTÓN DE SONIDO
    ===================================================== */
 
-function unlockNotificationSound() {
+function updateNotificationSoundButton() {
 
-    if (notificationSoundUnlocked) {
+    const button =
+        document.getElementById(
+            "btn-notification-sound"
+        );
+
+    const icon =
+        document.getElementById(
+            "notification-sound-button-icon"
+        );
+
+    const label =
+        document.getElementById(
+            "notification-sound-button-label"
+        );
+
+    if (
+        !button ||
+        !icon ||
+        !label
+    ) {
         return;
     }
 
-    try {
+    if (notificationSoundUnlocked) {
 
-        notificationSound.volume = 0;
+        button.classList.add("enabled");
 
-        const playPromise =
-            notificationSound.play();
-
-        if (playPromise !== undefined) {
-
-            playPromise
-                .then(() => {
-
-                    notificationSound.pause();
-                    notificationSound.currentTime = 0;
-                    notificationSound.volume = 1;
-
-                    notificationSoundUnlocked = true;
-
-                    console.log(
-                        "🔊 Sonido de notificaciones desbloqueado."
-                    );
-
-                })
-                .catch((error) => {
-
-                    notificationSound.volume = 1;
-
-                    console.warn(
-                        "⚠️ No se pudo desbloquear el sonido:",
-                        error
-                    );
-
-                });
-
-        }
-
-    } catch (error) {
-
-        notificationSound.volume = 1;
-
-        console.warn(
-            "⚠️ Error desbloqueando sonido:",
-            error
+        button.setAttribute(
+            "aria-label",
+            "Desactivar sonido de notificaciones"
         );
+
+        icon.textContent = "🔔";
+        label.textContent = "Activado";
+
+    } else {
+
+        button.classList.remove("enabled");
+
+        button.setAttribute(
+            "aria-label",
+            "Activar sonido de notificaciones"
+        );
+
+        icon.textContent = "🔕";
+        label.textContent = "Activar";
 
     }
 
@@ -5974,17 +6149,129 @@ function unlockNotificationSound() {
 
 
 /* =====================================================
-   ESCUCHAR LA PRIMERA INTERACCIÓN DEL USUARIO
+   ACTIVAR SONIDO DESDE PERFIL
    ===================================================== */
 
-document.addEventListener(
-    "pointerdown",
-    unlockNotificationSound,
-    {
-        once: true,
-        passive: true
+async function enableNotificationSound() {
+
+    try {
+
+        notificationSound.volume = 1;
+        notificationSound.currentTime = 0;
+
+        /*
+         * MUY IMPORTANTE:
+         * play() se ejecuta directamente como consecuencia
+         * del click del botón de Perfil.
+         */
+
+        await notificationSound.play();
+
+        /*
+         * El sonido que acaba de reproducirse funciona
+         * como confirmación de que el audio quedó permitido.
+         */
+
+        notificationSound.pause();
+        notificationSound.currentTime = 0;
+
+        notificationSoundUnlocked = true;
+
+        updateNotificationSoundButton();
+
+        console.log(
+            "🔊 Sonido de notificaciones activado correctamente."
+        );
+
+        return true;
+
+    } catch (error) {
+
+        notificationSoundUnlocked = false;
+
+        updateNotificationSoundButton();
+
+        console.error(
+            "❌ No fue posible activar el sonido de notificaciones:",
+            error
+        );
+
+        return false;
+
     }
-);
+
+}
+
+
+/* =====================================================
+   DESACTIVAR SONIDO
+   ===================================================== */
+
+function disableNotificationSound() {
+
+    notificationSoundUnlocked = false;
+
+    notificationSound.pause();
+    notificationSound.currentTime = 0;
+
+    updateNotificationSoundButton();
+
+    console.log(
+        "🔇 Sonido de notificaciones desactivado."
+    );
+
+}
+
+
+/* =====================================================
+   BOTÓN DE SONIDO EN PERFIL
+   ===================================================== */
+
+const notificationSoundButton =
+    document.getElementById(
+        "btn-notification-sound"
+    );
+
+if (notificationSoundButton) {
+
+    notificationSoundButton.addEventListener(
+        "click",
+        async () => {
+
+            if (notificationSoundUnlocked) {
+
+                disableNotificationSound();
+
+                return;
+
+            }
+
+            notificationSoundButton.disabled = true;
+
+            const enabled =
+                await enableNotificationSound();
+
+            notificationSoundButton.disabled = false;
+
+            if (!enabled) {
+
+                console.warn(
+                    "⚠️ El navegador/WebView no permitió activar el sonido."
+                );
+
+            }
+
+        }
+    );
+
+}
+
+
+/* =====================================================
+   ESTADO INICIAL DEL BOTÓN
+   ===================================================== */
+
+updateNotificationSoundButton();
 
 
 /* =====================================================
